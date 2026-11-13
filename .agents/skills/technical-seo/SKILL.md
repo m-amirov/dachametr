@@ -12,3 +12,10 @@ description: "Use for site architecture, canonical URLs, indexing, metadata, sit
 6. Test actual performance and summarize lab vs field metrics. Indexability is not proof of indexation, and indexing is not proof of rankings.
 7. Record live tools, URLs, dates and evidence; if no Webmaster/Search Console access, mark those checks BLOCKED.
 Exit: documented technical readiness for implemented routes, without made-up performance or traffic evidence.
+
+## Gate-aware and rendered-HTML checks
+- Verify **built**, not theoretical HTML: HTTP 200/404 behavior, title/H1, canonical absolute URL, robots/noindex on staging, sitemap entries, internal links and JS-disabled explanatory shell as appropriate.
+- Each calculator keeps one canonical route. Parameters/results in shareable URL must not generate indexable duplicates or expose user values via analytics; fragment/query handling is specification-dependent.
+- On every route/metadata change compare sitemap, redirects, robots and canonical to baseline, including RU text UTF-8, valid JSON-LD and real form accessibility.
+- Wordstat demand and SERP presence are not evidence the site will rank; before public launch actual indexation and CTR are `NOT RUN`, not FAILURE of user job. No unverified rating/reviews/FAQ rich-result promises.
+- No public DNS, SEO submissions, tracking or ads without owner approval and release-readiness. Run SEO tests on actual preview output once app exists.

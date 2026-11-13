@@ -11,3 +11,9 @@ description: "Use for creating original brand identity, visual references, compo
 5. Develop one vertical slice with complete empty/error/result and desktop/mobile states before extending templates.
 6. Critique real browser screenshots and improve defects; code, design mockup and passing build do not count as rendered visual review.
 Exit: design rationale, tokens, real screenshot evidence, explicit remaining issues.
+
+## Baseline preservation (prior game UI regressions)
+- Before editing an existing screen capture original visual state, approved fonts, image IDs, crop policy and colors. No wholesale redesign or replacement with a generic AI style unless explicitly requested and approved.
+- Font loading and Cyrillic glyph coverage are acceptance criteria; avoid switching to fallback without independent before/after browser review. Asset rights and deterministic processing matter more than a “modern” visual refresh.
+- On project diagrams, preserve actual physical meaning: crop/contain/cover should never conceal formula-relevant elements. No forced blur-fill, stretched screenshots or fabricated visual measurements.
+- Include tablet layouts 768/1024 and result/error/empty state; 320/390/1440 checks alone leave a gap. Screenshots from current SHA only; route to `change-review` on substantial visual diffs.
