@@ -41,3 +41,10 @@
 - [Обзор внешних навыков](docs/external-skills-review.md)
 
 CI подготовительного репозитория проверяет структуру и данные. Реальные unit/browser/device/a11y/SEO/performance gates потребуют работающего приложения и отдельной авторизации.
+
+## Предлагаемый первый вертикальный срез
+- [Техническая спецификация](docs/specs/plot-zones-materials-v0.md) — DRAFT/NOT APPROVED
+- [Эталонные тест-кейсы](docs/specs/plot-zones-materials-cases.json) — математика и границы
+- [Дизайн-бриф](docs/specs/prototype-design-brief.md) — предложения, не принятие
+
+Эти документы не означают Prototype Gate GO и не авторизуют создание приложения.
