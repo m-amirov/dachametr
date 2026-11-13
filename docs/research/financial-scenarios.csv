@@ -1,7 +1,7 @@
 row_type,scenario,target_net_rub,rpm_rub,live_pages,clusters_per_page,impressions_per_mature_page,indexed_share,ctr,views_per_visit,monthly_sessions,monthly_pageviews,pageviews_per_mature_page,gross_revenue_rub,tax_rate,fixed_costs_rub,net_revenue_rub,pages_required,clusters_required,assumption_basis
 scenario_projection,conservative,,50,25,1,1200,0.6,0.04,1.3,725,950,38,48,0.06,10000,-9955,25,25,"Плановая модель, не измеренный трафик; RPM задан пользователем как диапазон сценария."
 scenario_projection,conservative,,100,25,1,1200,0.6,0.04,1.3,725,950,38,95,0.06,10000,-9911,25,25,"Плановая модель, не измеренный трафик; RPM задан пользователем как диапазон сценария."
-scenario_projection,conservative,,150,25,1,1200,0.6,0.04,1.3,725,950,38,142,0.06,10000,-9866,25,25,"Плановая модель, не измеренный трафик; RPM задан пользователем как диапазон сценария."
+scenario_projection,conservative,,150,25,1,1200,0.6,0.04,1.3,725,950,38,143,0.06,10000,-9866,25,25,"Плановая модель, не измеренный трафик; RPM задан пользователем как диапазон сценария."
 scenario_projection,conservative,,200,25,1,1200,0.6,0.04,1.3,725,950,38,190,0.06,10000,-9821,25,25,"Плановая модель, не измеренный трафик; RPM задан пользователем как диапазон сценария."
 scenario_projection,base,,50,40,1,4000,0.75,0.08,1.5,9600,14400,360,720,0.06,10000,-9323,40,40,"Плановая модель, не измеренный трафик; RPM задан пользователем как диапазон сценария."
 scenario_projection,base,,100,40,1,4000,0.75,0.08,1.5,9600,14400,360,1440,0.06,10000,-8646,40,40,"Плановая модель, не измеренный трафик; RPM задан пользователем как диапазон сценария."

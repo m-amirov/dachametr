@@ -78,5 +78,16 @@ class ResearchValidatorTests(unittest.TestCase):
         path.write_text(text.replace("**ИТОГ: BLOCKED", "**ИТОГ: GO"), encoding="utf-8")
         self.assertTrue(any("cannot be GO" in e for e in module.check(self.root)))
 
+    def test_financial_arithmetic_mismatch_is_rejected(self):
+        path = self.root / "docs/research/financial-scenarios.csv"
+        with path.open(encoding="utf-8", newline="") as fh:
+            rows = list(csv.DictReader(fh))
+        rows[2]["net_revenue_rub"] = "-9867"
+        with path.open("w", encoding="utf-8", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=rows[0].keys())
+            writer.writeheader()
+            writer.writerows(rows)
+        self.assertTrue(any("net arithmetic mismatch" in e for e in module.check(self.root)))
+
 if __name__ == "__main__":
     unittest.main()

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from datetime import date
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 import csv
 import re
@@ -35,6 +36,9 @@ def valid_date(value: str) -> bool:
         return True
     except ValueError:
         return False
+
+def rounded_rub(value: Decimal) -> int:
+    return int(value.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
 
 def check(root: Path) -> list[str]:
     errors = []
@@ -129,6 +133,24 @@ def check(root: Path) -> list[str]:
                     valid_url(row["source_url"]), row["source_file"].strip(),
                     re.fullmatch(r"\d+", row["frequency"].strip() or "")]):
             errors.append(f"wordstat-dynamics.csv:{i} missing provenance or invalid frequency")
+    financial = table(root, base + "financial-scenarios.csv",
+        {"monthly_pageviews", "rpm_rub", "gross_revenue_rub", "tax_rate",
+         "fixed_costs_rub", "net_revenue_rub"}, errors)
+    for i, row in enumerate(financial, start=2):
+        try:
+            pageviews = Decimal(row["monthly_pageviews"])
+            rpm = Decimal(row["rpm_rub"])
+            gross = rounded_rub(pageviews * rpm / Decimal("1000"))
+            expected_net = rounded_rub(
+                Decimal(gross) * (Decimal("1") - Decimal(row["tax_rate"]))
+                - Decimal(row["fixed_costs_rub"])
+            )
+            if int(row["gross_revenue_rub"]) != gross:
+                errors.append(f"financial-scenarios.csv:{i} gross arithmetic mismatch")
+            if int(row["net_revenue_rub"]) != expected_net:
+                errors.append(f"financial-scenarios.csv:{i} net arithmetic mismatch")
+        except (InvalidOperation, TypeError, ValueError):
+            errors.append(f"financial-scenarios.csv:{i} invalid numeric assumption")
     decision_path = root / base / "gate-1-decision.md"
     if not decision_path.is_file():
         errors.append("missing Gate 1 decision")
