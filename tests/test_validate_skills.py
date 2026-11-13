@@ -36,5 +36,43 @@ class ValidatorTests(unittest.TestCase):
             self.assertTrue(any("must match directory" in e for e in errors))
             self.assertTrue(any("description" in e for e in errors))
 
+    def test_required_skill_cannot_silently_disappear(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copytree(ROOT / ".agents", root / ".agents")
+            for rel in module.REQUIRED_DOCS:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes((ROOT / rel).read_bytes())
+            shutil.rmtree(root / ".agents" / "skills" / "research-data-integrity")
+            errors = module.check(root)
+            self.assertTrue(any("missing required skill: research-data-integrity" in e for e in errors))
+
+    def test_replacement_character_in_skill_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copytree(ROOT / ".agents", root / ".agents")
+            for rel in module.REQUIRED_DOCS:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes((ROOT / rel).read_bytes())
+            path = root / ".agents/skills/calculator-ux/SKILL.md"
+            path.write_text(path.read_text(encoding="utf-8") + chr(10) + chr(0xFFFD), encoding="utf-8")
+            errors = module.check(root)
+            self.assertTrue(any("replacement character U+FFFD" in e for e in errors))
+
+    def test_nonrequired_document_corruption_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copytree(ROOT / ".agents", root / ".agents")
+            for rel in module.REQUIRED_DOCS:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes((ROOT / rel).read_bytes())
+            doc = root / "docs" / "optional-note.md"
+            doc.write_text("невидимая порча: " + chr(0xFFFD), encoding="utf-8")
+            errors = module.check(root)
+            self.assertTrue(any("replacement character U+FFFD in document: docs/optional-note.md" in e for e in errors))
+
 if __name__ == "__main__":
     unittest.main()

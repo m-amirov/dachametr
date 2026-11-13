@@ -22,3 +22,7 @@
 При необходимости проверить точную версию/commit, лицензию, весь SKILL.md, скрипты, сеть, полномочия, зависимости и конфликт с AGENTS. Приоритетный shortlist: React/Next performance, browser testing (Playwright), accessible forms, structured data, technical SEO, frontend-security. Рейтинги каталога — не гарантия безопасного исполнения и корректности методики.
 
 Рекомендация OpenAI: держать AGENTS коротким, а навыки конкретными по задачам: https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra
+
+## Повторный обзор каталога 13.11.2026
+См. [обзор разделов и карточек](external-skills-review.md): Codex, Development, Frontend, Testing, Design, Product. Из карточек полезны направления @affaan-m/react-testing, frontend-a11y, react-performance, seo и @obra/writing-skills. Изучены **описания** на сайте, а не полные исходники SKILL.md; сторонние скрипты и `/learn` не устанавливались. Quality/security score — неподтверждённое нами утверждение каталога, не security-аудит.
+Добавлены локальные `research-data-integrity`, `interaction-reliability`, `change-review` как ответ на реестр `docs/cross-project-regressions.md`.

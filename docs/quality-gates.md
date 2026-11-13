@@ -1,21 +1,29 @@
-# Матрица качества и релизные проверки
+# Матрица доказательных gates
 
-Статусы: PASS (реальные доказательства), FAIL (наблюдаемый дефект), BLOCKED (нет возможности проверить), N/A (обоснованно неприменимо). **Не подменять BLOCKED на PASS.**
+## Семантика
+`PASS` — реально выполненная проверка с результатом на exact SHA; `FAIL` — наблюдаемый дефект; `BLOCKED` — нет возможности проверить; `NOT RUN` — проверка ещё не запускалась; `N/A` — явно неприменима. **Не подменять BLOCKED/NOT RUN на PASS.** Структурный CI проверяет документы и исследования, но не browser UI.
 
-| Gate | Нужное доказательство | Когда обязателен |
+| Gate | Требуемое доказательство | Текущий статус |
 | --- | --- | --- |
-| 0: подготовка | Skill manifests, docs, validator + тесты | Сейчас |
-| 1: поисковая ниша | Wordstat, SERP, уникальные задачи, принятое GO | До создания приложения |
-| 2: модели расчёта | Утверждённая спецификация, реальные нормы, размерности, независимые примеры | До публикации каждого калькулятора |
-| 3: engineering | typecheck/lint/unit/integration/build реального проекта и регрессии багов | PR с кодом |
-| 4: visual/UX/a11y | Текущий browser render и screenshots 320/390/768/1440, ошибки и итог, tab/zoom, автоматические a11y-проверки | PR с UI |
-| 5: technical SEO | Фактический HTML, canonical/robots/sitemap, ссылки, корректные metadata/status/schema, отсутствие дублей | SEO-релиз |
-| 6: performance | Lighthouse lab + при появлении аудитории field CWV, bundle/image analysis | Релиз |
-| 7: security/rights | Приватность, отсутствие секретов, зависимости/лицензии, внешние скрипты | Релиз |
-| 8: production release | Разрешение владельца, TLS/DNS, smoke на live build, rollback | Объявление релиза |
+| G0 preparation | Правила/skills, provenance, validator и unit tests | PASS в пределах опубликованного docs CI; новые изменения требуют своего CI |
+| G1 market feasibility | Измеренный спрос, конкуренты, SERP/регион/device, Webmaster competition, user jobs и честный вывод | BLOCKED; `docs/research/gate-1-decision.md` |
+| GP prototype authorization | Явное решение владельца на один локальный vertical slice, scope, spec, stop-lines | NOT AUTHORIZED |
+| G2 formula correctness | Independently derived golden numbers, units, bounds, source/assumptions, rounding | NOT RUN |
+| G3 code engineering | Exact SHA, lockfile/runtime, lint, typecheck, unit/component/integration/build/security | NOT RUN |
+| G4 real browser/visual/a11y | Screenshots 320/390/768/1024/1440, current URL/SHA/browser/state; focus/keyboard/zoom/touch; asset/font/network errors | NOT RUN |
+| G4 physical device | Реальный mobile/tablet для critical workflows; desktop emulation отмечать отдельно | BLOCKED_DEVICE если физическая платформа недоступна |
+| G5 technical SEO | Фактический HTML/status, title/H1/canonical/query URL, robots/sitemap, duplicate routes, mobile parity | NOT RUN |
+| G6 performance | Lighthouse lab текущей сборки, JS/image/font budget; field CWV позже | NOT RUN |
+| G7 privacy/security/assets | URL/JSON/XSS security, secrets/PII, CSP/dependency rights, font/image integrity | NOT RUN |
+| G8 staging/production | Owner permission, deployed exact SHA, smoke, TLS/DNS, rollback, indexing/ads decision | NOT AUTHORIZED |
+| G9 post-launch evidence | Реальная индексация, impressions, clicks/CTR, organic sessions, RPM/расходы | N/A до запуска |
 
-Ориентиры для field CWV при наличии статистически достаточной выборки: LCP <=2.5s, INP <=200ms, CLS <=0.1 на 75-м перцентиле. Lighthouse не доказывает field performance. Пока нет приложения, gates 2–8 являются будущими, а не успешно пройденными.
+Field CWV при достаточной выборке: LCP <=2.5s, INP <=200ms, CLS <=0.1 на p75. Lab Lighthouse не доказывает field performance и SEO позиции. Нельзя требовать настоящий Page RPM нового домена как pre-launch доказательство рыночного спроса.
 
-## Отчёт Codex
-Указывать ветку и commit SHA, файлы, конкретные изменения; каждому gate — команду/действие, exit code, лог или screenshot URL, PASS/FAIL/BLOCKED/N/A. Для багов: root cause и regression RED/GREEN. Для UX — viewport/browser/state. Для SERP — даты и реальные источники.
-Нельзя ослаблять CI, исключать критические тесты или скрывать BLOCKED ради успешного релиза.
+## Severity, review и release
+- P0: high-impact неверная формула, потеря состояния, security/privacy, несанкционированный production release.
+- P1: неправильное округление упаковок, критический UI на touch/keyboard, исчезновение шрифтов/картинок, ошибочный canonical/noindex.
+- P2: косметический дрейф, слабые вторичные подписи, некритическая производительность.
+- Для docs-only PR G2–G9 = N/A/NOT RUN, но **не PASS**. Для UI PR G4 обязателен на проверенных сценариях; отсутствие физического устройства допускает только `BLOCKED_DEVICE` (не ложный PASS).
+- Нельзя скрывать P0/P1, ослаблять CI, переписывать эталон под buggy observed, заявлять release ready при недостающих mandatory gates.
+- Каждый PR: exact branch/base/HEAD, changed files, commands и exit code, screenshots/logs/links на тот же SHA, RED→GREEN root cause по дефекту, FAIL/BLOCKED/NOT RUN и owner authorizations.

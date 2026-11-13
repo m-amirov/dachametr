@@ -15,3 +15,15 @@
 ## Протокол
 На каждый P0/P1 записать URL/commit, браузер, viewport/DPR, screenshot-path, reproduction, expected-vs-observed, severity, решение. Не «улучшать» стиль по абстрактному вкусу без связи с заданием пользователя.
 Результат: PASS при наличии визуальных доказательств и отсутствии блокирующих дефектов; FAIL при наблюдённом блокере; BLOCKED при невозможности захватить текущий рендер. Автоматизированная accessibility-проверка не заменяет ручной keyboard-проход.
+
+## Дополнительные регрессионные проверки
+| Риск | Проверка |
+| --- | --- |
+| Типографика | Browser rendered font, Cyrillic glyphs, 404/font MIME, fallback и line-wrap vs approved baseline |
+| Ассеты | Image decode/naturalWidth, 404, contain/cover ratio, отсутствие unreadable blur |
+| Планшет | 768/1024 и реальный touch/soft keyboard/scroll/landscape, видимость результата |
+| Скрытый редизайн | Screenshot до/после + объяснение всех существенных отклонений |
+| Форма и lifecycle | Сохранение на `1,`, back/refresh, focus/caret, share URL parse errors |
+| Аудит | axe и Lighthouse — дополнительные lab сигналы, не подмена manual keyboard/browser |
+
+Эмуляция desktop не является физическим Huawei/Yandex Browser или другим устройством. При отсутствии устройства честный `BLOCKED_DEVICE` на соответствующий gate.
