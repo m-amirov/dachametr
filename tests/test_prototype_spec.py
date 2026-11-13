@@ -244,7 +244,7 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
                                  reordered["zones_area_sum_m2"])
                 by_key = lambda result: {
                     (x["material"], x["package_l"], x["density_kg_m3"]):
-                    (x["net_l"], x["purchase_l"], x["packages"], x["mass_kg"])
+                    (x["net_l"], x["purchase_l"], x["packages"], x["mass_required_kg"], x["packed_volume_l"], x["surplus_l"], x["mass_purchased_kg"])
                     for x in result["bom"]
                 }
                 self.assertEqual(by_key(original), by_key(reordered))
