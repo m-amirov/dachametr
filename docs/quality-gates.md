@@ -7,7 +7,7 @@
 | --- | --- | --- |
 | G0 preparation | Правила/skills, provenance, validator и unit tests | PASS в пределах опубликованного docs CI; новые изменения требуют своего CI |
 | G1 market feasibility | Измеренный спрос, конкуренты, SERP/регион/device, Webmaster competition, user jobs и честный вывод | BLOCKED; `docs/research/gate-1-decision.md` |
-| GP prototype authorization | Явное решение владельца на один локальный vertical slice, scope, spec, stop-lines | NOT AUTHORIZED |
+| GP prototype authorization | Явное решение владельца на один локальный vertical slice, scope, spec, stop-lines | AUTHORIZED_LOCAL_ONLY; `docs/decisions.md` и `docs/prototype/local-vertical-slice.md`; не разрешает production |
 | G2 formula correctness | Independently derived golden numbers, units, bounds, source/assumptions, rounding | NOT RUN |
 | G3 code engineering | Exact SHA, lockfile/runtime, lint, typecheck, unit/component/integration/build/security | NOT RUN |
 | G4 real browser/visual/a11y | Screenshots 320/390/768/1024/1440, current URL/SHA/browser/state; focus/keyboard/zoom/touch; asset/font/network errors | NOT RUN |
@@ -15,7 +15,7 @@
 | G5 technical SEO | Фактический HTML/status, title/H1/canonical/query URL, robots/sitemap, duplicate routes, mobile parity | NOT RUN |
 | G6 performance | Lighthouse lab текущей сборки, JS/image/font budget; field CWV позже | NOT RUN |
 | G7 privacy/security/assets | URL/JSON/XSS security, secrets/PII, CSP/dependency rights, font/image integrity | NOT RUN |
-| G8 staging/production | Owner permission, deployed exact SHA, smoke, TLS/DNS, rollback, indexing/ads decision | NOT AUTHORIZED |
+| G8 staging/production | Owner permission, deployed exact SHA, smoke, TLS/DNS, rollback, indexing/ads decision | NOT AUTHORIZED (локальный GP не разрешает staging/production) |
 | G9 post-launch evidence | Реальная индексация, impressions, clicks/CTR, organic sessions, RPM/расходы | N/A до запуска |
 
 Field CWV при достаточной выборке: LCP <=2.5s, INP <=200ms, CLS <=0.1 на p75. Lab Lighthouse не доказывает field performance и SEO позиции. Нельзя требовать настоящий Page RPM нового домена как pre-launch доказательство рыночного спроса.
