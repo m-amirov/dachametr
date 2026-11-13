@@ -41,8 +41,24 @@ export interface Calculated {
   areas_exceed_plot: boolean;
   bom: BomRow[];
 }
-export type CalcResult =
-  | { ok: true; value: Calculated }
+export interface ZoneLayerBreakdown {
+  id: string;
+  material_spec_id: string;
+  material_spec_label: string;
+  net_l: string;
+  purchase_l: string;
+  mass_required_kg: string | null;
+}
+export interface ZoneBreakdown {
+  id: string;
+  area_m2: string;
+  layers: ZoneLayerBreakdown[];
+}
+export interface DetailedCalculated extends Calculated {
+  zones: ZoneBreakdown[];
+}
+export type CalcResult<T = Calculated> =
+  | { ok: true; value: T }
   | { ok: false; error: { code: string; path: string } };
 
 const IDENTIFIER = /^[A-Za-z0-9_-]{1,64}$/;
@@ -104,8 +120,8 @@ interface Working {
   purchase: Exact;
 }
 
-/** Calculates the complete purchase report or fails without emitting partial BOM. */
-export function calculatePlot(input: unknown): CalcResult {
+/** Calculates the complete report and exact per-zone breakdown or fails closed. */
+export function calculatePlotDetailed(input: unknown): CalcResult<DetailedCalculated> {
   try {
     const top = record(input, "$input");
     const plot = record(top.plot, "plot");
@@ -116,6 +132,7 @@ export function calculatePlot(input: unknown): CalcResult {
     const zones = new Set<string>();
     const specs = new Map<string, { material: Material; label: string }>();
     const groups = new Map<string, Working>();
+    const zoneBreakdown: ZoneBreakdown[] = [];
     let sumArea = ZERO;
     for (const [zi, maybeZone] of top.zones.entries()) {
       const where = `zones[${zi}]`;
@@ -129,6 +146,7 @@ export function calculatePlot(input: unknown): CalcResult {
       const width = number(zone.width_m, `${where}.width_m`, ZERO, LEN_MAX, false);
       const area = length.multiply(width);
       sumArea = sumArea.add(area);
+      const layerBreakdown: ZoneLayerBreakdown[] = [];
       const layerIds = new Set<string>();
       for (const [li, maybeLayer] of zone.layers.entries()) {
         const lp = `${where}.layers[${li}]`;
@@ -156,6 +174,15 @@ export function calculatePlot(input: unknown): CalcResult {
         // m² * cm / 100 * 1000 => liters; no intermediate display rounding.
         const net = area.multiply(thick).multiply(Exact.decimal("10"));
         const purchase = net.multiply(ONE.add(reserve.divide(HUNDRED)));
+        const requiredMass = density === null ? null : purchase.multiply(density).divide(THOUSAND);
+        layerBreakdown.push({
+          id: layerId,
+          material_spec_id: specId,
+          material_spec_label: trimmed,
+          net_l: net.toString(),
+          purchase_l: purchase.toString(),
+          mass_required_kg: requiredMass?.toString() ?? null,
+        });
         const key = JSON.stringify([specId, material, pack?.toString() ?? null, density?.toString() ?? null]);
         const prev = groups.get(key);
         if (prev) {
@@ -163,6 +190,7 @@ export function calculatePlot(input: unknown): CalcResult {
           prev.purchase = prev.purchase.add(purchase);
         } else groups.set(key, { material, material_spec_id: specId, material_spec_label: trimmed, package: pack, density, net, purchase });
       }
+      zoneBreakdown.push({ id: zoneId, area_m2: area.toString(), layers: layerBreakdown });
     }
     const bom: BomRow[] = [];
     for (const x of groups.values()) {
@@ -187,9 +215,26 @@ export function calculatePlot(input: unknown): CalcResult {
         mass_purchased_kg: purchasedMass?.toString() ?? null,
       });
     }
-    return { ok: true, value: { plot_area_m2: plotArea.toString(), zones_area_sum_m2: sumArea.toString(), areas_exceed_plot: sumArea.compare(plotArea) > 0, bom } };
+    return {
+      ok: true,
+      value: {
+        plot_area_m2: plotArea.toString(),
+        zones_area_sum_m2: sumArea.toString(),
+        areas_exceed_plot: sumArea.compare(plotArea) > 0,
+        bom,
+        zones: zoneBreakdown,
+      },
+    };
   } catch (err) {
     if (err instanceof DomainError) return { ok: false, error: { code: err.code, path: err.path } };
     throw err;
   }
+}
+
+/** Backward-compatible summary API used by the existing golden fixtures. */
+export function calculatePlot(input: unknown): CalcResult {
+  const detailed = calculatePlotDetailed(input);
+  if (!detailed.ok) return detailed;
+  const { zones: _zones, ...summary } = detailed.value;
+  return { ok: true, value: summary };
 }
