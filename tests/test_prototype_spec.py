@@ -121,9 +121,16 @@ def reference_case(case):
             None if package is None else
             int((purchase_l / package).to_integral_value(rounding=ROUND_CEILING))
         )
-        mass_kg = (
+        mass_required_kg = (
             None if density is None else
             purchase_l / Decimal(1000) * density
+        )
+        packed_volume_l = None if packages is None else package * packages
+        surplus_l = None if packed_volume_l is None else packed_volume_l - purchase_l
+        mass_purchased_kg = (
+            None if density is None else
+            ((packed_volume_l if packed_volume_l is not None else purchase_l)
+             / Decimal(1000) * density)
         )
         bom.append({
             "material": material,
@@ -132,7 +139,10 @@ def reference_case(case):
             "net_l": volumes["net_l"],
             "purchase_l": purchase_l,
             "packages": packages,
-            "mass_kg": mass_kg,
+            "mass_required_kg": mass_required_kg,
+            "packed_volume_l": packed_volume_l,
+            "surplus_l": surplus_l,
+            "mass_purchased_kg": mass_purchased_kg,
         })
 
     return {
@@ -147,7 +157,7 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
     def test_reference_values_are_independently_consistent(self):
         data = read_fixtures()
         self.assertEqual(data["schema_version"], "draft-0.1")
-        self.assertEqual(len(data["valid_cases"]), 14)
+        self.assertEqual(len(data["valid_cases"]), 15)
         for case in data["valid_cases"]:
             with self.subTest(case=case["id"]):
                 actual = reference_case(case)
@@ -170,10 +180,12 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
                     self.assertEqual(got["net_l"], Decimal(want["net_l"]))
                     self.assertEqual(got["purchase_l"], Decimal(want["purchase_l"]))
                     self.assertEqual(got["packages"], want["packages"])
-                    self.assertEqual(
-                        got["mass_kg"], None if want["mass_kg"] is None
-                        else Decimal(want["mass_kg"])
-                    )
+                    for field in ("mass_required_kg", "packed_volume_l",
+                                  "surplus_l", "mass_purchased_kg"):
+                        self.assertEqual(
+                            got[field], None if want[field] is None
+                            else Decimal(want[field]), field
+                        )
 
     def test_invalid_model_cases_are_rejected(self):
         cases = read_fixtures()["invalid_model_cases"]
@@ -235,6 +247,15 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
             bad.write_text('{"broken": "' + chr(0xFFFD) + '"}', encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "U\\+FFFD"):
                 read_fixtures(bad)
+
+    def test_required_vs_actual_packaged_mass_differ(self):
+        case = next(c for c in read_fixtures()["valid_cases"]
+                    if c["id"] == "packed-density-vs-demand")
+        actual = reference_case(case)["bom"][0]
+        self.assertEqual(actual["mass_required_kg"], Decimal("100"))
+        self.assertEqual(actual["packed_volume_l"], Decimal("120"))
+        self.assertEqual(actual["surplus_l"], Decimal("20"))
+        self.assertEqual(actual["mass_purchased_kg"], Decimal("120"))
 
     def test_tenths_are_not_inflated_by_float_rounding(self):
         case = next(c for c in read_fixtures()["valid_cases"]

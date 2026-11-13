@@ -39,7 +39,10 @@
             "net_l": "2000",
             "purchase_l": "2000",
             "packages": 40,
-            "mass_kg": null
+            "mass_required_kg": null,
+            "packed_volume_l": "2000",
+            "surplus_l": "0",
+            "mass_purchased_kg": null
           }
         ]
       }
@@ -95,7 +98,10 @@
             "net_l": "120",
             "purchase_l": "120",
             "packages": 3,
-            "mass_kg": null
+            "mass_required_kg": null,
+            "packed_volume_l": "150",
+            "surplus_l": "30",
+            "mass_purchased_kg": null
           }
         ]
       }
@@ -144,7 +150,10 @@
             "net_l": "1000",
             "purchase_l": "1050",
             "packages": null,
-            "mass_kg": "1575"
+            "mass_required_kg": "1575",
+            "packed_volume_l": null,
+            "surplus_l": null,
+            "mass_purchased_kg": "1575"
           },
           {
             "material": "gravel",
@@ -153,7 +162,10 @@
             "net_l": "500",
             "purchase_l": "550",
             "packages": null,
-            "mass_kg": "770"
+            "mass_required_kg": "770",
+            "packed_volume_l": null,
+            "surplus_l": null,
+            "mass_purchased_kg": "770"
           }
         ]
       }
@@ -194,7 +206,10 @@
             "net_l": "22.5",
             "purchase_l": "24.75",
             "packages": 3,
-            "mass_kg": null
+            "mass_required_kg": null,
+            "packed_volume_l": "30",
+            "surplus_l": "5.25",
+            "mass_purchased_kg": null
           }
         ]
       }
@@ -235,7 +250,10 @@
             "net_l": "50",
             "purchase_l": "50",
             "packages": 1,
-            "mass_kg": null
+            "mass_required_kg": null,
+            "packed_volume_l": "50",
+            "surplus_l": "0",
+            "mass_purchased_kg": null
           }
         ]
       }
@@ -276,7 +294,10 @@
             "net_l": "49.999",
             "purchase_l": "49.999",
             "packages": 1,
-            "mass_kg": null
+            "mass_required_kg": null,
+            "packed_volume_l": "50",
+            "surplus_l": "0.001",
+            "mass_purchased_kg": null
           }
         ]
       }
@@ -317,7 +338,10 @@
             "net_l": "50.001",
             "purchase_l": "50.001",
             "packages": 2,
-            "mass_kg": null
+            "mass_required_kg": null,
+            "packed_volume_l": "100",
+            "surplus_l": "49.999",
+            "mass_purchased_kg": null
           }
         ]
       }
@@ -403,7 +427,10 @@
             "net_l": "50",
             "purchase_l": "50",
             "packages": 1,
-            "mass_kg": null
+            "mass_required_kg": null,
+            "packed_volume_l": "50",
+            "surplus_l": "0",
+            "mass_purchased_kg": null
           },
           {
             "material": "soil",
@@ -412,7 +439,10 @@
             "net_l": "50",
             "purchase_l": "50",
             "packages": 3,
-            "mass_kg": null
+            "mass_required_kg": null,
+            "packed_volume_l": "60",
+            "surplus_l": "10",
+            "mass_purchased_kg": null
           }
         ]
       }
@@ -461,7 +491,10 @@
             "net_l": "100",
             "purchase_l": "100",
             "packages": null,
-            "mass_kg": "120"
+            "mass_required_kg": "120",
+            "packed_volume_l": null,
+            "surplus_l": null,
+            "mass_purchased_kg": "120"
           },
           {
             "material": "gravel",
@@ -470,7 +503,10 @@
             "net_l": "100",
             "purchase_l": "100",
             "packages": null,
-            "mass_kg": null
+            "mass_required_kg": null,
+            "packed_volume_l": null,
+            "surplus_l": null,
+            "mass_purchased_kg": null
           }
         ]
       }
@@ -541,7 +577,10 @@
             "net_l": "0.3",
             "purchase_l": "0.3",
             "packages": 1,
-            "mass_kg": null
+            "mass_required_kg": null,
+            "packed_volume_l": "0.3",
+            "surplus_l": "0",
+            "mass_purchased_kg": null
           }
         ]
       }
@@ -597,7 +636,10 @@
             "net_l": "120",
             "purchase_l": "126",
             "packages": 3,
-            "mass_kg": null
+            "mass_required_kg": null,
+            "packed_volume_l": "150",
+            "surplus_l": "24",
+            "mass_purchased_kg": null
           }
         ]
       }
@@ -653,7 +695,54 @@
             "net_l": "100",
             "purchase_l": "100",
             "packages": null,
-            "mass_kg": "150"
+            "mass_required_kg": "150",
+            "packed_volume_l": null,
+            "surplus_l": null,
+            "mass_purchased_kg": "150"
+          }
+        ]
+      }
+    },
+    {
+      "id": "packed-density-vs-demand",
+      "description": "100L required in 60L bags means 120L purchased and heavier procurement than demanded volume",
+      "plot": {
+        "length_m": "3",
+        "width_m": "3"
+      },
+      "zones": [
+        {
+          "id": "bed",
+          "length_m": "1",
+          "width_m": "1",
+          "layers": [
+            {
+              "id": "bed-layer-1",
+              "material": "soil",
+              "thickness_cm": "10",
+              "reserve_percent": "0",
+              "package_l": "60",
+              "density_kg_m3": "1000"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "plot_area_m2": "9",
+        "zones_area_sum_m2": "1",
+        "areas_exceed_plot": false,
+        "bom": [
+          {
+            "material": "soil",
+            "package_l": "60",
+            "density_kg_m3": "1000",
+            "net_l": "100",
+            "purchase_l": "100",
+            "packages": 2,
+            "mass_required_kg": "100",
+            "packed_volume_l": "120",
+            "surplus_l": "20",
+            "mass_purchased_kg": "120"
           }
         ]
       }
