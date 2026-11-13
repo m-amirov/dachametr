@@ -8,10 +8,11 @@
 | 2026-11-13 | WORKING DIRECTION | Русскоязычные калькуляторы для сада/участка с органическим поисковым трафиком |
 | 2026-11-13 | PROPOSAL | Next.js + TypeScript, SSG, чистые расчёты, без БД и аккаунтов в MVP |
 | 2026-11-13 | BLOCKED | Gate 1 — PR #2 содержит 80 числовых Wordstat-наблюдений и 23 месяца динамики; нет Webmaster demand/clicks/competition, региональных и mobile SERP; см. docs/research/gate-1-decision.md |
+| 2026-11-13 | AUTHORIZED_LOCAL_ONLY | Владелец продолжил работу после прямого предложения ограниченного Prototype Gate: разрешён один локальный срез «участок → зоны → грунт/щебень/песок → BOM» в рамках [спецификации](prototype/local-vertical-slice.md); не Market GO, без публикации и автоматического merge |
 
 PROPOSAL не является разрешением на реализацию. Новые решения фиксировать с датой, доказательствами и статусом; историю не переписывать.
 
 ## Предложения и аудит (не разрешение на разработку)
 - **2026-11-13 / PROPOSAL:** Разделить Market feasibility, Prototype authorization и Post-launch validation по `docs/research/gate-1-criteria-proposal.md`. Предложение не утверждено.
-- **2026-11-13 / NOT AUTHORIZED:** Локальный vertical slice «площадь → зоны → грунт/щебень/песок → BOM». Перед разработкой требуется отдельное решение владельца и спецификация.
+- **2026-11-13 / SUPERSEDED:** Прежний статус NOT AUTHORIZED для локального vertical slice заменён ограниченным разрешением выше; спецификация в `docs/prototype/local-vertical-slice.md`.
 - **2026-11-13 / AUDIT:** Усилены rules/skills по прошлым типам регрессий, см. `docs/audits/readiness-2026-11-13.md`; market Gate 1 остаётся BLOCKED.
