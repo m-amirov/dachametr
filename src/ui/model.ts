@@ -128,6 +128,16 @@ export function updateLayerField(
   return next;
 }
 
+export function linkLayerToNewMaterial(state: AppState, zoneId: string, layerId: string): AppState {
+  const next = copyState(state);
+  const layer = next.zones.find(item => item.id === zoneId)?.layers.find(item => item.id === layerId);
+  if (!layer) return next;
+  const id = nextId('spec', next.materials.map(material => material.id));
+  next.materials.push({ id, material: 'soil', label: '' });
+  layer.materialSpecId = id;
+  return next;
+}
+
 export function updateMaterialSpec(
   state: AppState,
   materialSpecId: string,

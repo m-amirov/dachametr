@@ -5,6 +5,7 @@ import {
   addZone,
   createInitialState,
   removeZone,
+  updateMaterialSpec,
   updateLayerField,
   updateZoneField,
 } from '../src/ui/model.ts';
@@ -38,6 +39,21 @@ test('layer updates stay attached to stable layer id', () => {
   const edited = updateLayerField(withLayer, zoneState.zones[0].id, layer.id, 'thickness', '4,9999');
   assert.equal(edited.zones[0].layers[0].id, layer.id);
   assert.equal(edited.zones[0].layers[0].thickness, '4,9999');
+});
+
+test('explicit material reuse keeps one stable variant identity for multiple layers', () => {
+  let state = addZone(createInitialState());
+  const firstZone = state.zones[0];
+  state = addLayer(state, firstZone.id);
+  const specId = state.zones[0].layers[0].materialSpecId;
+  state = addZone(state);
+  const secondZone = state.zones[1];
+  state = addLayer(state, secondZone.id, specId);
+  state = updateMaterialSpec(state, specId, 'label', 'Щебень 20–40 мм');
+
+  assert.equal(state.zones[0].layers[0].materialSpecId, specId);
+  assert.equal(state.zones[1].layers[0].materialSpecId, specId);
+  assert.equal(state.materials.find(material => material.id === specId)?.label, 'Щебень 20–40 мм');
 });
 
 test('numbers are formatted for Russian readers without changing source precision', () => {
