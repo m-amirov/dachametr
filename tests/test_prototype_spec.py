@@ -17,7 +17,7 @@ NUMBER = re.compile(r"-?\d+(?:[.,]\d+)?\Z")
 MATERIALS = {"soil", "sand", "gravel"}
 MAX_ZONES = 50
 MAX_LAYERS_PER_ZONE = 10
-IDENTIFIER = re.compile(r"[A-Za-z0-9_-]{1,64}\\Z")
+IDENTIFIER = re.compile(r"[A-Za-z0-9_-]{1,64}\Z")
 
 
 class InputNumberError(ValueError):
@@ -219,7 +219,7 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
 
     def test_spec_markdown_has_no_literal_newline_escapes(self):
         spec = (ROOT / "docs/specs/plot-zones-materials-v0.md").read_text(encoding="utf-8")
-        self.assertNotIn("|\\\\n|", spec)
+        self.assertNotIn("|\\n|", spec)
 
     def test_invalid_numeric_inputs_are_rejected(self):
         cases = read_fixtures()["invalid_number_cases"]
