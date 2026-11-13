@@ -4,7 +4,7 @@ This is NOT a production calculator implementation. These expected numbers are
 handwritten acceptance fixtures for a future TypeScript implementation.
 """
 from collections import OrderedDict
-from decimal import Decimal, ROUND_CEILING
+from decimal import Decimal, ROUND_CEILING, getcontext
 from pathlib import Path
 import json
 import re
@@ -13,7 +13,12 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "docs/specs/plot-zones-materials-cases.json"
-NUMBER = re.compile(r"-?\d+(?:[.,]\d+)?\Z")
+NUMBER = re.compile(r"-?[0-9]+(?:[.,][0-9]+)?\Z")
+MAX_NUMERIC_INPUT_CHARS = 32
+MAX_FRACTIONAL_DIGITS = 12
+MAX_SAFE_PACKAGES = 9007199254740991
+# Input precision + four multiplicands + 500 layers need headroom.
+getcontext().prec = 128
 MATERIALS = {"soil", "sand", "gravel"}
 MAX_ZONES = 50
 MAX_LAYERS_PER_ZONE = 10
@@ -29,9 +34,14 @@ def parse_number(value, *, min_exclusive=None, min_inclusive=None,
     if value is None or not isinstance(value, str) or not value.strip():
         raise InputNumberError("required")
     value = value.strip()
+    if len(value) > MAX_NUMERIC_INPUT_CHARS:
+        raise InputNumberError("input_too_long")
     if not NUMBER.fullmatch(value):
         raise InputNumberError("invalid_number")
-    number = Decimal(value.replace(",", "."))
+    normalized = value.replace(",", ".")
+    if "." in normalized and len(normalized.rsplit(".", 1)[1]) > MAX_FRACTIONAL_DIGITS:
+        raise InputNumberError("precision_exceeded")
+    number = Decimal(normalized)
     if min_exclusive is not None and number <= Decimal(str(min_exclusive)):
         raise InputNumberError("out_of_range")
     if min_inclusive is not None and number < Decimal(str(min_inclusive)):
@@ -135,6 +145,8 @@ def reference_case(case):
             None if package is None else
             int((purchase_l / package).to_integral_value(rounding=ROUND_CEILING))
         )
+        if packages is not None and packages > MAX_SAFE_PACKAGES:
+            raise ValueError("package_count_overflow")
         mass_required_kg = (
             None if density is None else
             purchase_l / Decimal(1000) * density
@@ -172,7 +184,7 @@ def reference_case(case):
 class PlotZonesMaterialsSpecTests(unittest.TestCase):
     def test_reference_values_are_independently_consistent(self):
         data = read_fixtures()
-        self.assertEqual(data["schema_version"], "draft-0.3")
+        self.assertEqual(data["schema_version"], "draft-0.4")
         self.assertEqual(len(data["valid_cases"]), 16)
         for case in data["valid_cases"]:
             with self.subTest(case=case["id"]):
@@ -207,7 +219,7 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
 
     def test_invalid_model_cases_are_rejected(self):
         cases = read_fixtures()["invalid_model_cases"]
-        self.assertEqual(len(cases), 17)
+        self.assertEqual(len(cases), 18)
         for case in cases:
             with self.subTest(case=case["id"]):
                 with self.assertRaises(ValueError) as caught:
@@ -242,6 +254,17 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
         specs = [z["layers"][0]["material_spec_id"] for z in shared["zones"]]
         self.assertEqual(specs[0], specs[1])
 
+    def test_safe_integer_overflow_is_rejected(self):
+        import copy
+        case = copy.deepcopy(read_fixtures()["valid_cases"][0])
+        case["zones"][0]["length_m"] = "100000"
+        case["zones"][0]["width_m"] = "100000"
+        case["zones"][0]["layers"][0]["thickness_cm"] = "1000"
+        case["zones"][0]["layers"][0]["reserve_percent"] = "100"
+        case["zones"][0]["layers"][0]["package_l"] = "0.000000001"
+        with self.assertRaisesRegex(ValueError, "package_count_overflow"):
+            reference_case(case)
+
     def test_model_size_limits_are_enforced(self):
         case = read_fixtures()["valid_cases"][0]
         zone = case["zones"][0]
@@ -269,7 +292,7 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
 
     def test_invalid_numeric_inputs_are_rejected(self):
         cases = read_fixtures()["invalid_number_cases"]
-        self.assertEqual(len(cases), 12)
+        self.assertEqual(len(cases), 16)
         for case in cases:
             with self.subTest(input=case["input"]):
                 with self.assertRaises(InputNumberError) as caught:

@@ -1,5 +1,5 @@
 {
-  "schema_version": "draft-0.3",
+  "schema_version": "draft-0.4",
   "description": "Independent handwritten numerical reference cases for the proposed plot/zones/materials slice; specification evidence only, no production implementation",
   "unit_contract": "Inputs are strings. Base lengths m, thickness cm, density kg/m3, packaging L; output volumes L; no intermediate rounding",
   "valid_cases": [
@@ -965,6 +965,22 @@
         "min_inclusive": "0",
         "max_inclusive": "100"
       }
+    },
+    {
+      "input": "١",
+      "expected_error": "invalid_number"
+    },
+    {
+      "input": "１２",
+      "expected_error": "invalid_number"
+    },
+    {
+      "input": "111111111111111111111111111111111",
+      "expected_error": "input_too_long"
+    },
+    {
+      "input": "0.0000000000001",
+      "expected_error": "precision_exceeded"
     }
   ],
   "invalid_model_cases": [
@@ -1596,7 +1612,7 @@
                 "density_kg_m3": null,
                 "id": "bed1-layer-1",
                 "material_spec_id": "spec-group-before-ceil-soil",
-                "material_spec_label": "Грунт\uFFFD"
+                "material_spec_label": "Грунт�"
               }
             ]
           },
@@ -1620,6 +1636,35 @@
         ]
       },
       "expected_error": "invalid_material_spec_label"
+    },
+    {
+      "id": "package-count-over-safe-integer",
+      "case": {
+        "plot": {
+          "length_m": "20",
+          "width_m": "30"
+        },
+        "zones": [
+          {
+            "id": "bed1",
+            "length_m": "100000",
+            "width_m": "100000",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "1000",
+                "reserve_percent": "100",
+                "package_l": "0.000000001",
+                "density_kg_m3": null,
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-single-soil-50l-soil",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_error": "package_count_overflow"
     }
   ]
 }
