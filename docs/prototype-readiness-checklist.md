@@ -1,12 +1,12 @@
 # Prototype Gate: checklist для решения владельца
 
-`GATE_1_MARKET = BLOCKED`. **PROTOTYPE_AUTHORIZATION = NOT AUTHORIZED**. Наличие этой таблицы не выдаёт разрешение.
+`GATE_1_MARKET = BLOCKED`. **PROTOTYPE_AUTHORIZATION = AUTHORIZED LIMITED (2026-11-13);** только локальная реализация утверждённого среза. Публичный запуск не разрешён. Наличие этой таблицы не выдаёт разрешение.
 
 | Decision input | Сейчас | Требуется |
 | --- | --- | --- |
 | Исследование спроса | PARTIAL | Shortlist + источники и ограничения из PR #2; недостающий Webmaster отдельно |
-| Вертикальный срез | DRAFT_SPEC_WRITTEN / NOT APPROVED | Owner explicitly approves exact scope: участок → зоны → грунт/щебень/песок → BOM |
-| Формулы | DRAFT_FIXTURES_PREPARED / ENGINE_NOT RUN | Самостоятельные числовые эталоны, единицы, исключения, закупочные округления |
+| Вертикальный срез | AUTHORIZED LIMITED / SPEC BASELINE draft-v0.5 | Owner explicitly approves exact scope: участок → зоны → грунт/щебень/песок → BOM |
+| Формулы | OWNER-APPROVED ENGINEERING BASELINE / ENGINE_NOT RUN | Самостоятельные числовые эталоны, единицы, исключения, закупочные округления |
 | Продуктовый дизайн | NOT RUN | 2–3 осмысленных направления → утверждённые tokens/assets/fonts |
 | Инженерный контракт | SPECIFIED | `docs/development-contract.md` adopted for implementation |
 | Среда разработки | NOT STARTED | Reproducible package lock, pinned versions, CI and browser runner |
@@ -24,4 +24,6 @@
 
 Подтверждение тестов JSON означает только внутреннюю согласованность спецификации, не готовность кода или допуск на прототип.
 
-**Открытый предметный пункт:** принять предлагаемое правило идентичности материала (`material_spec_id`) и различения марок/фракций. Существующая спецификация и эталонные сценарии уже отражают защиту от автоматического смешения, но Prototype Gate остаётся NOT AUTHORIZED.
+**Принято в рамках локального прототипа:** правило идентичности материала (`material_spec_id`) и различения марок/фракций согласно baseline draft-v0.5. Эти свойства ещё не реализованы, и пройденные документационные тесты не доказывают работу приложения. Визуальное направление, лицензии шрифтов и браузерные проверки ещё не подтверждены.
+
+**Owner authorization:** 2026-11-13, см. `docs/decisions.md`. Начинать с тестируемой доменной логики, не с публичных страниц. Список недостающих проверок остаётся действующим.

@@ -2,7 +2,7 @@
 
 Онлайн-калькуляторы для участка, дачи и сада. Основной домен: https://dachametr.ru (зарегистрирован владельцем; работа сайта и DNS ещё не настроены).
 
-**Статус: подготовка.** Market Gate 1 остаётся BLOCKED, хотя PR #2 содержит 80 числовых Wordstat-наблюдений. Локальный прототип отдельно НЕ авторизован; индексируемые страницы и реклама не разрешены.
+**Статус: подготовка.** Market Gate 1 остаётся BLOCKED, хотя PR #2 содержит 80 числовых Wordstat-наблюдений. Один локальный прототип AUTHORIZED LIMITED 2026-11-13; индексируемые страницы, деплой и реклама не разрешены.
 
 ## Документация
 - [Инструкции Codex](AGENTS.md)
@@ -37,7 +37,7 @@
 - [Аудит готовности](docs/audits/readiness-2026-11-13.md)
 - [Реестр повторяющихся регрессий](docs/cross-project-regressions.md)
 - [Технический контракт](docs/development-contract.md)
-- [Prototype Gate](docs/prototype-readiness-checklist.md) — NOT AUTHORIZED
+- [Prototype Gate](docs/prototype-readiness-checklist.md) — AUTHORIZED LIMITED (local-only)
 - [Обзор внешних навыков](docs/external-skills-review.md)
 
 CI подготовительного репозитория проверяет структуру и данные. Реальные unit/browser/device/a11y/SEO/performance gates потребуют работающего приложения и отдельной авторизации.
@@ -47,4 +47,4 @@ CI подготовительного репозитория проверяет 
 - [Эталонные тест-кейсы](docs/specs/plot-zones-materials-cases.json) — математика и границы
 - [Дизайн-бриф](docs/specs/prototype-design-brief.md) — предложения, не принятие
 
-Эти документы не означают Prototype Gate GO и не авторизуют создание приложения.
+PR #4 утверждён 2026-11-13 как инженерный baseline; отдельное owner-решение разрешает только локальный прототип, не публичный запуск. См. docs/decisions.md.

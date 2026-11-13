@@ -7,7 +7,7 @@
 | --- | --- | --- |
 | G0 preparation | Правила/skills, provenance, validator и unit tests | PASS в пределах опубликованного docs CI; новые изменения требуют своего CI |
 | G1 market feasibility | Измеренный спрос, конкуренты, SERP/регион/device, Webmaster competition, user jobs и честный вывод | BLOCKED; `docs/research/gate-1-decision.md` |
-| GP prototype authorization | Явное решение владельца на один локальный vertical slice, scope, spec, stop-lines | NOT AUTHORIZED |
+| GP prototype authorization | Явное решение владельца на один локальный vertical slice, scope, spec, stop-lines | AUTHORIZED LIMITED 2026-11-13 (только локальная реализация; docs/decisions.md) |
 | G2 formula correctness | Independently derived golden numbers, units, bounds, source/assumptions, rounding | NOT RUN |
 | G3 code engineering | Exact SHA, lockfile/runtime, lint, typecheck, unit/component/integration/build/security | NOT RUN |
 | G4 real browser/visual/a11y | Screenshots 320/390/768/1024/1440, current URL/SHA/browser/state; focus/keyboard/zoom/touch; asset/font/network errors | NOT RUN |
