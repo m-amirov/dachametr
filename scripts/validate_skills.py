@@ -34,10 +34,25 @@ def check(root: Path) -> list[str]:
             continue
         if "\ufffd" in contents:
             errors.append(f"replacement character U+FFFD in document: {rel}")
+    # Cover every docs Markdown file, not only the required entrypoints.
+    for path in sorted((root / "docs").rglob("*.md")):
+        rel = path.relative_to(root).as_posix()
+        if rel in REQUIRED_DOCS:
+            continue  # already checked above
+        try:
+            content = path.read_text(encoding="utf-8", errors="strict")
+        except UnicodeError:
+            errors.append(f"invalid UTF-8 document: {rel}")
+            continue
+        if "\ufffd" in content:
+            errors.append(f"replacement character U+FFFD in document: {rel}")
     skills = sorted((root / ".agents" / "skills").glob("*/SKILL.md"))
     if not skills:
         errors.append("missing local skill manifests")
-    routing = (root / "AGENTS.md").read_text(encoding="utf-8") if (root / "AGENTS.md").exists() else ""
+    try:
+        routing = (root / "AGENTS.md").read_text(encoding="utf-8", errors="strict") if (root / "AGENTS.md").exists() else ""
+    except UnicodeError:
+        routing = ""  # document error already reported above
     names = set()
     for path in skills:
         relative = path.relative_to(root)

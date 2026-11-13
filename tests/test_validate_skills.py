@@ -61,5 +61,18 @@ class ValidatorTests(unittest.TestCase):
             errors = module.check(root)
             self.assertTrue(any("replacement character U+FFFD" in e for e in errors))
 
+    def test_nonrequired_document_corruption_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copytree(ROOT / ".agents", root / ".agents")
+            for rel in module.REQUIRED_DOCS:
+                target = root / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes((ROOT / rel).read_bytes())
+            doc = root / "docs" / "optional-note.md"
+            doc.write_text("невидимая порча: " + chr(0xFFFD), encoding="utf-8")
+            errors = module.check(root)
+            self.assertTrue(any("replacement character U+FFFD in document: docs/optional-note.md" in e for e in errors))
+
 if __name__ == "__main__":
     unittest.main()
