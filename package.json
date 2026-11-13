@@ -7,11 +7,21 @@
     "node": ">=22.16.0 <23"
   },
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "typecheck": "tsc --noEmit --project tsconfig.json",
     "test:domain": "node --experimental-strip-types --test tests/plot-domain.test.mjs",
-    "verify:domain": "npm run typecheck && npm run test:domain"
+    "test:ui": "node --experimental-strip-types --test tests/ui-state.test.mjs tests/ui-validation.test.mjs tests/ui-app.test.mjs",
+    "test": "npm run typecheck && npm run test:domain && npm run test:ui",
+    "test:browser": "playwright test",
+    "capture:evidence": "node scripts/capture-ui-evidence.mjs",
+    "verify:domain": "npm run typecheck && npm run test:domain",
+    "verify": "npm test && npm run build"
   },
   "devDependencies": {
-    "typescript": "5.8.3"
+    "@playwright/test": "1.65.0",
+    "typescript": "5.8.3",
+    "vite": "8.3.8"
   }
 }

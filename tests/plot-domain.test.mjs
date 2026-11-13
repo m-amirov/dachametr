@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { calculatePlot } from '../src/domain/plot.ts';
+import { calculatePlot, calculatePlotDetailed } from '../src/domain/plot.ts';
 import { Exact } from '../src/domain/exact.ts';
 
 const fixtures = JSON.parse(readFileSync(new URL('../docs/specs/plot-zones-materials-cases.json', import.meta.url), 'utf-8'));
@@ -89,4 +89,40 @@ test('whole package demand and purchased mass are explicitly different', () => {
   assert.equal(row.mass_required_kg, '100');
   assert.equal(row.mass_purchased_kg, '120');
   assert.equal(row.surplus_l, '20');
+});
+
+test('detailed projection exposes exact per-zone layer quantities without changing summary shape', () => {
+  const input = {
+    plot: { length_m: '20', width_m: '30' },
+    zones: [{
+      id: 'bed1',
+      length_m: '2',
+      width_m: '4',
+      layers: [{
+        id: 'bed1-layer-1',
+        material: 'soil',
+        material_spec_id: 'soil-main',
+        material_spec_label: 'Грунт для грядок',
+        thickness_cm: '25',
+        reserve_percent: '0',
+        package_l: '50',
+        density_kg_m3: null,
+      }],
+    }],
+  };
+  const detailed = calculatePlotDetailed(input);
+  assert.equal(detailed.ok, true);
+  if (!detailed.ok) return;
+  assert.equal(detailed.value.zones[0].area_m2, '8');
+  assert.deepEqual(detailed.value.zones[0].layers[0], {
+    id: 'bed1-layer-1',
+    material_spec_id: 'soil-main',
+    material_spec_label: 'Грунт для грядок',
+    net_l: '2000',
+    purchase_l: '2000',
+    mass_required_kg: null,
+  });
+  const summary = calculatePlot(input);
+  assert.equal(summary.ok, true);
+  if (summary.ok) assert.deepEqual(Object.keys(summary.value), ['plot_area_m2', 'zones_area_sum_m2', 'areas_exceed_plot', 'bom']);
 });

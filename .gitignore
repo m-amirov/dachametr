@@ -10,3 +10,6 @@ dist/
 coverage/
 playwright-report/
 test-results/
+.superpowers/
+artifacts/ui-evidence/pending-*
+artifacts/ui-evidence/6e0b173/
