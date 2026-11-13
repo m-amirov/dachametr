@@ -7,7 +7,7 @@
 Реальные Wordstat + mobile/desktop SERP, кластеризация задач, выбор ~8–10 калькуляторов, GO/NO-GO/BLOCKED; затем спецификация первого.
 
 ## Stage 1P — отдельное разрешение на прототип
-Черновик спецификации `docs/specs/plot-zones-materials-v0.md` подготовлен; локальный vertical slice только после явно утверждённого владельцем scope и принятой спецификации формул. Market Gate не становится GO; см. docs/prototype-readiness-checklist.md.
+Черновик спецификации `docs/specs/plot-zones-materials-v0.md` подготовлен; локальный vertical slice теперь разрешён владельцем 2026-11-13 в фиксированном scope по draft-v0.5 (см. docs/decisions.md); далее обязательны реальные G2/G3/G4 проверки. Market Gate не становится GO; см. docs/prototype-readiness-checklist.md.
 
 ## Stage 2 — дизайн и вертикальный срез
 2–3 предметных дизайн-направления, сохранённые visual baseline/fonts/assets, утверждённые токены, один локальный vertical slice; точная формула, golden tests, все UI состояния, screenshots и независимый visual QA фактического build. Stage 2 нельзя запускать из зелёного docs CI.
