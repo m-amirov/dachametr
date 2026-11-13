@@ -57,7 +57,7 @@ class ValidatorTests(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes((ROOT / rel).read_bytes())
             path = root / ".agents/skills/calculator-ux/SKILL.md"
-            path.write_text(path.read_text(encoding="utf-8") + "\\n\\ufffd", encoding="utf-8")
+            path.write_text(path.read_text(encoding="utf-8") + chr(10) + chr(0xFFFD), encoding="utf-8")
             errors = module.check(root)
             self.assertTrue(any("replacement character U+FFFD" in e for e in errors))
 
