@@ -69,6 +69,7 @@ class ResearchValidatorTests(unittest.TestCase):
             row["frequency_definition"] = "NOT_MEASURED"
             row["source_url"] = ""
             row["accessed_at"] = ""
+            row["frequency_status"] = "not_measured"
         with keywords_path.open("w", encoding="utf-8", newline="") as fh:
             writer = csv.DictWriter(fh, fieldnames=rows[0].keys())
             writer.writeheader()
@@ -88,6 +89,42 @@ class ResearchValidatorTests(unittest.TestCase):
             writer.writeheader()
             writer.writerows(rows)
         self.assertTrue(any("net arithmetic mismatch" in e for e in module.check(self.root)))
+
+    def test_replacement_character_is_rejected(self):
+        path = self.root / "docs/research/keywords.csv"
+        text = path.read_text(encoding="utf-8")
+        path.write_text(text.replace("калькулятор", "�", 1), encoding="utf-8")
+        self.assertTrue(any("U+FFFD" in e for e in module.check(self.root)))
+
+    def test_invalid_utf8_is_rejected(self):
+        path = self.root / "docs/research/keywords.csv"
+        path.write_bytes(b"query,cluster\n\xff\n")
+        self.assertTrue(any("invalid UTF-8" in e for e in module.check(self.root)))
+
+    def test_measured_keyword_must_match_wordstat_observation(self):
+        path = self.root / "docs/research/keywords.csv"
+        with path.open(encoding="utf-8", newline="") as fh:
+            rows = list(csv.DictReader(fh))
+        measured = next(row for row in rows if row["frequency"])
+        measured["frequency"] = "999999"
+        with path.open("w", encoding="utf-8", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=rows[0].keys())
+            writer.writeheader()
+            writer.writerows(rows)
+        self.assertTrue(any("does not match wordstat-observations.csv" in e
+                            for e in module.check(self.root)))
+
+    def test_no_data_is_validated_as_related_query_flag(self):
+        path = self.root / "docs/research/wordstat-observations.csv"
+        with path.open(encoding="utf-8", newline="") as fh:
+            rows = list(csv.DictReader(fh))
+        row = next(row for row in rows if row["frequency"] and row["no_data"] == "true")
+        row["no_data"] = "false"
+        with path.open("w", encoding="utf-8", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=rows[0].keys())
+            writer.writeheader()
+            writer.writerows(rows)
+        self.assertTrue(any("no_data semantics mismatch" in e for e in module.check(self.root)))
 
 if __name__ == "__main__":
     unittest.main()

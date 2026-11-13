@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections import defaultdict
 from datetime import date
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+import io
+import json
 from pathlib import Path
 import csv
 import re
@@ -18,13 +20,19 @@ def table(root: Path, path: str, required: set[str], errors: list[str]) -> list[
     if not target.is_file():
         errors.append(f"missing: {path}")
         return []
-    with target.open(encoding="utf-8-sig", newline="") as file:
-        reader = csv.DictReader(file)
-        headers = set(reader.fieldnames or [])
-        if not required <= headers:
-            errors.append(f"{path}: missing columns {sorted(required - headers)}")
-            return []
-        return list(reader)
+    try:
+        content = target.read_text(encoding="utf-8-sig")
+    except UnicodeDecodeError as exc:
+        errors.append(f"{path}: invalid UTF-8 ({exc})")
+        return []
+    if "\ufffd" in content:
+        errors.append(f"{path}: contains Unicode replacement character U+FFFD")
+    reader = csv.DictReader(io.StringIO(content, newline=""))
+    headers = set(reader.fieldnames or [])
+    if not required <= headers:
+        errors.append(f"{path}: missing columns {sorted(required - headers)}")
+        return []
+    return list(reader)
 
 def valid_url(url: str) -> bool:
     parsed = urlsplit(url)
@@ -45,7 +53,8 @@ def check(root: Path) -> list[str]:
     base = "docs/research/"
     keywords = table(root, base + "keywords.csv",
         {"query", "cluster", "region", "period", "frequency",
-         "frequency_definition", "source_url", "accessed_at", "notes"}, errors)
+         "frequency_definition", "source_url", "accessed_at", "notes",
+         "frequency_status", "no_data_scope"}, errors)
     measured = 0
     seen = set()
     for i, row in enumerate(keywords, start=2):
@@ -61,6 +70,8 @@ def check(root: Path) -> list[str]:
                 errors.append(f"keywords.csv:{i} unknown frequency must say NOT_MEASURED")
             if row["source_url"].strip() or row["accessed_at"].strip():
                 errors.append(f"keywords.csv:{i} unknown frequency cannot imply verified observation")
+            if row["frequency_status"].strip() != "not_measured":
+                errors.append(f"keywords.csv:{i} unknown frequency has invalid frequency_status")
         else:
             measured += 1
             if not re.fullmatch(r"\d+(?:\.\d+)?", freq):
@@ -68,6 +79,10 @@ def check(root: Path) -> list[str]:
             if not all([valid_url(row["source_url"]), valid_date(row["accessed_at"]),
                         row["period"].strip(), row["frequency_definition"].strip() not in ("", "NOT_MEASURED")]):
                 errors.append(f"keywords.csv:{i} measured frequency missing provenance")
+            if row["frequency_status"].strip() != "measured_numeric":
+                errors.append(f"keywords.csv:{i} measured frequency has invalid frequency_status")
+            if row["no_data_scope"].strip() != "related_queries":
+                errors.append(f"keywords.csv:{i} measured row has invalid no_data_scope")
     serp = table(root, base + "serp-samples.csv",
         {"observation_date", "region", "query", "organic_position",
          "title_short", "target_url", "collection_method", "browser_run"}, errors)
@@ -103,13 +118,25 @@ def check(root: Path) -> list[str]:
             errors.append(f"competitor-matrix.csv:{i} source URL missing")
     wordstat = table(root, base + "wordstat-observations.csv",
         {"id", "query", "operator", "region", "checked_at", "period",
-         "frequency", "no_data", "source_url"}, errors)
+         "frequency", "no_data", "related_queries_json", "frequency_status",
+         "no_data_scope", "source_url", "source_mode",
+         "source_artifact_status"}, errors)
     seen_wordstat = set()
+    seen_wordstat_keys = set()
+    wordstat_by_id_operator = {}
     for i, row in enumerate(wordstat, start=2):
         key = (row["id"].strip(), row["operator"].strip())
         if not all(key) or key in seen_wordstat:
             errors.append(f"wordstat-observations.csv:{i} blank or repeated id/operator")
         seen_wordstat.add(key)
+        full_key = (row["query"].strip(), row["operator"].strip(),
+                    row["region"].strip(), row["period"].strip())
+        if not all(full_key) and row["frequency"].strip():
+            errors.append(f"wordstat-observations.csv:{i} measured key is incomplete")
+        if full_key in seen_wordstat_keys:
+            errors.append(f"wordstat-observations.csv:{i} repeated query/operator/region/period")
+        seen_wordstat_keys.add(full_key)
+        wordstat_by_id_operator[key] = row
         if row["operator"].strip() not in {"wide", "quotes"}:
             errors.append(f"wordstat-observations.csv:{i} invalid operator")
         if not all([row["query"].strip(), row["region"].strip(),
@@ -120,6 +147,36 @@ def check(root: Path) -> list[str]:
             errors.append(f"wordstat-observations.csv:{i} invalid frequency")
         if row["frequency"].strip() and not row["period"].strip():
             errors.append(f"wordstat-observations.csv:{i} measured frequency missing period")
+        try:
+            related = json.loads(row["related_queries_json"])
+            if not isinstance(related, list):
+                raise ValueError("related queries must be a list")
+            expected_no_data = "true" if not related else "false"
+            if row["no_data"].strip() != expected_no_data:
+                errors.append(f"wordstat-observations.csv:{i} no_data semantics mismatch")
+        except (json.JSONDecodeError, TypeError, ValueError):
+            errors.append(f"wordstat-observations.csv:{i} invalid related_queries_json")
+        expected_status = "measured_numeric" if row["frequency"].strip() else "main_value_not_returned"
+        if row["frequency_status"].strip() != expected_status:
+            errors.append(f"wordstat-observations.csv:{i} invalid frequency_status")
+        if row["no_data_scope"].strip() != "related_queries":
+            errors.append(f"wordstat-observations.csv:{i} invalid no_data_scope")
+        if row["source_artifact_status"].strip() != "local_only_outside_repository":
+            errors.append(f"wordstat-observations.csv:{i} invalid source_artifact_status")
+
+    for i, row in enumerate(keywords, start=2):
+        if not row["frequency"].strip():
+            continue
+        source_key = (row["evidence_id"].strip(), row.get("operator", "").strip())
+        source = wordstat_by_id_operator.get(source_key)
+        if source is None:
+            errors.append(f"keywords.csv:{i} measured row has no Wordstat source record")
+            continue
+        for field in ("query", "region", "period", "frequency", "source_url"):
+            if row[field].strip() != source[field].strip():
+                errors.append(f"keywords.csv:{i} {field} does not match wordstat-observations.csv")
+        if row["no_data"].strip() != source["no_data"].strip():
+            errors.append(f"keywords.csv:{i} no_data does not match wordstat-observations.csv")
     dynamics = table(root, base + "wordstat-dynamics.csv",
         {"query", "operator", "region", "checked_at", "period", "frequency",
          "source_url", "source_file"}, errors)
