@@ -45,7 +45,34 @@ class ResearchValidatorTests(unittest.TestCase):
             writer.writerows(rows)
         self.assertTrue(any("ranks not contiguous" in e for e in module.check(self.root)))
 
+    def test_independent_serp_snapshots_do_not_share_rank_sequence(self):
+        path = self.root / "docs/research/serp-samples.csv"
+        with path.open(encoding="utf-8", newline="") as fh:
+            rows = list(csv.DictReader(fh))
+        extra = []
+        for row in rows[:5]:
+            copy = row.copy()
+            copy["region"] = "Moscow, Russia (Yandex region 213)"
+            copy["browser_run"] = "https://example.com/browser-run-moscow"
+            extra.append(copy)
+        with path.open("a", encoding="utf-8", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=rows[0].keys())
+            writer.writerows(extra)
+        self.assertEqual([], module.check(self.root))
+
     def test_go_without_measured_data_is_rejected(self):
+        keywords_path = self.root / "docs/research/keywords.csv"
+        with keywords_path.open(encoding="utf-8", newline="") as fh:
+            rows = list(csv.DictReader(fh))
+        for row in rows:
+            row["frequency"] = ""
+            row["frequency_definition"] = "NOT_MEASURED"
+            row["source_url"] = ""
+            row["accessed_at"] = ""
+        with keywords_path.open("w", encoding="utf-8", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=rows[0].keys())
+            writer.writeheader()
+            writer.writerows(rows)
         path = self.root / "docs/research/gate-1-decision.md"
         text = path.read_text(encoding="utf-8")
         path.write_text(text.replace("**ИТОГ: BLOCKED", "**ИТОГ: GO"), encoding="utf-8")

@@ -45,9 +45,11 @@ def check(root: Path) -> list[str]:
     measured = 0
     seen = set()
     for i, row in enumerate(keywords, start=2):
-        key = (row["query"].strip(), row["cluster"].strip())
-        if not all(key) or key in seen:
-            errors.append(f"keywords.csv:{i} blank or repeated query/cluster")
+        operator = row.get("operator", "").strip() or "UNSPECIFIED"
+        key = (row["query"].strip(), row["cluster"].strip(), operator,
+               row["region"].strip(), row["period"].strip())
+        if not all(key[:4]) or key in seen:
+            errors.append(f"keywords.csv:{i} blank or repeated keyword observation")
         seen.add(key)
         freq = row["frequency"].strip()
         if not freq:
@@ -65,20 +67,28 @@ def check(root: Path) -> list[str]:
     serp = table(root, base + "serp-samples.csv",
         {"observation_date", "region", "query", "organic_position",
          "title_short", "target_url", "collection_method", "browser_run"}, errors)
-    per_query = defaultdict(list)
+    per_snapshot = defaultdict(list)
+    seen_results = set()
     for i, row in enumerate(serp, start=2):
         try:
             rank = int(row["organic_position"])
         except (ValueError, TypeError):
             errors.append(f"serp-samples.csv:{i} invalid rank")
             continue
-        per_query[row["query"]].append(rank)
+        snapshot = (row["observation_date"].strip(), row["region"].strip(),
+                    row["query"].strip(), row["collection_method"].strip(),
+                    row["browser_run"].strip())
+        per_snapshot[snapshot].append(rank)
+        result_key = snapshot + (row["target_url"].strip(),)
+        if result_key in seen_results:
+            errors.append(f"serp-samples.csv:{i} repeated result in snapshot")
+        seen_results.add(result_key)
         if not all([valid_date(row["observation_date"]), row["region"].strip(),
                     valid_url(row["target_url"]), valid_url(row["browser_run"])]):
             errors.append(f"serp-samples.csv:{i} missing observation/provenance")
-    for q, ranks in per_query.items():
+    for snapshot, ranks in per_snapshot.items():
         if sorted(ranks) != list(range(1, len(ranks) + 1)):
-            errors.append(f"serp-samples.csv: ranks not contiguous for {q}")
+            errors.append(f"serp-samples.csv: ranks not contiguous for {snapshot[2]}")
     competitors = table(root, base + "competitor-matrix.csv",
         {"cluster", "url", "verification_level", "observable_functionality",
          "evidence_url", "competitive_implication"}, errors)
@@ -87,6 +97,38 @@ def check(root: Path) -> list[str]:
             errors.append(f"competitor-matrix.csv:{i} invalid verification level")
         if not valid_url(row["url"]) or not valid_url(row["evidence_url"]):
             errors.append(f"competitor-matrix.csv:{i} source URL missing")
+    wordstat = table(root, base + "wordstat-observations.csv",
+        {"id", "query", "operator", "region", "checked_at", "period",
+         "frequency", "no_data", "source_url"}, errors)
+    seen_wordstat = set()
+    for i, row in enumerate(wordstat, start=2):
+        key = (row["id"].strip(), row["operator"].strip())
+        if not all(key) or key in seen_wordstat:
+            errors.append(f"wordstat-observations.csv:{i} blank or repeated id/operator")
+        seen_wordstat.add(key)
+        if row["operator"].strip() not in {"wide", "quotes"}:
+            errors.append(f"wordstat-observations.csv:{i} invalid operator")
+        if not all([row["query"].strip(), row["region"].strip(),
+                    valid_date(row["checked_at"]), valid_url(row["source_url"]),
+                    row["no_data"].strip() in {"true", "false"}]):
+            errors.append(f"wordstat-observations.csv:{i} missing provenance")
+        if row["frequency"].strip() and not re.fullmatch(r"\d+", row["frequency"].strip()):
+            errors.append(f"wordstat-observations.csv:{i} invalid frequency")
+        if row["frequency"].strip() and not row["period"].strip():
+            errors.append(f"wordstat-observations.csv:{i} measured frequency missing period")
+    dynamics = table(root, base + "wordstat-dynamics.csv",
+        {"query", "operator", "region", "checked_at", "period", "frequency",
+         "source_url", "source_file"}, errors)
+    seen_dynamics = set()
+    for i, row in enumerate(dynamics, start=2):
+        key = (row["query"].strip(), row["operator"].strip(), row["period"].strip())
+        if not all(key) or key in seen_dynamics:
+            errors.append(f"wordstat-dynamics.csv:{i} blank or repeated query/operator/period")
+        seen_dynamics.add(key)
+        if not all([valid_date(row["checked_at"]), row["region"].strip(),
+                    valid_url(row["source_url"]), row["source_file"].strip(),
+                    re.fullmatch(r"\d+", row["frequency"].strip() or "")]):
+            errors.append(f"wordstat-dynamics.csv:{i} missing provenance or invalid frequency")
     decision_path = root / base / "gate-1-decision.md"
     if not decision_path.is_file():
         errors.append("missing Gate 1 decision")
