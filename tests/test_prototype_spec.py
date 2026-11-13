@@ -97,7 +97,7 @@ def reference_case(case):
             spec_label = layer.get("material_spec_label")
             if (not isinstance(spec_label, str) or
                     not spec_label.strip() or len(spec_label.strip()) > 80 or
-                    "\\ufffd" in spec_label):
+                    chr(0xFFFD) in spec_label):
                 raise ValueError("invalid_material_spec_label")
             spec_label = spec_label.strip()
             existing = material_specs.get(spec_id)
@@ -207,7 +207,7 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
 
     def test_invalid_model_cases_are_rejected(self):
         cases = read_fixtures()["invalid_model_cases"]
-        self.assertEqual(len(cases), 16)
+        self.assertEqual(len(cases), 17)
         for case in cases:
             with self.subTest(case=case["id"]):
                 with self.assertRaises(ValueError) as caught:
@@ -223,6 +223,24 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
         self.assertEqual(len(rows), 2)
         self.assertEqual([r["packages"] for r in rows], [2, 2])
         self.assertNotEqual(rows[0]["material_spec_id"], rows[1]["material_spec_id"])
+
+    def test_same_label_with_different_spec_ids_still_stays_separate(self):
+        import copy
+        cases = read_fixtures()["valid_cases"]
+        case = copy.deepcopy(next(c for c in cases
+                                  if c["id"] == "different-soil-grades-separate"))
+        case["zones"][1]["layers"][0]["material_spec_label"] = (
+            case["zones"][0]["layers"][0]["material_spec_label"]
+        )
+        rows = reference_case(case)["bom"]
+        self.assertEqual(len(rows), 2)
+        self.assertEqual([r["packages"] for r in rows], [2, 2])
+
+    def test_material_variant_reuse_must_be_explicit(self):
+        cases = read_fixtures()["valid_cases"]
+        shared = next(c for c in cases if c["id"] == "group-before-ceil")
+        specs = [z["layers"][0]["material_spec_id"] for z in shared["zones"]]
+        self.assertEqual(specs[0], specs[1])
 
     def test_model_size_limits_are_enforced(self):
         case = read_fixtures()["valid_cases"][0]

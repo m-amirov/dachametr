@@ -1574,6 +1574,52 @@
         ]
       },
       "expected_error": "conflicting_material_spec_definition"
+    },
+    {
+      "id": "replacement-character-material-label",
+      "case": {
+        "plot": {
+          "length_m": "10",
+          "width_m": "10"
+        },
+        "zones": [
+          {
+            "id": "bed1",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil",
+                "material_spec_label": "Грунт�"
+              }
+            ]
+          },
+          {
+            "id": "bed2",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed2-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_error": "invalid_material_spec_label"
     }
   ]
 }
