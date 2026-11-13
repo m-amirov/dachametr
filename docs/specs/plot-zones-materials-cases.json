@@ -234,6 +234,46 @@
       }
     },
     {
+      "id": "below-package-boundary",
+      "description": "49.999L -> still only one 50L bag",
+      "plot": {
+        "length_m": "1",
+        "width_m": "1"
+      },
+      "zones": [
+        {
+          "id": "one",
+          "length_m": "1",
+          "width_m": "1",
+          "layers": [
+            {
+              "material": "soil",
+              "thickness_cm": "4.9999",
+              "reserve_percent": "0",
+              "package_l": "50",
+              "density_kg_m3": null
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "plot_area_m2": "1",
+        "zones_area_sum_m2": "1",
+        "areas_exceed_plot": false,
+        "bom": [
+          {
+            "material": "soil",
+            "package_l": "50",
+            "density_kg_m3": null,
+            "net_l": "49.999",
+            "purchase_l": "49.999",
+            "packages": 1,
+            "mass_kg": null
+          }
+        ]
+      }
+    },
+    {
       "id": "above-package-boundary",
       "description": "Purchase 50.001L -> 2 bags",
       "plot": {
@@ -417,6 +457,74 @@
             "net_l": "100",
             "purchase_l": "100",
             "packages": null,
+            "mass_kg": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "decimal-tenths-exact-group",
+      "description": "Three 0.1 L layers need only one 0.3 L bag despite binary float rounding",
+      "plot": {
+        "length_m": "10",
+        "width_m": "10"
+      },
+      "zones": [
+        {
+          "id": "a",
+          "length_m": "1",
+          "width_m": "1",
+          "layers": [
+            {
+              "material": "soil",
+              "thickness_cm": "0.01",
+              "reserve_percent": "0",
+              "package_l": "0.3",
+              "density_kg_m3": null
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "length_m": "1",
+          "width_m": "1",
+          "layers": [
+            {
+              "material": "soil",
+              "thickness_cm": "0.01",
+              "reserve_percent": "0",
+              "package_l": "0.3",
+              "density_kg_m3": null
+            }
+          ]
+        },
+        {
+          "id": "c",
+          "length_m": "1",
+          "width_m": "1",
+          "layers": [
+            {
+              "material": "soil",
+              "thickness_cm": "0.01",
+              "reserve_percent": "0",
+              "package_l": "0.3",
+              "density_kg_m3": null
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "plot_area_m2": "100",
+        "zones_area_sum_m2": "3",
+        "areas_exceed_plot": false,
+        "bom": [
+          {
+            "material": "soil",
+            "package_l": "0.3",
+            "density_kg_m3": null,
+            "net_l": "0.3",
+            "purchase_l": "0.3",
+            "packages": 1,
             "mass_kg": null
           }
         ]

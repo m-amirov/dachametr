@@ -133,7 +133,7 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
     def test_reference_values_are_independently_consistent(self):
         data = read_fixtures()
         self.assertEqual(data["schema_version"], "draft-0.1")
-        self.assertEqual(len(data["valid_cases"]), 10)
+        self.assertEqual(len(data["valid_cases"]), 12)
         for case in data["valid_cases"]:
             with self.subTest(case=case["id"]):
                 actual = reference_case(case)
@@ -200,6 +200,13 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
             bad.write_text('{"broken": "' + chr(0xFFFD) + '"}', encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "U\\+FFFD"):
                 read_fixtures(bad)
+
+    def test_tenths_are_not_inflated_by_float_rounding(self):
+        case = next(c for c in read_fixtures()["valid_cases"]
+                    if c["id"] == "decimal-tenths-exact-group")
+        result = reference_case(case)
+        self.assertEqual(result["bom"][0]["purchase_l"], Decimal("0.3"))
+        self.assertEqual(result["bom"][0]["packages"], 1)
 
     def test_purchase_rounding_example(self):
         case = next(c for c in read_fixtures()["valid_cases"]
