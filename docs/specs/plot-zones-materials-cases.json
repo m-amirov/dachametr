@@ -1596,7 +1596,7 @@
                 "density_kg_m3": null,
                 "id": "bed1-layer-1",
                 "material_spec_id": "spec-group-before-ceil-soil",
-                "material_spec_label": "Грунт�"
+                "material_spec_label": "Грунт\uFFFD"
               }
             ]
           },
