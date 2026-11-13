@@ -11,3 +11,9 @@ description: "Use for writing and reviewing DachaMetr calculator instructions, s
 5. Remove boilerplate, invented testimonials, fake anecdotes, placeholder FAQ, repeated paraphrases, unverified numbers and unsupported promises.
 6. Compare against calculator spec, test cases and overlapping pages to avoid contradictions and keyword cannibalization.
 Exit: traceable claims, correct Russian and genuinely useful text; unsupported content → BLOCKED_UNVERIFIED_CONTENT.
+
+## Visual and data truth
+- Reject replacement character U+FFFD in public Russian text, mojibake and unsupported numeric norms. For rates/claims use source URL + context + applicability + accessible record; a competitor's output alone is not source validation.
+- No fictional testimonials, benefits, photos, trust badges or price examples presented as current; if data are illustrative label them and avoid misleading procurement accuracy.
+- Diagrams must reflect actual formulas and current inputs; avoid generic AI illustration that depicts physically incorrect layers, geometry, crops or quantities.
+- A page must have an honest independent user task; editing SEO copy cannot excuse broken input or calculation logic. Use `research-data-integrity` for research files.

@@ -11,3 +11,10 @@ description: "Use when researching DachaMetr search demand, collecting Wordstat 
 5. Score candidates transparently on obtainable demand, competition, functional differentiation, formula safety, seasonal risk and implementation effort.
 6. Produce docs/research/keywords.csv, serp-review.md, mvp-prioritization.md only with observed data, and gate-1-decision.md with GO/NO-GO/BLOCKED.
 Exit gate: evidence-supported multi-cluster plan with ~8–10 unique calculator jobs. Without evidence → BLOCKED, not aspirational PASS.
+
+## Gate separation and data lineage
+- Project PR #2 currently has 80 numeric Wordstat observations, 23 months for 11 phrases and 4 full Perm SERP snapshots: recognize partial data and do not repeat obsolete `no Wordstat` claims. Market Gate remains BLOCKED.
+- Require `research-data-integrity` on CSV regeneration/Wordstat exports. Strict UTF-8/U+FFFD check, raw observations, exact mode, provenance, explicit zero vs unknown and a recorded actual source artifact status.
+- Wide, quoted and related phrases are not additive demand; flag building/industrial intent contamination for gravel/sand/fence/greenhouse before calling it garden demand.
+- Mobile/region snapshots are not interchangeable; 23 months support a provisional seasonality description but never invent missing October. Do not demand real RPM/indexation from an unlaunched domain as prerequisite for measuring market interest.
+- Separate market GO, separately owner-authorized local prototype and post-launch economics. Proposal is not approval; record what cannot be verified.
