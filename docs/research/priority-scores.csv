@@ -1,0 +1,11 @@
+candidate,route,demand_points_25,seasonality_points_10,serp_opportunity_points_15,reachability_points_15,commercial_points_10,differentiation_points_10,formula_reliability_points_5,implementation_points_5,repeat_or_linking_points_5,known_score,known_max,score_range_min,score_range_max,status,demand_scope,unknowns
+Площадь участка и единицы,/uchastok/ploshchad-i-sotki,20,6,9,,5,9,5,5,5,64,85,64,79,provisional_first_wave,site_measurement,reachability; Webmaster demand/clicks/competition
+Грунт для грядок и клумб,/sad/gryadki/grunt,15,8,6,,8,8,5,5,5,60,85,60,75,provisional_first_wave,mixed_garden_construction,wide demand polluted by construction intent; reachability
+Щебень по площади и слою,/uchastok/shcheben/po-ploshchadi,25,4,6,,9,8,5,5,4,66,85,66,81,provisional_first_wave,construction_material,reachability; exact query for the whole cluster not stable; not garden-only demand
+Песок и основание дорожки,/uchastok/dorozhki/pesok,20,,8,,9,8,5,4,4,58,75,58,83,provisional_first_wave,construction_path_base,seasonality; reachability; mixed construction intent
+Забор: материалы и проёмы,/uchastok/zabor,25,,5,,10,8,4,3,4,59,75,59,84,provisional_first_wave,construction_property,strong commercial SERP; seasonality; reachability; not garden-only demand
+Теплица: каркас и покрытие,/teplicy/karkas-i-pokrytie,20,4,5,,8,8,3,3,4,55,85,55,70,provisional_first_wave,construction_garden_structure,specialized competitors; reachability; profile/polycarbonate material intent
+Удобрение по заданной норме,/sad/udobreniya/po-norme,15,,7,,8,8,2,3,4,47,75,47,72,next_queue,garden_input_dependent,agronomic target dose must be user-supplied or sourced; seasonality; reachability
+Капельная лента и расход,/sad/poliv/kapelny,15,2,6,,7,8,2,3,5,48,85,48,63,next_queue,garden_input_dependent,hydraulic sufficiency; reachability
+Тротуарная плитка для дорожки,/uchastok/dorozhki/plitka,10,,8,,8,8,5,4,4,47,75,47,72,next_queue,construction_path_base,seasonality; reachability
+Мульча по зонам,/sad/mulcha,10,2,9,,7,8,5,5,4,50,85,50,65,next_queue,garden_material,small measured volume; reachability
