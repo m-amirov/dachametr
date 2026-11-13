@@ -8,13 +8,32 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_DOCS = (
     "AGENTS.md", "README.md", "docs/product-brief.md", "docs/decisions.md",
     "docs/seo-validation.md", "docs/quality-gates.md", "docs/skills-sources.md",
+    "docs/audits/readiness-2026-11-13.md", "docs/development-contract.md",
+    "docs/cross-project-regressions.md", "docs/prototype-readiness-checklist.md",
+    "docs/external-skills-review.md",
 )
+
+REQUIRED_SKILLS = {
+    "market-validation", "calculator-engineering", "calculator-ux", "visual-craft",
+    "visual-qa", "technical-seo", "content-integrity", "engineering-quality",
+    "release-readiness", "research-data-integrity", "interaction-reliability",
+    "change-review",
+}
 
 def check(root: Path) -> list[str]:
     errors = []
     for rel in REQUIRED_DOCS:
-        if not (root / rel).is_file():
+        path = root / rel
+        if not path.is_file():
             errors.append(f"missing document: {rel}")
+            continue
+        try:
+            contents = path.read_text(encoding="utf-8", errors="strict")
+        except UnicodeError:
+            errors.append(f"invalid UTF-8 document: {rel}")
+            continue
+        if "\ufffd" in contents:
+            errors.append(f"replacement character U+FFFD in document: {rel}")
     skills = sorted((root / ".agents" / "skills").glob("*/SKILL.md"))
     if not skills:
         errors.append("missing local skill manifests")
@@ -22,7 +41,13 @@ def check(root: Path) -> list[str]:
     names = set()
     for path in skills:
         relative = path.relative_to(root)
-        text = path.read_text(encoding="utf-8")
+        try:
+            text = path.read_text(encoding="utf-8", errors="strict")
+        except UnicodeError:
+            errors.append(f"{relative}: invalid UTF-8 skill")
+            continue
+        if "\ufffd" in text:
+            errors.append(f"{relative}: replacement character U+FFFD")
         match = re.match(r"\A---\n(.*?)\n---\n", text, re.DOTALL)
         if not match:
             errors.append(f"{relative}: missing frontmatter")
@@ -43,6 +68,8 @@ def check(root: Path) -> list[str]:
                 errors.append(f"{relative}: missing AGENTS.md router entry")
         if len(text[match.end():].strip()) < 250:
             errors.append(f"{relative}: workflow body too short")
+    for missing in sorted(REQUIRED_SKILLS - names):
+        errors.append(f"missing required skill: {missing}")
     return errors
 
 if __name__ == "__main__":
