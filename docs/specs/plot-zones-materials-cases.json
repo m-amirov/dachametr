@@ -1,5 +1,5 @@
 {
-  "schema_version": "draft-0.4",
+  "schema_version": "draft-0.5",
   "description": "Independent handwritten numerical reference cases for the proposed plot/zones/materials slice; specification evidence only, no production implementation",
   "unit_contract": "Inputs are strings. Base lengths m, thickness cm, density kg/m3, packaging L; output volumes L; no intermediate rounding",
   "valid_cases": [
@@ -1612,7 +1612,7 @@
                 "density_kg_m3": null,
                 "id": "bed1-layer-1",
                 "material_spec_id": "spec-group-before-ceil-soil",
-                "material_spec_label": "Грунт\uFFFD"
+                "material_spec_label": "Грунт�"
               }
             ]
           },
@@ -1665,6 +1665,93 @@
         ]
       },
       "expected_error": "package_count_overflow"
+    },
+    {
+      "id": "reserved-zone-id",
+      "case": {
+        "plot": {
+          "length_m": "20",
+          "width_m": "30"
+        },
+        "zones": [
+          {
+            "id": "__proto__",
+            "length_m": "2",
+            "width_m": "4",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "25",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-single-soil-50l-soil",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_error": "invalid_zone_id"
+    },
+    {
+      "id": "reserved-layer-id",
+      "case": {
+        "plot": {
+          "length_m": "20",
+          "width_m": "30"
+        },
+        "zones": [
+          {
+            "id": "bed1",
+            "length_m": "2",
+            "width_m": "4",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "25",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "constructor",
+                "material_spec_id": "spec-single-soil-50l-soil",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_error": "invalid_layer_id"
+    },
+    {
+      "id": "reserved-material-spec-id",
+      "case": {
+        "plot": {
+          "length_m": "20",
+          "width_m": "30"
+        },
+        "zones": [
+          {
+            "id": "bed1",
+            "length_m": "2",
+            "width_m": "4",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "25",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed1-layer-1",
+                "material_spec_id": "prototype",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_error": "invalid_material_spec_id"
     }
   ]
 }

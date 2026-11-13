@@ -23,6 +23,20 @@ MATERIALS = {"soil", "sand", "gravel"}
 MAX_ZONES = 50
 MAX_LAYERS_PER_ZONE = 10
 IDENTIFIER = re.compile(r"[A-Za-z0-9_-]{1,64}\Z")
+# Reject names that can affect property-based object handling in JS.
+RESERVED_IDENTIFIERS = {
+    "__proto__", "prototype", "constructor",
+    "__definegetter__", "__definesetter__",
+    "__lookupgetter__", "__lookupsetter__",
+}
+
+
+def valid_identifier(value):
+    return (
+        isinstance(value, str)
+        and IDENTIFIER.fullmatch(value) is not None
+        and value.lower() not in RESERVED_IDENTIFIERS
+    )
 
 
 class InputNumberError(ValueError):
@@ -82,7 +96,7 @@ def reference_case(case):
     if len(case["zones"]) > MAX_ZONES:
         raise ValueError("too_many_zones")
     for zone in case["zones"]:
-        if not isinstance(zone.get("id"), str) or not IDENTIFIER.fullmatch(zone["id"]):
+        if not valid_identifier(zone.get("id")):
             raise ValueError("invalid_zone_id")
         if zone["id"] in used_ids:
             raise ValueError("duplicate_zone_id")
@@ -93,7 +107,7 @@ def reference_case(case):
         area = positive_length(zone["length_m"]) * positive_length(zone["width_m"])
         zone_areas += area
         for layer in zone["layers"]:
-            if not isinstance(layer.get("id"), str) or not IDENTIFIER.fullmatch(layer["id"]):
+            if not valid_identifier(layer.get("id")):
                 raise ValueError("invalid_layer_id")
             if layer["id"] in used_layers:
                 raise ValueError("duplicate_layer_id")
@@ -102,7 +116,7 @@ def reference_case(case):
             if material not in MATERIALS:
                 raise ValueError("invalid_material")
             spec_id = layer.get("material_spec_id")
-            if not isinstance(spec_id, str) or not IDENTIFIER.fullmatch(spec_id):
+            if not valid_identifier(spec_id):
                 raise ValueError("invalid_material_spec_id")
             spec_label = layer.get("material_spec_label")
             if (not isinstance(spec_label, str) or
@@ -184,7 +198,7 @@ def reference_case(case):
 class PlotZonesMaterialsSpecTests(unittest.TestCase):
     def test_reference_values_are_independently_consistent(self):
         data = read_fixtures()
-        self.assertEqual(data["schema_version"], "draft-0.4")
+        self.assertEqual(data["schema_version"], "draft-0.5")
         self.assertEqual(len(data["valid_cases"]), 16)
         for case in data["valid_cases"]:
             with self.subTest(case=case["id"]):
@@ -219,7 +233,7 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
 
     def test_invalid_model_cases_are_rejected(self):
         cases = read_fixtures()["invalid_model_cases"]
-        self.assertEqual(len(cases), 18)
+        self.assertEqual(len(cases), 21)
         for case in cases:
             with self.subTest(case=case["id"]):
                 with self.assertRaises(ValueError) as caught:
@@ -264,6 +278,14 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
         case["zones"][0]["layers"][0]["package_l"] = "0.000000001"
         with self.assertRaisesRegex(ValueError, "package_count_overflow"):
             reference_case(case)
+
+    def test_identifiers_reject_reserved_js_names(self):
+        for value in ("__proto__", "constructor", "prototype",
+                      "__defineGetter__", "__lookupSetter__"):
+            with self.subTest(value=value):
+                self.assertFalse(valid_identifier(value))
+        for value in ("z_01", "layer-2", "spec_soil_a"):
+            self.assertTrue(valid_identifier(value))
 
     def test_model_size_limits_are_enforced(self):
         case = read_fixtures()["valid_cases"][0]
