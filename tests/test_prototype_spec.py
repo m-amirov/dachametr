@@ -68,6 +68,7 @@ def reference_case(case):
     zone_areas = Decimal(0)
     groups = OrderedDict()
     used_ids = set()
+    material_specs = {}
     if len(case["zones"]) > MAX_ZONES:
         raise ValueError("too_many_zones")
     for zone in case["zones"]:
@@ -90,6 +91,19 @@ def reference_case(case):
             material = layer["material"]
             if material not in MATERIALS:
                 raise ValueError("invalid_material")
+            spec_id = layer.get("material_spec_id")
+            if not isinstance(spec_id, str) or not IDENTIFIER.fullmatch(spec_id):
+                raise ValueError("invalid_material_spec_id")
+            spec_label = layer.get("material_spec_label")
+            if (not isinstance(spec_label, str) or
+                    not spec_label.strip() or len(spec_label.strip()) > 80 or
+                    "\\ufffd" in spec_label):
+                raise ValueError("invalid_material_spec_label")
+            spec_label = spec_label.strip()
+            existing = material_specs.get(spec_id)
+            if existing is not None and existing != (material, spec_label):
+                raise ValueError("conflicting_material_spec_definition")
+            material_specs[spec_id] = (material, spec_label)
             thick_cm = parse_number(
                 layer["thickness_cm"], min_exclusive=0, max_inclusive=1000
             )
@@ -108,14 +122,14 @@ def reference_case(case):
             )
             net_l = area * thick_cm / Decimal(100) * Decimal(1000)
             purchase_l = net_l * (Decimal(1) + reserve / Decimal(100))
-            key = (material, package, density)
+            key = (spec_id, material, package, density)
             if key not in groups:
                 groups[key] = {"net_l": Decimal(0), "purchase_l": Decimal(0)}
             groups[key]["net_l"] += net_l
             groups[key]["purchase_l"] += purchase_l
 
     bom = []
-    for (material, package, density), volumes in groups.items():
+    for (spec_id, material, package, density), volumes in groups.items():
         purchase_l = volumes["purchase_l"]
         packages = (
             None if package is None else
@@ -133,6 +147,8 @@ def reference_case(case):
              / Decimal(1000) * density)
         )
         bom.append({
+            "material_spec_id": spec_id,
+            "material_spec_label": material_specs[spec_id][1],
             "material": material,
             "package_l": package,
             "density_kg_m3": density,
@@ -156,8 +172,8 @@ def reference_case(case):
 class PlotZonesMaterialsSpecTests(unittest.TestCase):
     def test_reference_values_are_independently_consistent(self):
         data = read_fixtures()
-        self.assertEqual(data["schema_version"], "draft-0.2")
-        self.assertEqual(len(data["valid_cases"]), 15)
+        self.assertEqual(data["schema_version"], "draft-0.3")
+        self.assertEqual(len(data["valid_cases"]), 16)
         for case in data["valid_cases"]:
             with self.subTest(case=case["id"]):
                 actual = reference_case(case)
@@ -168,6 +184,8 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
                 self.assertIs(actual["areas_exceed_plot"], expected["areas_exceed_plot"])
                 self.assertEqual(len(actual["bom"]), len(expected["bom"]))
                 for got, want in zip(actual["bom"], expected["bom"]):
+                    self.assertEqual(got["material_spec_id"], want["material_spec_id"])
+                    self.assertEqual(got["material_spec_label"], want["material_spec_label"])
                     self.assertEqual(got["material"], want["material"])
                     self.assertEqual(
                         got["package_l"], None if want["package_l"] is None
@@ -189,12 +207,22 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
 
     def test_invalid_model_cases_are_rejected(self):
         cases = read_fixtures()["invalid_model_cases"]
-        self.assertEqual(len(cases), 9)
+        self.assertEqual(len(cases), 16)
         for case in cases:
             with self.subTest(case=case["id"]):
                 with self.assertRaises(ValueError) as caught:
                     reference_case(case["case"])
                 self.assertEqual(str(caught.exception), case["expected_error"])
+
+    def test_material_variants_never_merge_without_explicit_shared_spec(self):
+        cases = read_fixtures()["valid_cases"]
+        merged = next(c for c in cases if c["id"] == "group-before-ceil")
+        separate = next(c for c in cases if c["id"] == "different-soil-grades-separate")
+        self.assertEqual(reference_case(merged)["bom"][0]["packages"], 3)
+        rows = reference_case(separate)["bom"]
+        self.assertEqual(len(rows), 2)
+        self.assertEqual([r["packages"] for r in rows], [2, 2])
+        self.assertNotEqual(rows[0]["material_spec_id"], rows[1]["material_spec_id"])
 
     def test_model_size_limits_are_enforced(self):
         case = read_fixtures()["valid_cases"][0]
@@ -243,7 +271,7 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
                 self.assertEqual(original["zones_area_sum_m2"],
                                  reordered["zones_area_sum_m2"])
                 by_key = lambda result: {
-                    (x["material"], x["package_l"], x["density_kg_m3"]):
+                    (x["material_spec_id"], x["material"], x["package_l"], x["density_kg_m3"]):
                     (x["net_l"], x["purchase_l"], x["packages"], x["mass_required_kg"], x["packed_volume_l"], x["surplus_l"], x["mass_purchased_kg"])
                     for x in result["bom"]
                 }

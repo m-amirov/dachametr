@@ -1,5 +1,5 @@
 {
-  "schema_version": "draft-0.2",
+  "schema_version": "draft-0.3",
   "description": "Independent handwritten numerical reference cases for the proposed plot/zones/materials slice; specification evidence only, no production implementation",
   "unit_contract": "Inputs are strings. Base lengths m, thickness cm, density kg/m3, packaging L; output volumes L; no intermediate rounding",
   "valid_cases": [
@@ -22,7 +22,9 @@
               "reserve_percent": "0",
               "package_l": "50",
               "density_kg_m3": null,
-              "id": "bed1-layer-1"
+              "id": "bed1-layer-1",
+              "material_spec_id": "spec-single-soil-50l-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         }
@@ -42,7 +44,9 @@
             "mass_required_kg": null,
             "packed_volume_l": "2000",
             "surplus_l": "0",
-            "mass_purchased_kg": null
+            "mass_purchased_kg": null,
+            "material_spec_id": "spec-single-soil-50l-soil",
+            "material_spec_label": "Грунт"
           }
         ]
       }
@@ -66,7 +70,9 @@
               "reserve_percent": "0",
               "package_l": "50",
               "density_kg_m3": null,
-              "id": "bed1-layer-1"
+              "id": "bed1-layer-1",
+              "material_spec_id": "spec-group-before-ceil-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         },
@@ -81,7 +87,9 @@
               "reserve_percent": "0",
               "package_l": "50",
               "density_kg_m3": null,
-              "id": "bed2-layer-1"
+              "id": "bed2-layer-1",
+              "material_spec_id": "spec-group-before-ceil-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         }
@@ -101,7 +109,9 @@
             "mass_required_kg": null,
             "packed_volume_l": "150",
             "surplus_l": "30",
-            "mass_purchased_kg": null
+            "mass_purchased_kg": null,
+            "material_spec_id": "spec-group-before-ceil-soil",
+            "material_spec_label": "Грунт"
           }
         ]
       }
@@ -125,7 +135,9 @@
               "reserve_percent": "5",
               "package_l": null,
               "density_kg_m3": "1500",
-              "id": "path-layer-1"
+              "id": "path-layer-1",
+              "material_spec_id": "spec-path-two-layers-mass-only-if-input-sand",
+              "material_spec_label": "Песок"
             },
             {
               "material": "gravel",
@@ -133,7 +145,9 @@
               "reserve_percent": "10",
               "package_l": null,
               "density_kg_m3": "1400",
-              "id": "path-layer-2"
+              "id": "path-layer-2",
+              "material_spec_id": "spec-path-two-layers-mass-only-if-input-gravel",
+              "material_spec_label": "Щебень"
             }
           ]
         }
@@ -153,7 +167,9 @@
             "mass_required_kg": "1575",
             "packed_volume_l": null,
             "surplus_l": null,
-            "mass_purchased_kg": "1575"
+            "mass_purchased_kg": "1575",
+            "material_spec_id": "spec-path-two-layers-mass-only-if-input-sand",
+            "material_spec_label": "Песок"
           },
           {
             "material": "gravel",
@@ -165,7 +181,9 @@
             "mass_required_kg": "770",
             "packed_volume_l": null,
             "surplus_l": null,
-            "mass_purchased_kg": "770"
+            "mass_purchased_kg": "770",
+            "material_spec_id": "spec-path-two-layers-mass-only-if-input-gravel",
+            "material_spec_label": "Щебень"
           }
         ]
       }
@@ -189,7 +207,9 @@
               "reserve_percent": "10",
               "package_l": "10",
               "density_kg_m3": null,
-              "id": "tiny-layer-1"
+              "id": "tiny-layer-1",
+              "material_spec_id": "spec-ru-comma-fractions-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         }
@@ -209,7 +229,9 @@
             "mass_required_kg": null,
             "packed_volume_l": "30",
             "surplus_l": "5.25",
-            "mass_purchased_kg": null
+            "mass_purchased_kg": null,
+            "material_spec_id": "spec-ru-comma-fractions-soil",
+            "material_spec_label": "Грунт"
           }
         ]
       }
@@ -233,7 +255,9 @@
               "reserve_percent": "0",
               "package_l": "50",
               "density_kg_m3": null,
-              "id": "one-layer-1"
+              "id": "one-layer-1",
+              "material_spec_id": "spec-exact-package-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         }
@@ -253,7 +277,9 @@
             "mass_required_kg": null,
             "packed_volume_l": "50",
             "surplus_l": "0",
-            "mass_purchased_kg": null
+            "mass_purchased_kg": null,
+            "material_spec_id": "spec-exact-package-soil",
+            "material_spec_label": "Грунт"
           }
         ]
       }
@@ -277,7 +303,9 @@
               "reserve_percent": "0",
               "package_l": "50",
               "density_kg_m3": null,
-              "id": "one-layer-1"
+              "id": "one-layer-1",
+              "material_spec_id": "spec-below-package-boundary-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         }
@@ -297,7 +325,9 @@
             "mass_required_kg": null,
             "packed_volume_l": "50",
             "surplus_l": "0.001",
-            "mass_purchased_kg": null
+            "mass_purchased_kg": null,
+            "material_spec_id": "spec-below-package-boundary-soil",
+            "material_spec_label": "Грунт"
           }
         ]
       }
@@ -321,7 +351,9 @@
               "reserve_percent": "0",
               "package_l": "50",
               "density_kg_m3": null,
-              "id": "one-layer-1"
+              "id": "one-layer-1",
+              "material_spec_id": "spec-above-package-boundary-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         }
@@ -341,7 +373,9 @@
             "mass_required_kg": null,
             "packed_volume_l": "100",
             "surplus_l": "49.999",
-            "mass_purchased_kg": null
+            "mass_purchased_kg": null,
+            "material_spec_id": "spec-above-package-boundary-soil",
+            "material_spec_label": "Грунт"
           }
         ]
       }
@@ -402,7 +436,9 @@
               "reserve_percent": "0",
               "package_l": "50",
               "density_kg_m3": null,
-              "id": "bed-layer-1"
+              "id": "bed-layer-1",
+              "material_spec_id": "spec-different-package-sizes-not-merged-soil",
+              "material_spec_label": "Грунт"
             },
             {
               "material": "soil",
@@ -410,7 +446,9 @@
               "reserve_percent": "0",
               "package_l": "20",
               "density_kg_m3": null,
-              "id": "bed-layer-2"
+              "id": "bed-layer-2",
+              "material_spec_id": "spec-different-package-sizes-not-merged-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         }
@@ -430,7 +468,9 @@
             "mass_required_kg": null,
             "packed_volume_l": "50",
             "surplus_l": "0",
-            "mass_purchased_kg": null
+            "mass_purchased_kg": null,
+            "material_spec_id": "spec-different-package-sizes-not-merged-soil",
+            "material_spec_label": "Грунт"
           },
           {
             "material": "soil",
@@ -442,7 +482,9 @@
             "mass_required_kg": null,
             "packed_volume_l": "60",
             "surplus_l": "10",
-            "mass_purchased_kg": null
+            "mass_purchased_kg": null,
+            "material_spec_id": "spec-different-package-sizes-not-merged-soil",
+            "material_spec_label": "Грунт"
           }
         ]
       }
@@ -466,7 +508,9 @@
               "reserve_percent": "0",
               "package_l": null,
               "density_kg_m3": "1200",
-              "id": "path-layer-1"
+              "id": "path-layer-1",
+              "material_spec_id": "spec-distinct-densities-not-merged-gravel",
+              "material_spec_label": "Щебень"
             },
             {
               "material": "gravel",
@@ -474,7 +518,9 @@
               "reserve_percent": "0",
               "package_l": null,
               "density_kg_m3": null,
-              "id": "path-layer-2"
+              "id": "path-layer-2",
+              "material_spec_id": "spec-distinct-densities-not-merged-gravel",
+              "material_spec_label": "Щебень"
             }
           ]
         }
@@ -494,7 +540,9 @@
             "mass_required_kg": "120",
             "packed_volume_l": null,
             "surplus_l": null,
-            "mass_purchased_kg": "120"
+            "mass_purchased_kg": "120",
+            "material_spec_id": "spec-distinct-densities-not-merged-gravel",
+            "material_spec_label": "Щебень"
           },
           {
             "material": "gravel",
@@ -506,7 +554,9 @@
             "mass_required_kg": null,
             "packed_volume_l": null,
             "surplus_l": null,
-            "mass_purchased_kg": null
+            "mass_purchased_kg": null,
+            "material_spec_id": "spec-distinct-densities-not-merged-gravel",
+            "material_spec_label": "Щебень"
           }
         ]
       }
@@ -530,7 +580,9 @@
               "reserve_percent": "0",
               "package_l": "0.3",
               "density_kg_m3": null,
-              "id": "a-layer-1"
+              "id": "a-layer-1",
+              "material_spec_id": "spec-decimal-tenths-exact-group-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         },
@@ -545,7 +597,9 @@
               "reserve_percent": "0",
               "package_l": "0.3",
               "density_kg_m3": null,
-              "id": "b-layer-1"
+              "id": "b-layer-1",
+              "material_spec_id": "spec-decimal-tenths-exact-group-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         },
@@ -560,7 +614,9 @@
               "reserve_percent": "0",
               "package_l": "0.3",
               "density_kg_m3": null,
-              "id": "c-layer-1"
+              "id": "c-layer-1",
+              "material_spec_id": "spec-decimal-tenths-exact-group-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         }
@@ -580,7 +636,9 @@
             "mass_required_kg": null,
             "packed_volume_l": "0.3",
             "surplus_l": "0",
-            "mass_purchased_kg": null
+            "mass_purchased_kg": null,
+            "material_spec_id": "spec-decimal-tenths-exact-group-soil",
+            "material_spec_label": "Грунт"
           }
         ]
       }
@@ -604,7 +662,9 @@
               "thickness_cm": "6",
               "reserve_percent": "0",
               "package_l": "50",
-              "density_kg_m3": null
+              "density_kg_m3": null,
+              "material_spec_id": "spec-mixed-reserves-same-bom-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         },
@@ -619,7 +679,9 @@
               "thickness_cm": "6",
               "reserve_percent": "10",
               "package_l": "50",
-              "density_kg_m3": null
+              "density_kg_m3": null,
+              "material_spec_id": "spec-mixed-reserves-same-bom-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         }
@@ -639,7 +701,9 @@
             "mass_required_kg": null,
             "packed_volume_l": "150",
             "surplus_l": "24",
-            "mass_purchased_kg": null
+            "mass_purchased_kg": null,
+            "material_spec_id": "spec-mixed-reserves-same-bom-soil",
+            "material_spec_label": "Грунт"
           }
         ]
       }
@@ -663,7 +727,9 @@
               "thickness_cm": "5",
               "reserve_percent": "0",
               "package_l": null,
-              "density_kg_m3": "1500"
+              "density_kg_m3": "1500",
+              "material_spec_id": "spec-equivalent-density-decimal-keys-sand",
+              "material_spec_label": "Песок"
             }
           ]
         },
@@ -678,7 +744,9 @@
               "thickness_cm": "5",
               "reserve_percent": "0",
               "package_l": null,
-              "density_kg_m3": "1500.0"
+              "density_kg_m3": "1500.0",
+              "material_spec_id": "spec-equivalent-density-decimal-keys-sand",
+              "material_spec_label": "Песок"
             }
           ]
         }
@@ -698,7 +766,9 @@
             "mass_required_kg": "150",
             "packed_volume_l": null,
             "surplus_l": null,
-            "mass_purchased_kg": "150"
+            "mass_purchased_kg": "150",
+            "material_spec_id": "spec-equivalent-density-decimal-keys-sand",
+            "material_spec_label": "Песок"
           }
         ]
       }
@@ -722,7 +792,9 @@
               "thickness_cm": "10",
               "reserve_percent": "0",
               "package_l": "60",
-              "density_kg_m3": "1000"
+              "density_kg_m3": "1000",
+              "material_spec_id": "spec-packed-density-vs-demand-soil",
+              "material_spec_label": "Грунт"
             }
           ]
         }
@@ -742,7 +814,88 @@
             "mass_required_kg": "100",
             "packed_volume_l": "120",
             "surplus_l": "20",
-            "mass_purchased_kg": "120"
+            "mass_purchased_kg": "120",
+            "material_spec_id": "spec-packed-density-vs-demand-soil",
+            "material_spec_label": "Грунт"
+          }
+        ]
+      }
+    },
+    {
+      "id": "different-soil-grades-separate",
+      "description": "Two soil variants, each 60 L and 50 L bags: cannot be merged; 2 + 2 bags (not 3)",
+      "plot": {
+        "length_m": "10",
+        "width_m": "10"
+      },
+      "zones": [
+        {
+          "id": "bed1",
+          "length_m": "1",
+          "width_m": "1",
+          "layers": [
+            {
+              "material": "soil",
+              "thickness_cm": "6",
+              "reserve_percent": "0",
+              "package_l": "50",
+              "density_kg_m3": null,
+              "id": "bed1-layer-1",
+              "material_spec_id": "variant-soil-type-a",
+              "material_spec_label": "Грунт тип А"
+            }
+          ]
+        },
+        {
+          "id": "bed2",
+          "length_m": "1",
+          "width_m": "1",
+          "layers": [
+            {
+              "material": "soil",
+              "thickness_cm": "6",
+              "reserve_percent": "0",
+              "package_l": "50",
+              "density_kg_m3": null,
+              "id": "bed2-layer-1",
+              "material_spec_id": "variant-soil-type-b",
+              "material_spec_label": "Грунт тип Б"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "plot_area_m2": "100",
+        "zones_area_sum_m2": "2",
+        "areas_exceed_plot": false,
+        "bom": [
+          {
+            "material": "soil",
+            "package_l": "50",
+            "density_kg_m3": null,
+            "net_l": "60",
+            "purchase_l": "60",
+            "packages": 2,
+            "mass_required_kg": null,
+            "packed_volume_l": "100",
+            "surplus_l": "40",
+            "mass_purchased_kg": null,
+            "material_spec_id": "variant-soil-type-a",
+            "material_spec_label": "Грунт тип А"
+          },
+          {
+            "material": "soil",
+            "package_l": "50",
+            "density_kg_m3": null,
+            "net_l": "60",
+            "purchase_l": "60",
+            "packages": 2,
+            "mass_required_kg": null,
+            "packed_volume_l": "100",
+            "surplus_l": "40",
+            "mass_purchased_kg": null,
+            "material_spec_id": "variant-soil-type-b",
+            "material_spec_label": "Грунт тип Б"
           }
         ]
       }
@@ -834,7 +987,9 @@
                 "reserve_percent": "0",
                 "package_l": "50",
                 "density_kg_m3": null,
-                "id": "bed1-layer-1"
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-negative-duplicate-zone-identity-soil",
+                "material_spec_label": "Грунт"
               }
             ]
           },
@@ -849,7 +1004,9 @@
                 "reserve_percent": "0",
                 "package_l": "50",
                 "density_kg_m3": null,
-                "id": "bed1-layer-1"
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-negative-duplicate-zone-identity-soil",
+                "material_spec_label": "Грунт"
               }
             ]
           }
@@ -876,7 +1033,9 @@
                 "reserve_percent": "0",
                 "package_l": "50",
                 "density_kg_m3": null,
-                "id": "bed1-layer-1"
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-negative-duplicate-layer-identity-soil",
+                "material_spec_label": "Грунт"
               },
               {
                 "material": "soil",
@@ -884,7 +1043,9 @@
                 "reserve_percent": "0",
                 "package_l": "50",
                 "density_kg_m3": null,
-                "id": "bed1-layer-1"
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-negative-duplicate-layer-identity-soil",
+                "material_spec_label": "Грунт"
               }
             ]
           }
@@ -911,7 +1072,9 @@
                 "reserve_percent": "0",
                 "package_l": "50",
                 "density_kg_m3": null,
-                "id": "bed1-layer-1"
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-negative-empty-zone-identity-soil",
+                "material_spec_label": "Грунт"
               }
             ]
           }
@@ -938,7 +1101,9 @@
                 "reserve_percent": "0",
                 "package_l": "50",
                 "density_kg_m3": null,
-                "id": ""
+                "id": "",
+                "material_spec_id": "spec-negative-empty-layer-identity-soil",
+                "material_spec_label": "Грунт"
               }
             ]
           }
@@ -965,7 +1130,8 @@
                 "reserve_percent": "0",
                 "package_l": "50",
                 "density_kg_m3": null,
-                "id": "bed1-layer-1"
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-negative-unrecognized-material-clay"
               }
             ]
           }
@@ -992,7 +1158,9 @@
                 "reserve_percent": "101",
                 "package_l": "50",
                 "density_kg_m3": null,
-                "id": "bed1-layer-1"
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-negative-unsupported-reserve-soil",
+                "material_spec_label": "Грунт"
               }
             ]
           }
@@ -1019,7 +1187,9 @@
                 "reserve_percent": "0",
                 "package_l": "0",
                 "density_kg_m3": null,
-                "id": "bed1-layer-1"
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-negative-zero-package-soil",
+                "material_spec_label": "Грунт"
               }
             ]
           }
@@ -1046,7 +1216,9 @@
                 "reserve_percent": "0",
                 "package_l": "50",
                 "density_kg_m3": "0",
-                "id": "bed1-layer-1"
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-negative-zero-density-soil",
+                "material_spec_label": "Грунт"
               }
             ]
           }
@@ -1073,13 +1245,335 @@
                 "reserve_percent": "0",
                 "package_l": "50",
                 "density_kg_m3": null,
-                "id": "bed1-layer-1"
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-negative-zero-zone-length-soil",
+                "material_spec_label": "Грунт"
               }
             ]
           }
         ]
       },
       "expected_error": "out_of_range"
+    },
+    {
+      "id": "missing-material-spec-id",
+      "case": {
+        "plot": {
+          "length_m": "10",
+          "width_m": "10"
+        },
+        "zones": [
+          {
+            "id": "bed1",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed1-layer-1",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          },
+          {
+            "id": "bed2",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed2-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_error": "invalid_material_spec_id"
+    },
+    {
+      "id": "empty-material-spec-id",
+      "case": {
+        "plot": {
+          "length_m": "10",
+          "width_m": "10"
+        },
+        "zones": [
+          {
+            "id": "bed1",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed1-layer-1",
+                "material_spec_id": "",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          },
+          {
+            "id": "bed2",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed2-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_error": "invalid_material_spec_id"
+    },
+    {
+      "id": "missing-material-label",
+      "case": {
+        "plot": {
+          "length_m": "10",
+          "width_m": "10"
+        },
+        "zones": [
+          {
+            "id": "bed1",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil"
+              }
+            ]
+          },
+          {
+            "id": "bed2",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed2-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_error": "invalid_material_spec_label"
+    },
+    {
+      "id": "blank-material-label",
+      "case": {
+        "plot": {
+          "length_m": "10",
+          "width_m": "10"
+        },
+        "zones": [
+          {
+            "id": "bed1",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil",
+                "material_spec_label": "   "
+              }
+            ]
+          },
+          {
+            "id": "bed2",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed2-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_error": "invalid_material_spec_label"
+    },
+    {
+      "id": "overlong-material-label",
+      "case": {
+        "plot": {
+          "length_m": "10",
+          "width_m": "10"
+        },
+        "zones": [
+          {
+            "id": "bed1",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil",
+                "material_spec_label": "ааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааа"
+              }
+            ]
+          },
+          {
+            "id": "bed2",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed2-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_error": "invalid_material_spec_label"
+    },
+    {
+      "id": "same-id-conflicting-label",
+      "case": {
+        "plot": {
+          "length_m": "10",
+          "width_m": "10"
+        },
+        "zones": [
+          {
+            "id": "bed1",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          },
+          {
+            "id": "bed2",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed2-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil",
+                "material_spec_label": "Щебень 5–20 мм"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_error": "conflicting_material_spec_definition"
+    },
+    {
+      "id": "same-id-conflicting-kind",
+      "case": {
+        "plot": {
+          "length_m": "10",
+          "width_m": "10"
+        },
+        "zones": [
+          {
+            "id": "bed1",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "soil",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed1-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          },
+          {
+            "id": "bed2",
+            "length_m": "1",
+            "width_m": "1",
+            "layers": [
+              {
+                "material": "gravel",
+                "thickness_cm": "6",
+                "reserve_percent": "0",
+                "package_l": "50",
+                "density_kg_m3": null,
+                "id": "bed2-layer-1",
+                "material_spec_id": "spec-group-before-ceil-soil",
+                "material_spec_label": "Грунт"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_error": "conflicting_material_spec_definition"
     }
   ]
 }
