@@ -1,7 +1,7 @@
 # UI evidence — local prototype
 
-Rendered application SHA: `f6d42440f3720e2f85a45370aaeef2df2091c8f7`  
-Captured: 2026-11-13  
+Rendered application SHA: `f6d42440f3720e2f85a45370aaeef2df2091c8f7`
+Captured: 2026-11-13
 Runner: Playwright `1.65.0`, Chromium `158.0.8127.18`, DPR 1, local Vite server at `127.0.0.1:4173`.
 
 ## Captured states
