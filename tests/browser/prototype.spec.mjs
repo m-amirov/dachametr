@@ -68,6 +68,12 @@ test('comma editing is preserved and an invalid late zone blocks the full BOM', 
   await plotLength.fill('1,');
   await expect(plotLength).toHaveValue('1,');
   await expect(page.getByTestId('blocked-results')).toBeVisible();
+  await plotLength.press('Backspace');
+  await expect(field(page, 'plot-field', 'length')).toHaveValue('1');
+  await field(page, 'plot-field', 'length').press('Backspace');
+  await expect(field(page, 'plot-field', 'length')).toHaveValue('');
+  await field(page, 'plot-field', 'length').type('1,');
+  await expect(field(page, 'plot-field', 'length')).toHaveValue('1,');
 
   await plotLength.fill('20');
   await field(page, 'plot-field', 'width').fill('30');
@@ -80,6 +86,20 @@ test('comma editing is preserved and an invalid late zone blocks the full BOM', 
   await expect(page.getByTestId('blocked-results')).toBeVisible();
   await expect(page.getByTestId('bom-row')).toHaveCount(0);
   await expect(page.getByText('Исправьте ошибки, чтобы получить итоговую ведомость')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('reload and back-forward navigation stay usable without promising persistence', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await page.reload();
+  await expect(field(page, 'plot-field', 'length')).toHaveValue('');
+  await page.goto('/?navigation-probe=1');
+  await page.goBack();
+  await expect(page).toHaveTitle('Дачаметр — расчёт материалов участка');
+  await page.goForward();
+  await expect(page).toHaveTitle('Дачаметр — расчёт материалов участка');
   expect(errors).toEqual([]);
 });
 
