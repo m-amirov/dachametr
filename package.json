@@ -1,0 +1,17 @@
+{
+  "name": "dachametr-local-domain-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.16.0 <23"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit --project tsconfig.json",
+    "test:domain": "node --experimental-strip-types --test tests/plot-domain.test.mjs",
+    "verify:domain": "npm run typecheck && npm run test:domain"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3"
+  }
+}

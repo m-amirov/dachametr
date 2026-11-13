@@ -1,0 +1,41 @@
+name: Local prototype domain engine
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tests/plot-domain.test.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - '.github/workflows/prototype-domain.yml'
+      - 'docs/specs/plot-zones-materials-cases.json'
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/plot-domain.test.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - '.github/workflows/prototype-domain.yml'
+      - 'docs/specs/plot-zones-materials-cases.json'
+permissions:
+  contents: read
+jobs:
+  domain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - name: Install locked development dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: TypeScript strict typecheck
+        run: npm run typecheck
+      - name: Domain and golden fixture tests
+        run: npm run test:domain
