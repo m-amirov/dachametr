@@ -23,3 +23,24 @@ jobs:
         run: npm run typecheck
       - name: Domain and golden fixture tests
         run: npm run test:domain
+  ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node 22.16.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - name: Install locked development dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium for browser checks
+        run: npx playwright install --with-deps chromium
+      - name: TypeScript and UI unit tests
+        run: npm run typecheck && npm run test:ui
+      - name: Build local prototype
+        run: npm run build
+      - name: Critical browser scenarios
+        run: npm run test:browser

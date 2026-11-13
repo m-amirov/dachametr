@@ -18,8 +18,8 @@
 }
 
 * { box-sizing: border-box; }
-html { min-width: 320px; background: var(--paper); }
-body { min-width: 320px; min-height: 100vh; margin: 0; overflow-x: hidden; background: var(--paper); }
+html { background: var(--paper); }
+body { min-height: 100vh; margin: 0; overflow-x: hidden; background: var(--paper); }
 button, input, select { font: inherit; }
 button { cursor: pointer; }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgb(185 84 54 / 35%); outline-offset: 2px; }
@@ -151,6 +151,13 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
   .spec-id { display: block; margin-top: 8px; text-align: left; }
   .breakdown li { display: block; }
   .breakdown li span:last-child { display: block; margin-top: 3px; text-align: left; }
+}
+
+@media (max-width: 360px) {
+  .site-header h1 { font-size: 40px; }
+  .section-title h2 { font-size: 24px; overflow-wrap: anywhere; }
+  .plot-readout { flex-wrap: wrap; }
+  .plot-readout span:last-child { margin-left: auto; text-align: right; overflow-wrap: anywhere; }
 }
 
 @media (prefers-reduced-motion: reduce) {
