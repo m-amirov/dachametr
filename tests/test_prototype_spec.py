@@ -15,6 +15,9 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "docs/specs/plot-zones-materials-cases.json"
 NUMBER = re.compile(r"-?\d+(?:[.,]\d+)?\Z")
 MATERIALS = {"soil", "sand", "gravel"}
+MAX_ZONES = 50
+MAX_LAYERS_PER_ZONE = 10
+IDENTIFIER = re.compile(r"[A-Za-z0-9_-]{1,64}\\Z")
 
 
 class InputNumberError(ValueError):
@@ -65,14 +68,25 @@ def reference_case(case):
     zone_areas = Decimal(0)
     groups = OrderedDict()
     used_ids = set()
-
+    if len(case["zones"]) > MAX_ZONES:
+        raise ValueError("too_many_zones")
     for zone in case["zones"]:
+        if not isinstance(zone.get("id"), str) or not IDENTIFIER.fullmatch(zone["id"]):
+            raise ValueError("invalid_zone_id")
         if zone["id"] in used_ids:
             raise ValueError("duplicate_zone_id")
         used_ids.add(zone["id"])
+        if len(zone["layers"]) > MAX_LAYERS_PER_ZONE:
+            raise ValueError("too_many_layers")
+        used_layers = set()
         area = positive_length(zone["length_m"]) * positive_length(zone["width_m"])
         zone_areas += area
         for layer in zone["layers"]:
+            if not isinstance(layer.get("id"), str) or not IDENTIFIER.fullmatch(layer["id"]):
+                raise ValueError("invalid_layer_id")
+            if layer["id"] in used_layers:
+                raise ValueError("duplicate_layer_id")
+            used_layers.add(layer["id"])
             material = layer["material"]
             if material not in MATERIALS:
                 raise ValueError("invalid_material")
@@ -133,7 +147,7 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
     def test_reference_values_are_independently_consistent(self):
         data = read_fixtures()
         self.assertEqual(data["schema_version"], "draft-0.1")
-        self.assertEqual(len(data["valid_cases"]), 12)
+        self.assertEqual(len(data["valid_cases"]), 14)
         for case in data["valid_cases"]:
             with self.subTest(case=case["id"]):
                 actual = reference_case(case)
@@ -160,6 +174,27 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
                         got["mass_kg"], None if want["mass_kg"] is None
                         else Decimal(want["mass_kg"])
                     )
+
+    def test_invalid_model_cases_are_rejected(self):
+        cases = read_fixtures()["invalid_model_cases"]
+        self.assertEqual(len(cases), 9)
+        for case in cases:
+            with self.subTest(case=case["id"]):
+                with self.assertRaises(ValueError) as caught:
+                    reference_case(case["case"])
+                self.assertEqual(str(caught.exception), case["expected_error"])
+
+    def test_model_size_limits_are_enforced(self):
+        case = read_fixtures()["valid_cases"][0]
+        zone = case["zones"][0]
+        zones = [{**zone, "id": f"zone-{i}"} for i in range(MAX_ZONES + 1)]
+        with self.assertRaisesRegex(ValueError, "too_many_zones"):
+            reference_case({"plot": case["plot"], "zones": zones})
+        many_layers = [{**zone["layers"][0], "id": f"layer-{i}"}
+                       for i in range(MAX_LAYERS_PER_ZONE + 1)]
+        with self.assertRaisesRegex(ValueError, "too_many_layers"):
+            reference_case({"plot": case["plot"],
+                            "zones": [{**zone, "layers": many_layers}]})
 
     def test_invalid_numeric_inputs_are_rejected(self):
         cases = read_fixtures()["invalid_number_cases"]
