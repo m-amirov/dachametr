@@ -27,6 +27,14 @@ test('initial app render is task-first and shows the empty zone action', () => {
   assert.doesNotMatch(html, /Ведомость закупки/);
 });
 
+test('invalid plot input blocks results even before the first zone exists', () => {
+  const state = updatePlotField(createInitialState(), 'length', '1,');
+  const html = renderAppHtml(state, validateDraft(state));
+  assert.match(html, /РЕЗУЛЬТАТ ЗАБЛОКИРОВАН/);
+  assert.match(html, /Введите число/);
+  assert.doesNotMatch(html, /Ведомость появится здесь/);
+});
+
 test('zone and layer render exposes labelled editing controls', () => {
   let state = addZone(createInitialState());
   state = addLayer(state, state.zones[0].id);

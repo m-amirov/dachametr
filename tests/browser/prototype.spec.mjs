@@ -67,7 +67,7 @@ test('comma editing is preserved and an invalid late zone blocks the full BOM', 
   const plotLength = field(page, 'plot-field', 'length');
   await plotLength.fill('1,');
   await expect(plotLength).toHaveValue('1,');
-  await expect(page.getByRole('heading', { name: 'Ведомость появится здесь' })).toBeVisible();
+  await expect(page.getByTestId('blocked-results')).toBeVisible();
 
   await plotLength.fill('20');
   await field(page, 'plot-field', 'width').fill('30');
