@@ -1,5 +1,5 @@
 {
-  "schema_version": "draft-0.1",
+  "schema_version": "draft-0.2",
   "description": "Independent handwritten numerical reference cases for the proposed plot/zones/materials slice; specification evidence only, no production implementation",
   "unit_contract": "Inputs are strings. Base lengths m, thickness cm, density kg/m3, packaging L; output volumes L; no intermediate rounding",
   "valid_cases": [

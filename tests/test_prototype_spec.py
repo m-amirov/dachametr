@@ -156,7 +156,7 @@ def reference_case(case):
 class PlotZonesMaterialsSpecTests(unittest.TestCase):
     def test_reference_values_are_independently_consistent(self):
         data = read_fixtures()
-        self.assertEqual(data["schema_version"], "draft-0.1")
+        self.assertEqual(data["schema_version"], "draft-0.2")
         self.assertEqual(len(data["valid_cases"]), 15)
         for case in data["valid_cases"]:
             with self.subTest(case=case["id"]):
@@ -207,6 +207,19 @@ class PlotZonesMaterialsSpecTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "too_many_layers"):
             reference_case({"plot": case["plot"],
                             "zones": [{**zone, "layers": many_layers}]})
+
+    def test_invalid_zone_blocks_full_bom(self):
+        fixture = read_fixtures()["valid_cases"]
+        case = next(c for c in fixture if c["id"] == "group-before-ceil")
+        import copy
+        bad = copy.deepcopy(case)
+        bad["zones"][1]["layers"][0]["thickness_cm"] = "broken"
+        with self.assertRaises(InputNumberError):
+            reference_case(bad)
+
+    def test_spec_markdown_has_no_literal_newline_escapes(self):
+        spec = (ROOT / "docs/specs/plot-zones-materials-v0.md").read_text(encoding="utf-8")
+        self.assertNotIn("|\\\\n|", spec)
 
     def test_invalid_numeric_inputs_are_rejected(self):
         cases = read_fixtures()["invalid_number_cases"]
