@@ -16,6 +16,9 @@
 - [Критерии качества](docs/quality-gates.md)
 - [Этапы разработки](docs/roadmap.md)
 - [Аудит и источники скиллов](docs/skills-sources.md)
+- [Сценарии оценки поведения скиллов](docs/skill-evaluations.md)
+- [Рубрика визуального QA](docs/design-review-rubric.md)
+- [Первая задача для Codex](docs/first-codex-task.md)
 
 ## Codex
 Девять локальных project skills расположены в .agents/skills; выбираются по задаче через AGENTS.md.
