@@ -1,24 +1,8 @@
 name: Local prototype domain engine
 on:
   pull_request:
-    paths:
-      - 'src/**'
-      - 'tests/plot-domain.test.mjs'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
-      - '.github/workflows/prototype-domain.yml'
-      - 'docs/specs/plot-zones-materials-cases.json'
   push:
     branches: [main]
-    paths:
-      - 'src/**'
-      - 'tests/plot-domain.test.mjs'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
-      - '.github/workflows/prototype-domain.yml'
-      - 'docs/specs/plot-zones-materials-cases.json'
 permissions:
   contents: read
 jobs:
