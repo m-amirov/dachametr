@@ -153,6 +153,14 @@ test('result-nearby layout stays within the viewport at mobile tablet desktop an
       scroll: document.documentElement.scrollWidth,
       client: document.documentElement.clientWidth,
     }));
+    if (overflow.scroll > overflow.client) {
+      const offenders = await page.evaluate(() => Array.from(document.querySelectorAll('*')).map(el => {
+        const rect = el.getBoundingClientRect();
+        return { tag: el.tagName.toLowerCase(), cls: typeof el.className === 'string' ? el.className.slice(0, 80) : '',
+          content: (el.textContent ?? '').trim().slice(0, 30), left: Math.round(rect.left), right: Math.round(rect.right) };
+      }).filter(x => x.right > innerWidth + 0.5 || x.left < -0.5).sort((x, y) => y.right - x.right).slice(0, 12));
+      throw new Error('horizontal overflow width ' + width + ': ' + JSON.stringify(overflow) + ' offenders ' + JSON.stringify(offenders));
+    }
     expect(overflow.scroll, 'horizontal overflow at width ' + width).toBeLessThanOrEqual(overflow.client);
   }
   expect(errors).toEqual([]);
