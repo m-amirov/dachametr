@@ -89,7 +89,14 @@ def capture_all(output: Path) -> dict:
                       openZones: Array.from(document.querySelectorAll('details.zone-card')).map(x => x.open)
                     })""")
                     if metrics["scrollWidth"] > metrics["clientWidth"]:
-                        raise AssertionError(f"horizontal overflow {width}: {metrics}")
+                        offenders = page.evaluate("""() => Array.from(document.querySelectorAll('*')).map(el => {
+                            const rect = el.getBoundingClientRect();
+                            return {tag: el.tagName.toLowerCase(), className: typeof el.className === 'string' ? el.className.slice(0,100) : '',
+                                    text: (el.textContent || '').trim().slice(0,40), left: Math.round(rect.left), right: Math.round(rect.right),
+                                    scrollWidth: el.scrollWidth, clientWidth: el.clientWidth};
+                          }).filter(x => x.right > innerWidth + 0.5 || x.left < -0.5)
+                            .sort((a,b) => b.right - a.right).slice(0,15)""")
+                        raise AssertionError(f"horizontal overflow {width}: {metrics}; offenders: {offenders}")
                     if document == "index.html":
                         expected = [True, False] if width <= 720 else [True, True]
                         assert metrics["openZones"] == expected, (width, metrics)
