@@ -17,7 +17,7 @@ import {
   type MaterialSpecDraft,
   type ZoneDraft,
 } from './model.ts';
-import { formatRuNumber, formatUnit } from './format.ts';
+import { formatRuNumber, formatUnit, sumWholePackages } from './format.ts';
 import { validateDraft, type DraftValidation } from './validation.ts';
 
 const MATERIAL_LABELS: Record<MaterialKind, string> = {
@@ -54,6 +54,7 @@ function errorFor(validation: DraftValidation, path: string): boolean {
 interface ViewState {
   openZoneId: string | null;
   openLayerIds: ReadonlySet<string>;
+  openBomKeys?: ReadonlySet<string>;
 }
 
 function draftError(validation: DraftValidation, path: string): string | undefined {
@@ -179,7 +180,8 @@ function renderZone(state: AppState, zone: ZoneDraft, zoneIndex: number, validat
   </article>`;
 }
 
-function renderBomRow(row: BomRow): string {
+function renderBomRow(row: BomRow, openBomKeys?: ReadonlySet<string>): string {
+  const key = [row.material_spec_id, row.material, row.package_l ?? '', row.density_kg_m3 ?? ''].join('|');
   const packed = row.package_l === null ? 'Россыпью / по объёму' : `${formatRuNumber(row.packages ?? 0)} уп. × ${formatUnit(row.package_l, 'л')}`;
   const purchased = row.packed_volume_l === null ? '—' : formatUnit(row.packed_volume_l, 'л');
   const surplus = row.surplus_l === null ? '—' : formatUnit(row.surplus_l, 'л');
@@ -190,7 +192,7 @@ function renderBomRow(row: BomRow): string {
       <div class="bom-buy"><span>Купить</span><strong>${packed}</strong></div>
       <div><span>Излишек</span><strong>${surplus}</strong></div>
     </div>
-    <details class="bom-details">
+    <details class="bom-details" data-bom-key="${escapeHtml(key)}"${openBomKeys?.has(key) ? ' open' : ''}>
       <summary>Показать расчёт и массу</summary>
       <dl class="metric-grid">
         <div><dt>Чистый объём</dt><dd>${formatUnit(row.net_l, 'л')}</dd></div>
@@ -210,7 +212,7 @@ function renderZoneBreakdown(state: AppState, value: DetailedCalculated): string
   </section>`;
 }
 
-function renderResults(state: AppState, validation: DraftValidation): string {
+function renderResults(state: AppState, validation: DraftValidation, view: ViewState): string {
   if (!validation.valid || !validation.result?.ok) {
     const hasDraftInput = state.plot.length.trim() !== '' || state.plot.width.trim() !== '' || state.zones.length > 0;
     if (!hasDraftInput) return `<aside class="results-column" id="result"><section class="panel result-empty"><span class="eyebrow">РЕЗУЛЬТАТ</span><h2>Ведомость появится здесь</h2><p>Укажите размеры, добавьте зону и слой материала. Результат обновится автоматически.</p></section></aside>`;
@@ -220,14 +222,13 @@ function renderResults(state: AppState, validation: DraftValidation): string {
   const value = validation.result.value;
   const sotki = decimalDivide(value.plot_area_m2, '100');
   const totalPurchase = value.bom.reduce((sum, row) => sum.add(Exact.decimal(row.purchase_l)), new Exact(0n)).toString();
-  const allPackaged = value.bom.length > 0 && value.bom.every(row => row.packages !== null);
-  const totalPackages = allPackaged ? value.bom.reduce((sum, row) => sum + (row.packages ?? 0), 0) : null;
+  const totalPackages = sumWholePackages(value.bom.map(row => row.packages));
   return `<aside class="results-column" id="result" data-testid="result-panel"><section class="panel result-panel">
     <div class="result-heading"><div><span class="eyebrow">ВАШ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><span class="live-dot">Обновляется</span></div>
     <div class="result-lead"><div><span>Всего нужно с запасом</span><strong>${formatUnit(totalPurchase, 'л')}</strong></div>${totalPackages !== null ? `<div class="total-packages"><span>Упаковок</span><strong>${formatRuNumber(totalPackages)} уп.</strong></div>` : '<div class="total-packages"><span>Упаковки</span><strong>По материалам</strong></div>'}</div>
     <div class="area-summary"><div><span>Участок</span><strong>${formatUnit(value.plot_area_m2, 'м²')}</strong></div><div><span>Сотки</span><strong>${formatUnit(sotki, 'сотки')}</strong></div><div><span>Зоны</span><strong>${state.zones.length}</strong></div></div>
     ${value.areas_exceed_plot ? '<div class="warning" role="status"><strong>Проверьте площадь</strong><span>Сумма площадей зон больше участка. Мы не вычитаем и не размещаем зоны автоматически.</span></div>' : ''}
-    <div class="result-list"><div class="section-title"><span class="eyebrow">МАТЕРИАЛЫ</span><h3>Что купить</h3></div>${value.bom.length === 0 ? '<div class="empty-inline">Добавьте хотя бы один слой, чтобы получить строку закупки.</div>' : value.bom.map(renderBomRow).join('')}</div>
+    <div class="result-list"><div class="section-title"><span class="eyebrow">МАТЕРИАЛЫ</span><h3>Что купить</h3></div>${value.bom.length === 0 ? '<div class="empty-inline">Добавьте хотя бы один слой, чтобы получить строку закупки.</div>' : value.bom.map(row => renderBomRow(row, view.openBomKeys)).join('')}</div>
     ${renderZoneBreakdown(state, value)}
   </section></aside>`;
 }
@@ -256,7 +257,7 @@ export function renderAppHtml(state: AppState, validation: DraftValidation, view
           <div class="section-title zones-title"><div><span class="eyebrow">ЗОНЫ</span><h2>Зоны <span class="count-badge">${state.zones.length}</span></h2><p>Грядки, дорожки и другие прямоугольные области.</p></div><button type="button" class="button button-primary" data-action="add-zone" data-testid="add-zone">+ Добавить зону</button></div>
           ${state.zones.length === 0 ? '<div class="empty-zones"><div><h3>Начните с первой зоны</h3><p>Назовите её, задайте размеры и добавьте слой грунта, песка или щебня.</p></div><button type="button" class="button button-secondary" data-action="add-zone">Добавить первую зону</button></div>' : state.zones.map((zone, index) => renderZone(state, zone, index, validation, view)).join('')}
         </section>
-      </form></section>${renderResults(state, validation)}</div>
+      </form></section>${renderResults(state, validation, view)}</div>
     </main>
     <footer class="site-footer"><span>Площадь × толщина = объём слоя. Запас и плотность указываете сами.</span><span>Нет сохранения после перезагрузки · нет внешних запросов</span></footer>
   </div>`;
@@ -288,8 +289,17 @@ export function mountApp(root: HTMLElement): void {
   let state = createInitialState();
   let openZoneId: string | null = null;
   const openLayerIds = new Set<string>();
+  const openBomKeys = new Set<string>();
   const render = (focus?: FocusSnapshot) => {
-    root.innerHTML = renderAppHtml(state, validateDraft(state), { openZoneId, openLayerIds });
+    // Read native details state before replacing DOM, including across transient
+    // invalid inputs where BOM is intentionally hidden by fail-closed validation.
+    for (const details of root.querySelectorAll<HTMLDetailsElement>('details.bom-details[data-bom-key]')) {
+      const key = details.dataset.bomKey;
+      if (!key) continue;
+      if (details.open) openBomKeys.add(key);
+      else openBomKeys.delete(key);
+    }
+    root.innerHTML = renderAppHtml(state, validateDraft(state), { openZoneId, openLayerIds, openBomKeys });
     if (focus) restoreFocus(root, focus);
   };
   const update = (next: AppState, preserveFocus = true) => {
@@ -366,6 +376,7 @@ export function mountApp(root: HTMLElement): void {
       if (state.zones.length === 0 || window.confirm('Сбросить введённые размеры, зоны и материалы?')) {
         openZoneId = null;
         openLayerIds.clear();
+        openBomKeys.clear();
         update(createInitialState(), false);
       }
     }

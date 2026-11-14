@@ -13,3 +13,9 @@ export function formatUnit(value: string | number | null | undefined, unit: stri
   const formatted = formatRuNumber(value);
   return formatted === '—' ? formatted : `${formatted} ${unit}`;
 }
+
+/** Each individual domain package count is safe, but its total may exceed MAX_SAFE_INTEGER. */
+export function sumWholePackages(packages: readonly (number | null)[]): string | null {
+  if (packages.length === 0 || packages.some(count => count === null)) return null;
+  return packages.reduce<bigint>((sum, count) => sum + BigInt(count ?? 0), 0n).toString();
+}

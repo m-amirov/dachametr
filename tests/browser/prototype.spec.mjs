@@ -187,3 +187,21 @@ test('adding another layer collapses prior settings without changing domain valu
   await expect(first.locator('[data-action="layer-field"][data-field="thickness"]')).toHaveValue('6');
   await expect(second.locator('[data-action="layer-field"][data-field="thickness"]')).toHaveValue('10');
 });
+
+test('open BOM details remain open while editing and after temporary invalid input', async ({ page }) => {
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const zone = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(zone, { material: 'soil', label: 'Грунт', thickness: '25', packageL: '50' });
+  await page.getByTestId('bom-row').first().locator('.bom-details summary').click();
+  await expect(page.getByTestId('bom-row').first().locator('.bom-details')).toHaveAttribute('open', '');
+  await field(page, 'plot-field', 'length').fill('21');
+  await expect(page.getByTestId('bom-row').first().locator('.bom-details')).toHaveAttribute('open', '');
+  await field(page, 'plot-field', 'length').fill('1,');
+  await expect(page.getByTestId('blocked-results')).toBeVisible();
+  await field(page, 'plot-field', 'length').fill('21');
+  await expect(page.getByTestId('bom-row').first().locator('.bom-details')).toHaveAttribute('open', '');
+});

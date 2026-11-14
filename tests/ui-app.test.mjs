@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import { addLayer, addZone, createInitialState, updatePlotField, updateZoneField } from '../src/ui/model.ts';
 import { validateDraft } from '../src/ui/validation.ts';
 import { renderAppHtml } from '../src/ui/app.ts';
+import { sumWholePackages, formatRuNumber } from '../src/ui/format.ts';
 
 function completeState() {
   let state = createInitialState();
@@ -94,4 +95,26 @@ test('inline numeric error is bound to the offending field, while full BOM is bl
   assert.match(html, /id="error-plot-length"/);
   assert.match(html, /data-testid="blocked-results"/);
   assert.doesNotMatch(html, /data-testid="bom-row"/);
+});
+
+test('aggregate package totals remain exact above MAX_SAFE_INTEGER', () => {
+  const exact = sumWholePackages([9007199254740991, 2]);
+  assert.equal(exact, '9007199254740993');
+  assert.equal(formatRuNumber(exact), '9 007 199 254 740 993');
+  assert.equal(sumWholePackages([40, 12]), '52');
+  assert.equal(sumWholePackages([40, null]), null);
+  assert.equal(sumWholePackages([]), null);
+});
+
+test('BOM detail disclosure can be restored from render-only view state', () => {
+  const state = completeState();
+  const initial = renderAppHtml(state, validateDraft(state));
+  const key = 'spec-1|soil|50|';
+  assert.match(initial, /class="bom-details" data-bom-key="spec-1\|soil\|50\|"/);
+  const expanded = renderAppHtml(state, validateDraft(state), {
+    openZoneId: state.zones[0].id,
+    openLayerIds: new Set(),
+    openBomKeys: new Set([key]),
+  });
+  assert.match(expanded, /class="bom-details" data-bom-key="spec-1\|soil\|50\|" open/);
 });
