@@ -1,0 +1,12 @@
+{
+  "algorithm": "SHA-256",
+  "files": [
+    { "file": "desktop-1440x900.png", "pixels": "1440x1688", "bytes": 130644, "sha256": "b317c630df500d5e1e9c4aedc779acd24751a351bc8e8849a3845ba6d6985112" },
+    { "file": "desktop-1440x900-viewport.png", "pixels": "1440x900", "bytes": 85743, "sha256": "a70fdd1d969aacbc22f79efb784f2e0d8083505c85c2d6db4b1ddfeb848c6241" },
+    { "file": "mobile-390x844.png", "pixels": "390x2943", "bytes": 107391, "sha256": "55a2fceaebc560e9621cb74ae6bff443aeea6c4eec90d7c28f0ab2c9cf6d6799" },
+    { "file": "mobile-390x844-viewport.png", "pixels": "390x844", "bytes": 38558, "sha256": "18daf1fa3f078e80553f150ba01ca7cf12a16593599c4673cbdfc73ceca5e2d8" },
+    { "file": "design-board-1440x900.png", "pixels": "1440x1323", "bytes": 124957, "sha256": "8654c0fdeff76024ecc1b453a68ecb93046916f1b234158844b5c562320105f7" },
+    { "file": "design-board-1440x900-viewport.png", "pixels": "1440x900", "bytes": 88273, "sha256": "d199a169d557b7139c2c35d1ce9e5911502566e198bfc3e1396e41c8aa2681b2" },
+    { "file": "design-board-390x844.png", "pixels": "390x2600", "bytes": 111578, "sha256": "bebaf4ceb0613f5d8d4e7e9dbe7a3fbee24076f10e12245f67b403a0643f7cee" }
+  ]
+}
