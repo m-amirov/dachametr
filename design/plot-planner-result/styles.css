@@ -322,6 +322,8 @@ details[open] > summary .summary-chevron { transform: rotate(180deg); }
 }
 
 @media (max-width: 380px) {
+  .hero-result { grid-template-columns: minmax(0, 1fr); }
+  .hero-result-link { justify-self: start; white-space: normal; margin-top: 3px; }
   .topbar, .page-shell { width: min(100% - 22px, 560px); }
   .session-state { display: none; }
   .intro-copy { min-width: 0; }

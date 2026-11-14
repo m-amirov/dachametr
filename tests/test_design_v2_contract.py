@@ -20,7 +20,7 @@ class DesignV2MockupContracts(unittest.TestCase):
         self.assertIn(f"<strong>{path} × 50 л</strong><small>600 л с запасом</small>", html)
         self.assertIn("<strong>52 × 50 л</strong><small>2 600 л фактически</small>", html)
         self.assertIn("<span>40 × 50 л</span>", board)
-        self.assertIn("<strong>52 × 50 л</strong>", board)
+        self.assertIn('<strong style="color:var(--pine-dark)">52 × 50 л</strong>', board)
 
     def test_mobile_uses_native_details_and_one_editing_zone(self):
         html = (MOCK / "index.html").read_text(encoding="utf-8")
