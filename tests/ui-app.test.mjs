@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { addLayer, addZone, createInitialState, updatePlotField, updateZoneField } from '../src/ui/model.ts';
+import { addLayer, addZone, createInitialState, updatePlotField, updateZoneField, updateLayerField, updateMaterialSpec } from '../src/ui/model.ts';
 import { validateDraft } from '../src/ui/validation.ts';
 import { renderAppHtml } from '../src/ui/app.ts';
+import { buildLayerDiagram } from '../src/ui/layer-visual.ts';
 import { sumWholePackages, formatRuNumber } from '../src/ui/format.ts';
 
 function completeState() {
@@ -117,4 +118,51 @@ test('BOM detail disclosure can be restored from render-only view state', () => 
     openBomKeys: new Set([key]),
   });
   assert.match(expanded, /class="bom-details" data-bom-key="spec-1\|soil\|50\|" open/);
+});
+
+test('layer cross-section follows exact input thickness, not material defaults', () => {
+  let state = updatePlotField(createInitialState(), 'length', '20');
+  state = updatePlotField(state, 'width', '30');
+  state = addZone(state);
+  const zoneId = state.zones[0].id;
+  state = updateZoneField(state, zoneId, 'length', '2');
+  state = updateZoneField(state, zoneId, 'width', '5');
+  state = addLayer(state, zoneId);
+  const firstLayerId = state.zones[0].layers[0].id;
+  assert.equal(buildLayerDiagram(state, state.zones[0]), null, 'one layer: no redundant diagram');
+  state = addLayer(state, zoneId);
+  const secondLayerId = state.zones[0].layers[1].id;
+  const [soilId, sandId] = state.zones[0].layers.map(layer => layer.materialSpecId);
+  state = updateMaterialSpec(state, soilId, 'label', 'Грунт для грядки');
+  state = updateMaterialSpec(state, sandId, 'material', 'sand');
+  state = updateMaterialSpec(state, sandId, 'label', 'Песок');
+  state = updateLayerField(state, zoneId, firstLayerId, 'thickness', '25');
+  state = updateLayerField(state, zoneId, secondLayerId, 'thickness', '6,5');
+
+  const diagram = buildLayerDiagram(state, state.zones[0]);
+  assert.deepEqual(diagram, {
+    totalThicknessCm: '31.5',
+    layers: [
+      { id: firstLayerId, material: 'soil', label: 'Грунт для грядки', thicknessCm: '25' },
+      { id: secondLayerId, material: 'sand', label: 'Песок', thicknessCm: '6.5' },
+    ],
+  });
+  const validation = validateDraft(state);
+  assert.equal(validation.valid, true, JSON.stringify(validation.errors));
+  const html = renderAppHtml(state, validation);
+  assert.match(html, /data-testid="layer-visual"/);
+  assert.match(html, /data-thickness-cm="25" style="flex-grow:25"/);
+  assert.match(html, /data-thickness-cm="6.5" style="flex-grow:6.5"/);
+  assert.match(html, /31,5 см/);
+  assert.match(html, /Это не схема расположения зон/);
+  assert.match(html, /class="brand-geometry"/);
+  assert.match(html, /class="result-lead"/);
+
+  state = updateLayerField(state, zoneId, secondLayerId, 'thickness', '1,');
+  assert.equal(buildLayerDiagram(state, state.zones[0]), null);
+  const invalid = renderAppHtml(state, validateDraft(state));
+  assert.doesNotMatch(invalid, /data-testid="layer-visual"/);
+  assert.match(invalid, /data-testid="blocked-results"/);
+  state = updateLayerField(state, zoneId, secondLayerId, 'thickness', '<script>');
+  assert.equal(buildLayerDiagram(state, state.zones[0]), null, 'invalid text cannot be interpolated into CSS');
 });

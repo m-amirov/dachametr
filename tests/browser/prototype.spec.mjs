@@ -205,3 +205,55 @@ test('open BOM details remain open while editing and after temporary invalid inp
   await field(page, 'plot-field', 'length').fill('21');
   await expect(page.getByTestId('bom-row').first().locator('.bom-details')).toHaveAttribute('open', '');
 });
+
+test('garden identity and measured material section survive input changes and narrow viewports', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await expect(page.locator('.brand-geometry')).toBeVisible();
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const zone = await fillZone(page, 0, { name: 'Дорожка', length: '2', width: '5' });
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(zone, { material: 'soil', label: 'Грунт', thickness: '25', packageL: '50' });
+  await expect(zone.getByTestId('layer-visual')).toHaveCount(0, 'single layer: no redundant graph');
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(zone, { material: 'sand', label: 'Песок', thickness: '6,5', packageL: '50' });
+  const diagram = zone.getByTestId('layer-visual');
+  await expect(diagram).toBeVisible();
+  await expect(diagram.locator('.layer-slice')).toHaveCount(2);
+  await expect(diagram).toContainText('31,5 см');
+  await expect(diagram).toContainText('Грунт');
+  await expect(diagram).toContainText('Песок');
+
+  const fraction = await diagram.locator('.layer-visual-stack').evaluate(el => {
+    const bars = Array.from(el.querySelectorAll('.layer-slice'));
+    const heights = bars.map(bar => bar.getBoundingClientRect().height);
+    return heights[0] / heights.reduce((sum, height) => sum + height, 0);
+  });
+  expect(Math.abs(fraction - 25 / 31.5)).toBeLessThan(0.035);
+
+  const second = zone.getByTestId('layer-card').nth(1);
+  await second.locator('[data-action="layer-field"][data-field="thickness"]').fill('1,');
+  await expect(page.getByTestId('blocked-results')).toBeVisible();
+  await expect(zone.getByTestId('layer-visual')).toHaveCount(0);
+  await second.locator('[data-action="layer-field"][data-field="thickness"]').fill('6,5');
+  await expect(zone.getByTestId('layer-visual')).toHaveCount(1);
+
+  for (const width of [195, 320, 390, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    const dimensions = await page.evaluate(() => ({
+      width: document.documentElement.clientWidth,
+      scroll: document.documentElement.scrollWidth,
+    }));
+    expect(dimensions.scroll, 'material visual viewport ' + width).toBeLessThanOrEqual(dimensions.width);
+    if (width >= 320 && width <= 640) {
+      const cta = page.getByTestId('add-zone');
+      await expect(cta).toBeVisible();
+      const nowrap = await cta.evaluate(el => getComputedStyle(el).whiteSpace);
+      expect(nowrap).toBe('nowrap');
+    }
+  }
+  expect(errors).toEqual([]);
+});
