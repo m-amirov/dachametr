@@ -4,17 +4,17 @@
   font-family: "Segoe UI", Arial, sans-serif;
   font-synthesis: none;
   line-height: 1.45;
-  --paper: #f2ede1;
-  --ink: #243d35;
+  --paper: #f5f2ea;
+  --ink: #19342e;
   --muted: #66716a;
   --line: #c9c7b8;
   --panel: #fbfaf4;
   --soft: #e5eee4;
-  --accent: #b65f3e;
+  --accent: #b95436;
   --accent-dark: #8f452f;
-  --result: #2f624d;
-  --danger: #a33f36;
-  --shadow: 0 16px 42px rgb(36 61 53 / 6%);
+  --result: #245c4a;
+  --danger: #a43b34;
+  --shadow: 0 16px 42px rgb(25 52 46 / 6%);
 }
 
 * { box-sizing: border-box; }
