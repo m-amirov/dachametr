@@ -19,6 +19,7 @@ import {
 } from './model.ts';
 import { formatRuNumber, formatUnit, sumWholePackages } from './format.ts';
 import { validateDraft, type DraftValidation } from './validation.ts';
+import { buildLayerDiagram, type LayerDiagram } from './layer-visual.ts';
 
 const MATERIAL_LABELS: Record<MaterialKind, string> = {
   soil: 'Грунт',
@@ -150,9 +151,29 @@ function renderLayer(state: AppState, zone: ZoneDraft, layer: LayerDraft, layerI
   </fieldset>`;
 }
 
+function renderLayerVisual(diagram: LayerDiagram | null): string {
+  if (!diagram) return '';
+  return `<figure class="layer-visual" data-testid="layer-visual" aria-labelledby="layer-visual-title">
+    <div class="layer-visual-heading">
+      <div><strong id="layer-visual-title">Разрез материалов</strong><span>Пропорции по толщине · всего ${formatUnit(diagram.totalThicknessCm, 'см')}</span></div>
+      <span class="layer-visual-measure" aria-hidden="true">↕</span>
+    </div>
+    <div class="layer-visual-body">
+      <div class="layer-visual-stack" aria-hidden="true">
+        ${diagram.layers.map(layer => `<span class="layer-slice layer-slice-${escapeHtml(layer.material)}" data-thickness-cm="${escapeHtml(layer.thicknessCm)}" style="flex-grow:${layer.thicknessCm}"></span>`).join('')}
+      </div>
+      <ol class="layer-visual-legend">
+        ${diagram.layers.map(layer => `<li><span class="layer-legend-swatch material-${escapeHtml(layer.material)}" aria-hidden="true"></span><span class="layer-legend-name">${escapeHtml(layer.label)}</span><strong>${formatUnit(layer.thicknessCm, 'см')}</strong></li>`).join('')}
+      </ol>
+    </div>
+    <figcaption>Слои показаны сверху вниз в порядке списка. Это не схема расположения зон и не строительная норма.</figcaption>
+  </figure>`;
+}
+
 function renderZone(state: AppState, zone: ZoneDraft, zoneIndex: number, validation: DraftValidation, view: ViewState): string {
   const prefix = `zones[${zoneIndex}]`;
   const detail = zoneDetail(validation, zone.id);
+  const diagram = validation.result?.ok ? buildLayerDiagram(state, zone) : null;
   const expanded = view.openZoneId === zone.id;
   return `<article class="zone-card" data-testid="zone-card" data-zone-id="${escapeHtml(zone.id)}">
     <header class="zone-header">
@@ -176,6 +197,7 @@ function renderZone(state: AppState, zone: ZoneDraft, zoneIndex: number, validat
     <div class="zone-area"><span>Площадь зоны</span><strong>${detail ? formatUnit(detail.area_m2, 'м²') : '—'}</strong></div>
     <div class="layers-heading"><div><span class="eyebrow">СЛОИ И МАТЕРИАЛЫ</span><p>Каждый вариант и его фракция считаются отдельно.</p></div><button type="button" class="button button-secondary" data-action="add-layer" data-zone-id="${escapeHtml(zone.id)}">Добавить слой</button></div>
     ${zone.layers.length === 0 ? '<div class="empty-inline">В этой зоне пока нет слоёв. Добавьте грунт, песок или щебень.</div>' : zone.layers.map((layer, layerIndex) => renderLayer(state, zone, layer, layerIndex, zoneIndex, validation, view)).join('')}
+    ${renderLayerVisual(diagram)}
     </div>
   </article>`;
 }
@@ -236,12 +258,16 @@ function renderResults(state: AppState, validation: DraftValidation, view: ViewS
 export function renderAppHtml(state: AppState, validation: DraftValidation, view: ViewState = { openZoneId: state.zones[0]?.id ?? null, openLayerIds: new Set(state.zones.flatMap(zone => zone.layers.map(layer => layer.id))) }): string {
   return `<div class="app-shell">
     <header class="site-header">
-      <a class="brand" href="#top" aria-label="Дачаметр, к началу"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span><h1>Дачаметр</h1><small>расчёт участка и закупки</small></span></a>
+      <a class="brand" href="#top" aria-label="Дачаметр, к началу"><span class="brand-mark" aria-hidden="true"><svg class="brand-geometry" viewBox="0 0 40 40" focusable="false">
+            <rect x="5" y="5" width="30" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="2.4"/>
+            <path d="M18 5V35M18 19H35" fill="none" stroke="currentColor" stroke-width="2" opacity=".85"/>
+            <rect x="22" y="23" width="9" height="8" rx="1" class="brand-geometry-accent"/>
+          </svg></span><span><h1>Дачаметр</h1><small>расчёт участка и закупки</small></span></a>
       <div class="session-note"><span class="status-dot"></span><span>Локальный расчёт</span><button type="button" class="button button-text" data-action="reset">Сбросить</button></div>
     </header>
     <main id="top">
       <section class="intro" aria-labelledby="intro-title">
-        <div><span class="eyebrow">КАЛЬКУЛЯТОР МАТЕРИАЛОВ</span><h2 id="intro-title">Рассчитайте материалы <em>для участка</em></h2><p>Размеры, зоны и закупка — в одном рабочем пространстве.</p></div>
+        <div><span class="eyebrow">КАЛЬКУЛЯТОР МАТЕРИАЛОВ</span><h2 id="intro-title">Рассчитайте материалы <em>для участка</em></h2><p>Грунт, песок и щебень — от размеров ваших зон до точной закупки.</p></div>
         <a class="jump-result" href="#result">К ведомости <span aria-hidden="true">↓</span></a>
       </section>
       <div class="workspace"><section class="editor-column"><form class="calculator-form" novalidate>
