@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Дачаметр — концепция макета результата расчёта материалов на участке." />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <title>Дачаметр — результат расчёта</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-state="result">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Дачаметр, к началу">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>
+          <strong>Дачаметр</strong>
+          <small>расчёт участка и закупки</small>
+        </span>
+      </a>
+      <!-- Design board remains available at its own local URL; it is not public navigation. -->
+      <div class="session-state"><span class="status-dot"></span><span>локальный расчёт</span><button class="link-button" type="button" data-action="mock">Сбросить</button></div>
+    </header>
+
+    <main id="top" class="page-shell">
+      <section class="intro" aria-labelledby="page-title">
+        <div class="intro-copy">
+          <p class="eyebrow">План участка <span class="eyebrow-separator">/</span> результат</p>
+          <h1 id="page-title">Материалы для участка —<br /><em>рассчитайте точно.</em></h1>
+          <p class="intro-text">Укажите размеры и зоны. Объёмы и закупка считаются без придуманных норм.</p>
+        </div>
+        <aside class="hero-result" aria-label="Краткий итог закупки">
+          <div class="hero-result-top"><span>Итог закупки</span><span class="result-arrow" aria-hidden="true">↗</span></div>
+          <strong>3 650 <small>л</small></strong>
+          <p>73 упаковки · 50 л</p>
+          <a class="hero-result-link" href="#result">Открыть ведомость <span aria-hidden="true">↓</span></a>
+        </aside>
+      </section>
+
+      <div class="work-grid" id="editor">
+        <div class="editor-column">
+          <section class="panel plot-panel" aria-labelledby="plot-title">
+            <div class="panel-heading">
+              <div class="step-token" aria-hidden="true">01</div>
+              <div>
+                <p class="eyebrow">Основа расчёта</p>
+                <h2 id="plot-title">Размеры участка</h2>
+                <p class="panel-subtitle">Прямоугольная геометрия · площадь считается сразу</p>
+              </div>
+              <span class="completion-badge"><span class="check-mark" aria-hidden="true">✓</span> готово</span>
+            </div>
+
+            <div class="field-grid plot-fields">
+              <label class="field-control">
+                <span>Длина</span>
+                <span class="input-shell"><input value="20" inputmode="decimal" aria-label="Длина участка" /><b>м</b></span>
+              </label>
+              <label class="field-control">
+                <span>Ширина</span>
+                <span class="input-shell"><input value="30" inputmode="decimal" aria-label="Ширина участка" /><b>м</b></span>
+              </label>
+            </div>
+            <div class="area-readout">
+              <div><span>Площадь участка</span><strong>600 м²</strong></div>
+              <div class="area-secondary"><span>примерно</span><strong>6 соток</strong></div>
+            </div>
+          </section>
+
+          <section class="zone-section" aria-labelledby="zones-title">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Структура участка</p>
+                <h2 id="zones-title">Зоны <span class="count-badge">2</span></h2>
+              </div>
+              <button class="button button-primary" type="button" data-action="mock"><span aria-hidden="true">+</span> Добавить зону</button>
+            </div>
+
+            <details class="zone-card" open>
+              <summary class="zone-summary">
+                <span class="zone-number">01</span>
+                <span class="zone-summary-main"><strong>Грядка</strong><small>2 × 4 м</small></span>
+                <span class="zone-summary-meta"><strong>8 м²</strong><small>1 слой</small></span>
+                <span class="summary-chevron" aria-hidden="true">⌄</span>
+              </summary>
+              <div class="zone-edit">
+                <div class="zone-edit-head">
+                  <span class="edit-label">Редактирование зоны</span>
+                  <button class="text-button danger" type="button" data-action="mock">Удалить</button>
+                </div>
+                <div class="field-grid zone-fields">
+                  <label class="field-control field-name"><span>Название</span><span class="input-shell"><input value="Грядка" aria-label="Название зоны Грядка" /></span></label>
+                  <label class="field-control"><span>Длина</span><span class="input-shell"><input value="2" inputmode="decimal" aria-label="Длина грядки" /><b>м</b></span></label>
+                  <label class="field-control"><span>Ширина</span><span class="input-shell"><input value="4" inputmode="decimal" aria-label="Ширина грядки" /><b>м</b></span></label>
+                </div>
+                <div class="zone-area"><span>Площадь зоны</span><strong>8 м²</strong></div>
+                <div class="materials-heading"><div><span class="eyebrow">Материалы</span><p>Сводка видна, настройки — по запросу.</p></div><button class="button button-quiet" type="button" data-action="mock"><span aria-hidden="true">+</span> Добавить слой</button></div>
+                <details class="material-disclosure">
+                  <summary class="material-summary">
+                    <span class="material-swatch swatch-soil" aria-hidden="true"></span>
+                    <span class="material-copy"><strong>Грунт для грядок</strong><small>Грунт · толщина 25 см</small></span>
+                    <span class="material-quantity"><strong>40 × 50 л</strong><small>2 000 л с запасом</small></span>
+                    <span class="summary-chevron" aria-hidden="true">⌄</span>
+                  </summary>
+                  <div class="disclosure-content">
+                    <label class="mini-field"><span>Толщина</span><span><input value="25" aria-label="Толщина грунта" /><b>см</b></span></label>
+                    <label class="mini-field"><span>Запас</span><span><input value="0" aria-label="Запас грунта" /><b>%</b></span></label>
+                    <label class="mini-field"><span>Упаковка</span><span><input value="50" aria-label="Упаковка грунта" /><b>л</b></span></label>
+                    <label class="mini-field"><span>Плотность <i>необязательно</i></span><span><input placeholder="—" aria-label="Плотность грунта" /><b>кг/м³</b></span></label>
+                  </div>
+                </details>
+              </div>
+            </details>
+
+            <details class="zone-card" open>
+              <summary class="zone-summary">
+                <span class="zone-number">02</span>
+                <span class="zone-summary-main"><strong>Дорожка</strong><small>2 × 5 м</small></span>
+                <span class="zone-summary-meta"><strong>10 м²</strong><small>2 слоя</small></span>
+                <span class="summary-chevron" aria-hidden="true">⌄</span>
+              </summary>
+              <div class="zone-edit">
+                <div class="zone-edit-head">
+                  <span class="edit-label">Редактирование зоны</span>
+                  <button class="text-button danger" type="button" data-action="mock">Удалить</button>
+                </div>
+                <div class="field-grid zone-fields">
+                  <label class="field-control field-name"><span>Название</span><span class="input-shell"><input value="Дорожка" aria-label="Название зоны Дорожка" /></span></label>
+                  <label class="field-control"><span>Длина</span><span class="input-shell"><input value="2" inputmode="decimal" aria-label="Длина дорожки" /><b>м</b></span></label>
+                  <label class="field-control"><span>Ширина</span><span class="input-shell"><input value="5" inputmode="decimal" aria-label="Ширина дорожки" /><b>м</b></span></label>
+                </div>
+                <div class="zone-area"><span>Площадь зоны</span><strong>10 м²</strong></div>
+                <div class="materials-heading"><div><span class="eyebrow">Материалы</span><p>Два слоя в одной зоне.</p></div><button class="button button-quiet" type="button" data-action="mock"><span aria-hidden="true">+</span> Добавить слой</button></div>
+                <details class="material-disclosure">
+                  <summary class="material-summary">
+                    <span class="material-swatch swatch-soil" aria-hidden="true"></span>
+                    <span class="material-copy"><strong>Грунт для грядок</strong><small>Грунт · толщина 6 см</small></span>
+                    <span class="material-quantity"><strong>12 × 50 л</strong><small>600 л с запасом</small></span>
+                    <span class="summary-chevron" aria-hidden="true">⌄</span>
+                  </summary>
+                  <div class="disclosure-content">
+                    <label class="mini-field"><span>Толщина</span><span><input value="6" aria-label="Толщина грунта в дорожке" /><b>см</b></span></label>
+                    <label class="mini-field"><span>Запас</span><span><input value="0" aria-label="Запас грунта в дорожке" /><b>%</b></span></label>
+                    <label class="mini-field"><span>Упаковка</span><span><input value="50" aria-label="Упаковка грунта в дорожке" /><b>л</b></span></label>
+                    <label class="mini-field"><span>Плотность <i>необязательно</i></span><span><input placeholder="—" aria-label="Плотность грунта в дорожке" /><b>кг/м³</b></span></label>
+                  </div>
+                </details>
+                <details class="material-disclosure">
+                  <summary class="material-summary">
+                    <span class="material-swatch swatch-sand" aria-hidden="true"></span>
+                    <span class="material-copy"><strong>Песок</strong><small>Песок · 10 см · запас 5%</small></span>
+                    <span class="material-quantity"><strong>21 × 50 л</strong><small>1 050 л с запасом</small></span>
+                    <span class="summary-chevron" aria-hidden="true">⌄</span>
+                  </summary>
+                  <div class="disclosure-content">
+                    <label class="mini-field"><span>Толщина</span><span><input value="10" aria-label="Толщина песка" /><b>см</b></span></label>
+                    <label class="mini-field"><span>Запас</span><span><input value="5" aria-label="Запас песка" /><b>%</b></span></label>
+                    <label class="mini-field"><span>Упаковка</span><span><input value="50" aria-label="Упаковка песка" /><b>л</b></span></label>
+                    <label class="mini-field"><span>Плотность <i>необязательно</i></span><span><input placeholder="—" aria-label="Плотность песка" /><b>кг/м³</b></span></label>
+                  </div>
+                </details>
+              </div>
+            </details>
+          </section>
+        </div>
+
+        <aside class="result-column" id="result" aria-labelledby="result-title">
+          <section class="panel result-panel">
+            <div class="result-heading">
+              <div>
+                <p class="eyebrow">Сводка закупки <span class="live-dot"></span></p>
+                <h2 id="result-title">Ведомость</h2>
+              </div>
+              <button class="icon-button" type="button" aria-label="Скопировать ведомость" data-action="mock">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8.5V6.8A1.8 1.8 0 0 1 9.8 5h7.4A1.8 1.8 0 0 1 19 6.8v7.4a1.8 1.8 0 0 1-1.8 1.8h-1.7M6.8 9h7.4A1.8 1.8 0 0 1 16 10.8v7.4a1.8 1.8 0 0 1-1.8 1.8H6.8A1.8 1.8 0 0 1 5 18.2v-7.4A1.8 1.8 0 0 1 6.8 9Z" /></svg>
+              </button>
+            </div>
+            <div class="result-lead"><span>Купить</span><strong>73 <small>уп.</small></strong><b>3 650 л</b><em>общий объём с запасом</em></div>
+            <div class="result-metrics" aria-label="Сводные показатели">
+              <div><span>Материалы</span><strong>2</strong></div>
+              <div><span>Зоны</span><strong>2</strong></div>
+              <div><span>Излишки</span><strong>0 л</strong></div>
+            </div>
+
+            <div class="bom-table" role="table" aria-label="Ведомость закупки">
+              <div class="bom-header" role="row"><span>Материал</span><span>Нужно</span><span>Купить</span><span>Излишки</span></div>
+              <div class="bom-row" role="row">
+                <div class="bom-material"><span class="material-swatch swatch-soil" aria-hidden="true"></span><div><strong>Грунт для грядок</strong><small>Грунт · 2 зоны</small></div></div>
+                <div class="bom-cell" data-label="Нужно"><strong>2 600 л</strong><small>с запасом</small></div>
+                <div class="bom-cell bom-buy" data-label="Купить"><strong>52 × 50 л</strong><small>2 600 л фактически</small></div>
+                <div class="bom-cell" data-label="Излишки"><strong>0 л</strong></div>
+              </div>
+              <div class="bom-row" role="row">
+                <div class="bom-material"><span class="material-swatch swatch-sand" aria-hidden="true"></span><div><strong>Песок</strong><small>Песок · 1 зона · +5%</small></div></div>
+                <div class="bom-cell" data-label="Нужно"><strong>1 050 л</strong><small>с запасом</small></div>
+                <div class="bom-cell bom-buy" data-label="Купить"><strong>21 × 50 л</strong><small>1 050 л фактически</small></div>
+                <div class="bom-cell" data-label="Излишки"><strong>0 л</strong></div>
+              </div>
+            </div>
+
+            <div class="mass-note"><span class="mass-icon" aria-hidden="true">≈</span><p><strong>Масса не рассчитывается</strong><br />Плотность не задана. Её можно добавить в настройках слоя.</p><button class="link-button" type="button" data-action="mock">Настроить</button></div>
+
+            <div class="breakdown">
+              <div class="breakdown-heading"><span class="eyebrow">Расшифровка по зонам</span><span>18 м²</span></div>
+              <div class="breakdown-row"><div><strong>Грядка</strong><small>2 × 4 м</small></div><span>2 000 л грунта</span></div>
+              <div class="breakdown-row"><div><strong>Дорожка</strong><small>2 × 5 м</small></div><span>600 л грунта<br />1 050 л песка</span></div>
+            </div>
+            <p class="result-footnote"><span aria-hidden="true">i</span> «Нужно» — объём с запасом. «Купить» — целые упаковки; округление уже учтено.</p>
+          </section>
+        </aside>
+      </div>
+
+      <footer class="page-footer"><span>Данные остаются в этой сессии</span><span>м · м² · сотки · см · л · кг</span></footer>
+    </main>
+
+    <div class="mock-toast" role="status" aria-live="polite" hidden>Это визуальный макет — действие показано для проверки интерфейса.</div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

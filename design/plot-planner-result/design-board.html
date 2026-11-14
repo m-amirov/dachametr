@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <title>Дачаметр — design board</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      .board-shell { width: min(1248px, calc(100% - 48px)); margin: 0 auto; padding: 52px 0 56px; }
+      .board-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding-bottom: 30px; border-bottom: 1px solid var(--line-strong); }
+      .board-header h1 { margin: 11px 0 0; max-width: 680px; font-size: clamp(38px, 5vw, 62px); line-height: .98; letter-spacing: -.07em; }
+      .board-header h1 em { color: var(--pine); font-style: normal; }
+      .board-header p:not(.eyebrow) { max-width: 350px; margin: 0; color: var(--muted); font-size: 13px; }
+      .board-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
+      .board-card { min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); box-shadow: var(--shadow); }
+      .board-card h2 { margin: 4px 0 14px; font-size: 18px; letter-spacing: -.04em; }
+      .board-card p { margin: 0; color: var(--muted); font-size: 12px; }
+      .card-colors { grid-column: span 5; }
+      .card-type { grid-column: span 7; }
+      .card-buttons { grid-column: span 4; }
+      .card-fields { grid-column: span 4; }
+      .card-zone { grid-column: span 4; }
+      .card-material { grid-column: span 5; }
+      .card-bom { grid-column: span 7; }
+      .card-error { grid-column: span 5; }
+      .card-responsive { grid-column: span 7; }
+      .swatch-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+      .board-swatch { min-height: 100px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; border-radius: 12px; font-size: 10px; font-weight: 800; }
+      .board-swatch span:last-child { font-weight: 600; opacity: .75; }
+      .swatch-canvas { background: var(--canvas); color: var(--ink); border: 1px solid var(--line); }
+      .swatch-ink { background: var(--ink); color: #fff; }
+      .swatch-pine { background: var(--pine); color: #fff; }
+      .swatch-coral { background: var(--coral); color: #fff; }
+      .swatch-sand-board { background: var(--sand); color: #fff; }
+      .type-specimen { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: end; }
+      .type-specimen strong { display: block; font-size: 34px; line-height: .95; letter-spacing: -.07em; }
+      .type-specimen span { display: block; margin-top: 8px; color: var(--muted); font-size: 11px; }
+      .type-numbers { color: var(--pine-dark); font-size: 38px; font-weight: 800; letter-spacing: -.07em; font-variant-numeric: tabular-nums; }
+      .button-samples { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+      .sample-danger { color: var(--coral-dark); font-size: 12px; font-weight: 800; }
+      .field-sample { max-width: 210px; }
+      .field-sample .input-shell { margin-top: 7px; }
+      .zone-sample, .material-sample, .bom-sample { border: 1px solid var(--line); border-radius: 12px; background: var(--paper-soft); }
+      .zone-sample { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; padding: 13px; }
+      .zone-sample > b { color: var(--coral); font-size: 12px; }
+      .zone-sample strong, .material-sample strong { display: block; font-size: 13px; }
+      .zone-sample small, .material-sample small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+      .zone-sample > span { color: var(--pine-dark); font-weight: 800; font-size: 13px; }
+      .material-sample { display: grid; grid-template-columns: 8px 1fr auto; gap: 10px; align-items: center; padding: 11px; }
+      .material-sample .material-swatch { width: 8px; height: 30px; }
+      .material-sample > span:last-child { color: var(--pine-dark); font-size: 11px; font-weight: 800; }
+      .bom-sample { padding: 12px; }
+      .bom-sample-head, .bom-sample-row { display: grid; grid-template-columns: 1.4fr .8fr .9fr .5fr; gap: 8px; }
+      .bom-sample-head { padding-bottom: 7px; color: var(--muted); font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+      .bom-sample-row { padding: 11px 0; border-top: 1px solid var(--line); font-size: 11px; }
+      .bom-sample-row strong { display: block; font-size: 12px; }
+      .bom-sample-row small { display: block; margin-top: 4px; color: var(--muted); font-size: 9px; }
+      .error-sample { padding: 13px; border-left: 4px solid var(--coral); border-radius: 11px; background: var(--coral-soft); }
+      .error-sample strong { display: block; color: var(--coral-dark); font-size: 13px; }
+      .error-sample p { margin-top: 6px; color: var(--ink-soft); }
+      .responsive-list { display: grid; gap: 10px; }
+      .responsive-list div { display: grid; grid-template-columns: 70px 1fr; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+      .responsive-list strong { color: var(--pine-dark); font-size: 11px; }
+      .responsive-list span { color: var(--muted); font-size: 11px; }
+      @media (max-width: 840px) {
+        .board-shell { width: min(100% - 28px, 600px); padding-top: 34px; }
+        .board-header { display: block; }
+        .board-header p:not(.eyebrow) { margin-top: 16px; }
+        .board-card { grid-column: 1 / -1; }
+      }
+      @media (max-width: 420px) {
+        .board-shell { width: calc(100% - 22px); }
+        .swatch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .type-specimen { grid-template-columns: 1fr; }
+        .bom-sample { overflow-x: auto; }
+        .bom-sample-head, .bom-sample-row { min-width: 430px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./index.html" aria-label="Вернуться к макету Дачаметра"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span><strong>Дачаметр</strong><small>расчёт участка и закупки</small></span></a>
+      <nav class="topnav" aria-label="Навигация"><a class="topnav-link" href="./index.html">Калькулятор</a><a class="topnav-link is-active" href="./design-board.html">Дизайн-система</a></nav>
+      <div class="session-state"><span class="status-dot"></span><span>локальный макет</span></div>
+    </header>
+    <main class="board-shell">
+      <header class="board-header">
+        <div><p class="eyebrow">Дизайн-система / v2</p><h1>Точность, которую<br /><em>легко читать.</em></h1></div>
+        <p>Компактная визуальная система для инструментального сценария: спокойная поверхность, выразительные числа, один ясный результат.</p>
+      </header>
+      <section class="board-grid" aria-label="Компоненты дизайн-системы">
+        <article class="board-card card-colors"><p class="eyebrow">01 / палитра</p><h2>Тепло поверхности, точность хвои</h2><div class="swatch-grid"><div class="board-swatch swatch-canvas"><span>Canvas</span><span>#F4F6F0</span></div><div class="board-swatch swatch-ink"><span>Ink</span><span>#14251F</span></div><div class="board-swatch swatch-pine"><span>Result</span><span>#2F705D</span></div><div class="board-swatch swatch-coral"><span>Action</span><span>#D65D3C</span></div><div class="board-swatch swatch-sand-board"><span>Note</span><span>#C78A2A</span></div></div></article>
+        <article class="board-card card-type"><p class="eyebrow">02 / типографика</p><h2>Один шрифт, разные роли</h2><div class="type-specimen"><div><strong>Посчитайте<br />участок</strong><span>System sans · 800 · −7% tracking</span></div><div><div class="type-numbers">3 650 л</div><span>Tabular numbers · читаются как данные, не как декор</span></div></div></article>
+        <article class="board-card card-buttons"><p class="eyebrow">03 / действия</p><h2>Кнопки говорят, что случится</h2><div class="button-samples"><button class="button button-primary" type="button">+ Добавить зону</button><button class="button button-quiet" type="button">+ Добавить слой</button><span class="sample-danger">Удалить</span></div></article>
+        <article class="board-card card-fields"><p class="eyebrow">04 / поля</p><h2>Число всегда с единицей</h2><label class="field-control field-sample"><span>Длина</span><span class="input-shell"><input value="20" aria-label="Пример поля длины" /><b>м</b></span></label><p style="margin-top:10px">Высота control 48 px · focus ring pine · 44+ px touch area</p></article>
+        <article class="board-card card-zone"><p class="eyebrow">05 / зона</p><h2>Summary-first</h2><div class="zone-sample"><b>01</b><div><strong>Грядка</strong><small>2 × 4 м · 1 слой</small></div><span>8 м²</span></div><p style="margin-top:10px">Редактирование раскрывается ниже; summary остаётся компактной даже при нескольких зонах.</p></article>
+        <article class="board-card card-material"><p class="eyebrow">06 / материал</p><h2>Техническое — по запросу</h2><div class="material-sample"><span class="material-swatch swatch-soil" aria-hidden="true"></span><div><strong>Грунт для грядок</strong><small>Грунт · 25 см · грядка</small></div><span>40 × 50 л</span></div><p style="margin-top:10px">В строке виден материал, слой и закупка; запас, упаковка и плотность находятся в disclosure.</p></article>
+        <article class="board-card card-bom"><p class="eyebrow">07 / ведомость</p><h2>Одна строка — одна проверка</h2><div class="bom-sample"><div class="bom-sample-head"><span>Материал</span><span>Нужно</span><span>Купить</span><span>Излишки</span></div><div class="bom-sample-row"><div><strong>Грунт для грядок</strong><small>Грунт · 2 зоны</small></div><strong>2 600 л</strong><strong style="color:var(--pine-dark)">52 × 50 л</strong><strong>0 л</strong></div><div class="bom-sample-row"><div><strong>Песок</strong><small>Песок · +5%</small></div><strong>1 050 л</strong><strong style="color:var(--pine-dark)">21 × 50 л</strong><strong>0 л</strong></div></div></article>
+        <article class="board-card card-error"><p class="eyebrow">08 / ошибка</p><h2>Ошибку видно рядом с причиной</h2><div class="error-sample"><strong>Исправьте значение</strong><p>Введите число в поле «Длина». Ведомость не выдаётся частично, пока активная зона невалидна.</p></div></article>
+        <article class="board-card card-responsive"><p class="eyebrow">09 / адаптивность</p><h2>Порядок важнее масштаба</h2><div class="responsive-list"><div><strong>1440 px</strong><span>Редактор и ведомость рядом; result sticky в колонке.</span></div><div><strong>390 px</strong><span>Поля → зоны → BOM; верхний итоговый блок ведёт к результату, не закрывая контент.</span></div><div><strong>Любая ширина</strong><span>Нет fake map, горизонтального скролла или мелкого служебного текста.</span></div></div></article>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+{
+  "capture": {
+    "tool": "playwright-cli via @playwright/cli",
+    "browser": "Chromium",
+    "dpr": 1,
+    "baseUrl": "http://127.0.0.1:4175",
+    "fullPage": true,
+    "viewportScreenshots": true
+  },
+  "checks": [
+    {
+      "page": "index.html",
+      "state": "RESULT",
+      "viewport": "1440x900",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "zones": 2,
+      "hasResult": true
+    },
+    {
+      "page": "index.html",
+      "state": "RESULT",
+      "viewport": "390x844",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "zones": 2,
+      "hasResult": true
+    },
+    {
+      "page": "design-board.html",
+      "state": "BOARD",
+      "viewport": "1440x900",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "cards": 9
+    },
+    {
+      "page": "design-board.html",
+      "state": "BOARD",
+      "viewport": "390x844",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "cards": 9
+    },
+    {
+      "page": "index.html",
+      "state": "RESULT",
+      "viewport": "195x844 (200% CSS-width emulation)",
+      "scrollWidth": 195,
+      "clientWidth": 195,
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "note": "Equivalent emulation only; physical zoom and device not tested."
+    }
+  ],
+  "notRun": [
+    "physical mobile device",
+    "assistive technology",
+    "real keyboard and soft-keyboard interaction",
+    "production font rendering",
+    "working application/domain integration"
+  ],
+  "legacyProvenance": {
+    "status": "UNVERIFIED_SOURCE_REVISION",
+    "explanation": "This receipt was captured before committing/recording exact source SHA or a clean tree. Screenshot SHA-256 proves PNG byte integrity only. Do not use legacy screenshots as verification of the updated mockup.",
+    "sourceCommitSha": null,
+    "sourceDigestSha256": null,
+    "replacement": "Use the design-v2-evidence GitHub Actions artifact (manifest.json + new PNGs) with source.commitSha, source.dirty and source.sourceDigestSha256."
+  }
+}
