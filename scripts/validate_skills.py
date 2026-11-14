@@ -10,14 +10,15 @@ REQUIRED_DOCS = (
     "docs/seo-validation.md", "docs/quality-gates.md", "docs/skills-sources.md",
     "docs/audits/readiness-2026-11-13.md", "docs/development-contract.md",
     "docs/cross-project-regressions.md", "docs/prototype-readiness-checklist.md",
-    "docs/external-skills-review.md",
+    "docs/external-skills-review.md", "DESIGN.md",
+    "docs/design/reference-library.md", "docs/design/open-design-integration.md",
 )
 
 REQUIRED_SKILLS = {
     "market-validation", "calculator-engineering", "calculator-ux", "visual-craft",
     "visual-qa", "technical-seo", "content-integrity", "engineering-quality",
     "release-readiness", "research-data-integrity", "interaction-reliability",
-    "change-review",
+    "change-review", "open-design-project",
 }
 
 def check(root: Path) -> list[str]:
