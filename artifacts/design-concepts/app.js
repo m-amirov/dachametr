@@ -78,8 +78,8 @@ function zone(name, index, withSecondLayer = false) {
     <div class="zone-area-line"><span>Площадь зоны</span><strong>${index === 1 ? '8 м²' : '10 м²'}</strong></div>
     <div class="layers-title"><div><span class="micro-label">СЛОИ И МАТЕРИАЛЫ</span><small>Связанные варианты считаются отдельно</small></div><button type="button" class="outline-button">Добавить слой</button></div>
     <div class="layer-stack">
-      ${miniLayer(index === 1 ? 'Грунт для грядок' : 'Песок', index === 1 ? 'грунт' : 'песок', index === 1 ? '25' : '10', index === 1 ? '52 уп. × 50 л' : '21 уп. × 50 л')}
-      ${withSecondLayer ? miniLayer('Щебень фракция 5–20', 'щебень', '6', '12 уп. × 50 л') : ''}
+      ${miniLayer(index === 1 ? 'Грунт для грядок' : 'Грунт для грядок', 'грунт', index === 1 ? '25' : '6', index === 1 ? '52 уп. × 50 л' : '12 уп. × 50 л')}
+      ${withSecondLayer ? miniLayer('Песок', 'песок', '10', '21 уп. × 50 л') : ''}
     </div>
   </article>`;
 }
@@ -91,7 +91,7 @@ function resultPanel() {
   if (state === 'error') {
     return `<aside class="result-panel result-error"><span class="result-symbol">!</span><span class="micro-label">РЕЗУЛЬТАТ ЗАБЛОКИРОВАН</span><h2>Сначала исправьте ввод</h2><p>Частичный расчёт не показываем как готовую закупку.</p><div class="error-line"><strong>Введите число</strong><code>plot.length_m</code></div></aside>`;
   }
-  return `<aside class="result-panel result-ready"><div class="result-heading"><div><span class="micro-label">ТЕКУЩИЙ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><span class="live-state"><i></i>обновляется</span></div><div class="result-stats"><div><span>Участок</span><strong>600 м²</strong></div><div><span>Это примерно</span><strong>6 соток</strong></div><div><span>Зоны вместе</span><strong>18 м²</strong></div></div><div class="bom-heading"><span class="micro-label">BOM / 02 ПОЗИЦИИ</span><small>нужно · с запасом · закупка</small></div><div class="bom-list"><div class="bom-row"><div><span>ГРУНТ</span><strong>Грунт для грядок</strong></div><b>52 уп. × 50 л</b><small>2 000 л чистого · 2 000 л с запасом</small></div><div class="bom-row"><div><span>ПЕСОК</span><strong>Песок</strong></div><b>21 уп. × 50 л</b><small>1 000 л чистого · 1 050 л с запасом</small></div></div><div class="breakdown"><span class="micro-label">РАСШИФРОВКА ПО ЗОНАМ</span><div><strong>Грядка</strong><span>2 000 л чистого · 2 000 л с запасом</span></div><div><strong>Дорожка</strong><span>600 л + 1 000 л по слоям</span></div></div></aside>`;
+  return `<aside class="result-panel result-ready"><div class="result-heading"><div><span class="micro-label">ТЕКУЩИЙ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><span class="live-state"><i></i>обновляется</span></div><div class="result-stats"><div><span>Участок</span><strong>600 м²</strong></div><div><span>Это примерно</span><strong>6 соток</strong></div><div><span>Зоны вместе</span><strong>18 м²</strong></div></div><div class="bom-heading"><span class="micro-label">BOM / 02 ПОЗИЦИИ</span><small>нужно · с запасом · закупка</small></div><div class="bom-list"><div class="bom-row"><div><span>ГРУНТ</span><strong>Грунт для грядок</strong></div><b>52 уп. × 50 л</b><small>2 600 л чистого · 2 600 л с запасом</small></div><div class="bom-row"><div><span>ПЕСОК</span><strong>Песок</strong></div><b>21 уп. × 50 л</b><small>1 000 л чистого · 1 050 л с запасом</small></div></div><div class="breakdown"><span class="micro-label">РАСШИФРОВКА ПО ЗОНАМ</span><div><strong>Грядка</strong><span>2 000 л чистого · 2 000 л с запасом</span></div><div><strong>Дорожка</strong><span>600 л + 1 000 л по слоям</span></div></div></aside>`;
 }
 
 function conceptA() {
@@ -113,7 +113,7 @@ function dataRow(title, material, required, reserve, purchase) {
 function studioResult() {
   if (state === 'initial' || state === 'editing') return resultPanel();
   if (state === 'error') return resultPanel();
-  return `<aside class="studio-summary"><div class="studio-summary-head"><div><span class="micro-label">OUTPUT / BOM</span><h2>Ведомость закупки</h2></div><span class="ready-tag">READY</span></div><div class="studio-total"><span>Общий закупочный объём</span><strong>3 650 л</strong><small>по 2 сопоставимым материалам</small></div><div class="studio-table"><div class="table-head"><span>Материал</span><span>Нужно</span><span>С запасом</span><span>Купить</span></div>${dataRow('Грунт для грядок', 'Грунт · spec-1', '2 000 л', '2 000 л', '52 × 50 л')}${dataRow('Песок', 'Песок · spec-3', '1 000 л', '1 050 л', '21 × 50 л')}</div><div class="studio-note"><b>Проверка</b><span>Зона 02 превышает собственную площадь только по слоям — зоны не размещаются автоматически.</span></div></aside>`;
+  return `<aside class="studio-summary"><div class="studio-summary-head"><div><span class="micro-label">OUTPUT / BOM</span><h2>Ведомость закупки</h2></div><span class="ready-tag">READY</span></div><div class="studio-total"><span>Общий закупочный объём</span><strong>3 650 л</strong><small>по 2 сопоставимым материалам</small></div><div class="studio-table"><div class="table-head"><span>Материал</span><span>Нужно</span><span>С запасом</span><span>Купить</span></div>${dataRow('Грунт для грядок', 'Грунт · spec-1', '2 600 л', '2 600 л', '52 × 50 л')}${dataRow('Песок', 'Песок · spec-3', '1 000 л', '1 050 л', '21 × 50 л')}</div><div class="studio-note"><b>Проверка</b><span>Зона 02 превышает собственную площадь только по слоям — зоны не размещаются автоматически.</span></div></aside>`;
 }
 
 function conceptC() {

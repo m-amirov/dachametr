@@ -47,8 +47,8 @@ function decimalDivide(value: string, divisor: string): string {
   }
 }
 
-function errorFor(validation: DraftValidation, path: string): boolean {
-  return validation.errors.some(error => error.path === path);
+function validationErrorFor(validation: DraftValidation, path: string) {
+  return validation.errors.find(error => error.path === path);
 }
 
 function inputField(options: {
@@ -65,15 +65,21 @@ function inputField(options: {
   optional?: boolean;
   zoneId?: string;
   layerId?: string;
+  showError?: boolean;
 }): string {
-  const invalid = errorFor(options.validation, options.path);
-  return `<div class="field ${invalid ? 'field-invalid' : ''}">
+  const fieldError = options.showError === false ? undefined : validationErrorFor(options.validation, options.path);
+  const describedBy = [
+    options.hint ? `${options.id}-hint` : '',
+    fieldError ? `${options.id}-error` : '',
+  ].filter(Boolean).join(' ');
+  return `<div class="field ${fieldError ? 'field-invalid' : ''}">
     <label for="${escapeHtml(options.id)}">${escapeHtml(options.label)}${options.optional ? ' <span class="optional">необязательно</span>' : ''}</label>
     <div class="input-wrap">
-      <input id="${escapeHtml(options.id)}" data-action="${escapeHtml(options.action)}" data-field="${escapeHtml(options.field)}"${options.zoneId ? ` data-zone-id="${escapeHtml(options.zoneId)}"` : ''}${options.layerId ? ` data-layer-id="${escapeHtml(options.layerId)}"` : ''} data-focus-key="${escapeHtml(options.focusKey)}" data-domain-path="${escapeHtml(options.path)}" value="${escapeHtml(options.value)}" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-invalid="${invalid ? 'true' : 'false'}"${invalid ? ' aria-describedby="error-summary"' : ''} />
+      <input id="${escapeHtml(options.id)}" data-action="${escapeHtml(options.action)}" data-field="${escapeHtml(options.field)}"${options.zoneId ? ` data-zone-id="${escapeHtml(options.zoneId)}"` : ''}${options.layerId ? ` data-layer-id="${escapeHtml(options.layerId)}"` : ''} data-focus-key="${escapeHtml(options.focusKey)}" data-domain-path="${escapeHtml(options.path)}" value="${escapeHtml(options.value)}" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-invalid="${fieldError ? 'true' : 'false'}"${describedBy ? ` aria-describedby="${escapeHtml(describedBy)}"` : ''} />
       ${options.unit ? `<span class="unit">${escapeHtml(options.unit)}</span>` : ''}
     </div>
-    ${options.hint ? `<p class="field-hint">${escapeHtml(options.hint)}</p>` : ''}
+    ${options.hint ? `<p class="field-hint" id="${escapeHtml(options.id)}-hint">${escapeHtml(options.hint)}</p>` : ''}
+    ${fieldError ? `<p class="field-error" id="${escapeHtml(options.id)}-error" role="alert">${escapeHtml(fieldError.message)}</p>` : ''}
   </div>`;
 }
 
@@ -102,6 +108,7 @@ function renderLayer(state: AppState, zone: ZoneDraft, layer: LayerDraft, layerI
   const spec = material ?? { id: layer.materialSpecId, material: 'soil' as MaterialKind, label: '' };
   const prefix = `zones[${zoneIndex}].layers[${layerIndex}]`;
   const detail = layerDetail(validation, zone.id, layer.id);
+  const labelError = validationErrorFor(validation, `${prefix}.material_spec_label`);
   return `<fieldset class="layer-card" data-testid="layer-card" data-layer-id="${escapeHtml(layer.id)}">
     <legend><span class="layer-number">Слой ${layerIndex + 1}</span><button type="button" class="button button-text danger" data-action="remove-layer" data-zone-id="${escapeHtml(zone.id)}" data-layer-id="${escapeHtml(layer.id)}">Удалить</button></legend>
     ${renderMaterialSource(state, layer).replace('data-zone-id=""', `data-zone-id="${escapeHtml(zone.id)}"`)}
@@ -112,9 +119,10 @@ function renderLayer(state: AppState, zone: ZoneDraft, layer: LayerDraft, layerI
           ${(['soil', 'sand', 'gravel'] as MaterialKind[]).map(kind => `<option value="${kind}"${spec.material === kind ? ' selected' : ''}>${MATERIAL_LABELS[kind]}</option>`).join('')}
         </select>
       </div>
-      <div class="field field-wide-mobile">
+      <div class="field field-wide-mobile ${labelError ? 'field-invalid' : ''}">
         <label for="label-${escapeHtml(layer.id)}">Название варианта материала</label>
-        <input id="label-${escapeHtml(layer.id)}" data-action="material-field" data-field="label" data-material-id="${escapeHtml(spec.id)}" data-focus-key="label-${escapeHtml(layer.id)}" value="${escapeHtml(spec.label)}" type="text" autocomplete="off" maxlength="80" aria-invalid="${errorFor(validation, `${prefix}.material_spec_label`) ? 'true' : 'false'}" />
+        <input id="label-${escapeHtml(layer.id)}" data-action="material-field" data-field="label" data-material-id="${escapeHtml(spec.id)}" data-focus-key="label-${escapeHtml(layer.id)}" value="${escapeHtml(spec.label)}" type="text" autocomplete="off" maxlength="80" aria-invalid="${labelError ? 'true' : 'false'}"${labelError ? ` aria-describedby="label-${escapeHtml(layer.id)}-error"` : ''} />
+        ${labelError ? `<p class="field-error" id="label-${escapeHtml(layer.id)}-error" role="alert">${escapeHtml(labelError.message)}</p>` : ''}
       </div>
       ${inputField({ id: fieldId('thickness', layer.id), label: 'Толщина слоя', value: layer.thickness, action: 'layer-field', field: 'thickness', focusKey: `thickness-${layer.id}`, path: `${prefix}.thickness_cm`, validation, unit: 'см', zoneId: zone.id, layerId: layer.id })}
       ${inputField({ id: fieldId('reserve', layer.id), label: 'Запас', value: layer.reserve, action: 'layer-field', field: 'reserve', focusKey: `reserve-${layer.id}`, path: `${prefix}.reserve_percent`, validation, unit: '%', zoneId: zone.id, layerId: layer.id })}
@@ -179,13 +187,13 @@ function renderZoneBreakdown(state: AppState, value: DetailedCalculated): string
 function renderResults(state: AppState, validation: DraftValidation): string {
   if (!validation.valid || !validation.result?.ok) {
     const hasDraftInput = state.plot.length.trim() !== '' || state.plot.width.trim() !== '' || state.zones.length > 0;
-    if (!hasDraftInput) return `<aside class="results-column"><section class="panel result-empty"><span class="result-mark">Σ</span><span class="eyebrow">РЕЗУЛЬТАТ</span><h2>Ведомость появится здесь</h2><p>Добавьте первую зону и слой материала. Итог обновляется сразу после каждого изменения.</p></section></aside>`;
+    if (!hasDraftInput) return `<aside class="results-column" id="results-panel"><section class="panel result-empty"><span class="result-mark">Σ</span><span class="eyebrow">РЕЗУЛЬТАТ</span><h2>Ведомость появится здесь</h2><p>Добавьте первую зону и слой материала. Итог обновляется сразу после каждого изменения.</p></section></aside>`;
     const error = validation.errors[0];
-    return `<aside class="results-column"><section class="panel result-blocked" data-testid="blocked-results" aria-live="assertive"><span class="result-mark">!</span><span class="eyebrow">РЕЗУЛЬТАТ ЗАБЛОКИРОВАН</span><h2>Сначала исправьте ввод</h2><p id="error-summary">Исправьте ошибки, чтобы получить итоговую ведомость. Частичный расчёт не показываем как готовую закупку.</p>${error ? `<p class="error-detail">${escapeHtml(error.message)} <code>${escapeHtml(error.path)}</code></p>` : ''}</section></aside>`;
+    return `<aside class="results-column" id="results-panel"><section class="panel result-blocked" data-testid="blocked-results" aria-live="assertive"><span class="result-mark">!</span><span class="eyebrow">РЕЗУЛЬТАТ ЗАБЛОКИРОВАН</span><h2>Сначала исправьте ввод</h2><p id="error-summary">Исправьте ошибки, чтобы получить итоговую ведомость. Частичный расчёт не показываем как готовую закупку.</p>${error ? `<p class="error-detail">${escapeHtml(error.message)} <code>${escapeHtml(error.path)}</code></p>` : ''}</section></aside>`;
   }
   const value = validation.result.value;
   const sotki = decimalDivide(value.plot_area_m2, '100');
-  return `<aside class="results-column" data-testid="result-panel"><section class="panel result-panel"><div class="result-heading"><div><span class="eyebrow">ТЕКУЩИЙ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><span class="live-dot">Обновляется</span></div>
+  return `<aside class="results-column" id="results-panel" data-testid="result-panel"><section class="panel result-panel"><div class="result-heading"><div><span class="eyebrow">ТЕКУЩИЙ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><span class="live-dot">Обновляется</span></div>
     <div class="area-summary"><div><span>Участок</span><strong>${formatUnit(value.plot_area_m2, 'м²')}</strong></div><div><span>Это примерно</span><strong>${formatUnit(sotki, 'сотки')}</strong></div><div><span>Зоны вместе</span><strong>${formatUnit(value.zones_area_sum_m2, 'м²')}</strong></div></div>
     ${value.areas_exceed_plot ? '<div class="warning" role="status"><strong>Проверьте площадь</strong><span>Сумма площадей зон больше участка. Мы не вычитаем и не размещаем зоны автоматически.</span></div>' : ''}
     <div class="result-list"><div class="section-title"><span class="eyebrow">BOM</span><h3>Материалы к покупке</h3></div>${value.bom.length === 0 ? '<div class="empty-inline">Добавьте хотя бы один слой, чтобы получить строку закупки.</div>' : value.bom.map(renderBomRow).join('')}</div>
@@ -193,17 +201,25 @@ function renderResults(state: AppState, validation: DraftValidation): string {
   </section></aside>`;
 }
 
+function hasDraftInput(state: AppState): boolean {
+  return state.plot.length.trim() !== '' || state.plot.width.trim() !== '' || state.zones.length > 0;
+}
+
 export function renderAppHtml(state: AppState, validation: DraftValidation): string {
-  return `<div class="app-shell">
-    <header class="site-header"><div><span class="eyebrow">РАСЧЁТНЫЙ ИНСТРУМЕНТ ДЛЯ УЧАСТКА</span><h1>Дачаметр</h1><p>Сколько грунта, песка или щебня понадобится для прямоугольных зон — с понятными единицами и без выдуманных норм.</p></div><div class="session-note"><span class="status-dot"></span><span>Локально · данные только в этой сессии</span><button type="button" class="button button-text" data-action="reset">Сбросить</button></div></header>
+  const plotLength = state.plot.length.trim() || '—';
+  const plotWidth = state.plot.width.trim() || '—';
+  return `<div class="app-shell atlas-app">
+    <header class="site-header atlas-header"><div class="brand-area"><span class="atlas-mark" aria-hidden="true">Д / 01</span><div><span class="eyebrow">ПОЛЕВОЙ АТЛАС УЧАСТКА</span><h1>Дачаметр</h1></div></div><div class="header-copy"><span class="header-index">ЛИСТ РАСЧЁТА</span><p class="site-intro"><span class="copy-long">Сколько грунта, песка или щебня понадобится для прямоугольных зон — с понятными единицами и без выдуманных норм.</span><span class="copy-short">Размеры → зоны → ведомость.</span></p></div><div class="session-note"><span class="status-dot"></span><span>Локально · данные только в этой сессии</span><button type="button" class="button button-text" data-action="reset">Сбросить</button></div></header>
     <main class="workspace"><section class="editor-column"><form class="panel calculator-form" novalidate>
-      <div class="section-title"><span class="eyebrow">01 / УЧАСТОК</span><h2>Начните с размеров</h2><p>Упрощённая прямоугольная геометрия. Это не межевание и не карта размещения.</p></div>
+      <div class="section-title"><span class="eyebrow">A / ГЕОМЕТРИЯ</span><h2>Начните с размеров</h2><p>Прямоугольная геометрия для расчёта объёма. Это не межевание и не карта размещения.</p></div>
       <div class="field-grid two-columns">
-        ${inputField({ id: 'plot-length', label: 'Длина участка', value: state.plot.length, action: 'plot-field', field: 'length', focusKey: 'plot-length', path: 'plot.length_m', validation, unit: 'м' })}
-        ${inputField({ id: 'plot-width', label: 'Ширина участка', value: state.plot.width, action: 'plot-field', field: 'width', focusKey: 'plot-width', path: 'plot.width_m', validation, unit: 'м' })}
+        ${inputField({ id: 'plot-length', label: 'Длина участка', value: state.plot.length, action: 'plot-field', field: 'length', focusKey: 'plot-length', path: 'plot.length_m', validation, unit: 'м', showError: hasDraftInput(state) })}
+        ${inputField({ id: 'plot-width', label: 'Ширина участка', value: state.plot.width, action: 'plot-field', field: 'width', focusKey: 'plot-width', path: 'plot.width_m', validation, unit: 'м', showError: hasDraftInput(state) })}
       </div>
       <div class="plot-readout"><span>Площадь участка</span><strong>${validation.result?.ok ? formatUnit(validation.result.value.plot_area_m2, 'м²') : '—'}</strong><span>${validation.result?.ok ? `≈ ${formatUnit(decimalDivide(validation.result.value.plot_area_m2, '100'), 'сотки')}` : 'Введите оба размера'}</span></div>
-      <div class="section-title zones-title"><span class="eyebrow">02 / ЗОНЫ</span><div class="title-with-action"><div><h2>Что нужно посчитать</h2><p>Грядки, дорожки и другие прямоугольные области.</p></div><button type="button" class="button button-primary" data-action="add-zone" data-testid="add-zone">Добавить зону</button></div></div>
+      <div class="plot-profile"><div><span class="eyebrow">ПРОФИЛЬ УЧАСТКА</span><strong>${escapeHtml(plotLength)} × ${escapeHtml(plotWidth)} м</strong><small>Только размеры расчёта, не расположение зон.</small></div><div class="profile-rule" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div></div>
+      ${state.zones.length > 0 ? '<a class="result-jump" href="#results-panel">К ведомости <span aria-hidden="true">↓</span></a>' : ''}
+      <div class="section-title zones-title"><span class="eyebrow">B / ПЛАН ЗОН</span><div class="title-with-action"><div><h2>Что нужно посчитать</h2><p>Грядки, дорожки и другие прямоугольные области.</p></div><button type="button" class="button button-primary" data-action="add-zone" data-testid="add-zone">Добавить зону</button></div></div>
       ${state.zones.length === 0 ? '<div class="empty-zones"><span class="empty-number">01</span><div><h3>Начните с первой зоны</h3><p>Назовите её и задайте длину с шириной. Потом добавьте один или несколько слоёв.</p></div><button type="button" class="button button-secondary" data-action="add-zone">Добавить первую зону</button></div>' : state.zones.map((zone, index) => renderZone(state, zone, index, validation)).join('')}
     </form></section>${renderResults(state, validation)}</main>
     <footer class="site-footer"><span>Расчёт объёма слоя: площадь × толщина. Запас и плотность — только ваши значения.</span><span>Нет сохранения после перезагрузки · нет внешних запросов</span></footer>

@@ -78,6 +78,7 @@ for (const width of widths) {
 const zoomPage = await browser.newPage({ viewport: { width: 195, height: 844 }, deviceScaleFactor: 1 });
 await zoomPage.goto(`${baseURL}/`);
 const zoomOverflow = await zoomPage.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+await zoomPage.screenshot({ path: path.join(evidenceDir, 'zoom-200-css-viewport.png'), fullPage: true });
 checks.push({ state: 'zoom-200-css-viewport', width: 195, height: 844, overflow: zoomOverflow, errors: [] });
 await zoomPage.close();
 await browser.close();

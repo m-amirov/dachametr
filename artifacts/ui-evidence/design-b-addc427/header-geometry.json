@@ -1,0 +1,492 @@
+[
+  {
+    "width": 960,
+    "viewport": {
+      "width": 960,
+      "height": 900
+    },
+    "headerColumns": "363.453px 491.766px",
+    "heading": {
+      "left": 97.390625,
+      "top": 55.984375,
+      "right": 331.421875,
+      "bottom": 106.65625,
+      "width": 234.03125,
+      "height": 50.671875
+    },
+    "headingText": {
+      "left": 97.390625,
+      "top": 47.984375,
+      "right": 331.421875,
+      "bottom": 113.984375,
+      "width": 234.03125,
+      "height": 66
+    },
+    "description": {
+      "left": 429.84375,
+      "top": 63.15625,
+      "right": 921.609375,
+      "bottom": 106.65625,
+      "width": 491.765625,
+      "height": 43.5
+    },
+    "state": {
+      "left": 38.390625,
+      "top": 126.65625,
+      "right": 921.609375,
+      "bottom": 158.65625,
+      "width": 883.21875,
+      "height": 32
+    },
+    "overlaps": {
+      "headingDescription": false,
+      "renderedHeadingDescription": false,
+      "headingState": false,
+      "renderedHeadingState": false,
+      "descriptionState": false
+    },
+    "scrollWidth": 960,
+    "clientWidth": 960
+  },
+  {
+    "width": 961,
+    "viewport": {
+      "width": 961,
+      "height": 900
+    },
+    "headerColumns": "363.844px 492.281px",
+    "heading": {
+      "left": 97.4375,
+      "top": 56.015625,
+      "right": 331.71875,
+      "bottom": 106.75,
+      "width": 234.28125,
+      "height": 50.734375
+    },
+    "headingText": {
+      "left": 97.4375,
+      "top": 48.015625,
+      "right": 331.71875,
+      "bottom": 114.015625,
+      "width": 234.28125,
+      "height": 66
+    },
+    "description": {
+      "left": 430.28125,
+      "top": 63.25,
+      "right": 922.5625,
+      "bottom": 106.75,
+      "width": 492.28125,
+      "height": 43.5
+    },
+    "state": {
+      "left": 38.4375,
+      "top": 126.75,
+      "right": 922.5625,
+      "bottom": 158.75,
+      "width": 884.125,
+      "height": 32
+    },
+    "overlaps": {
+      "headingDescription": false,
+      "renderedHeadingDescription": false,
+      "headingState": false,
+      "renderedHeadingState": false,
+      "descriptionState": false
+    },
+    "scrollWidth": 961,
+    "clientWidth": 961
+  },
+  {
+    "width": 1024,
+    "viewport": {
+      "width": 1024,
+      "height": 900
+    },
+    "headerColumns": "388.484px 525.609px",
+    "heading": {
+      "left": 99.953125,
+      "top": 57.90625,
+      "right": 349.59375,
+      "bottom": 111.96875,
+      "width": 249.640625,
+      "height": 54.0625
+    },
+    "headingText": {
+      "left": 99.953125,
+      "top": 49.90625,
+      "right": 349.59375,
+      "bottom": 118.90625,
+      "width": 249.640625,
+      "height": 69
+    },
+    "description": {
+      "left": 457.4375,
+      "top": 68.46875,
+      "right": 983.046875,
+      "bottom": 111.96875,
+      "width": 525.609375,
+      "height": 43.5
+    },
+    "state": {
+      "left": 40.953125,
+      "top": 131.96875,
+      "right": 983.046875,
+      "bottom": 163.96875,
+      "width": 942.09375,
+      "height": 32
+    },
+    "overlaps": {
+      "headingDescription": false,
+      "renderedHeadingDescription": false,
+      "headingState": false,
+      "renderedHeadingState": false,
+      "descriptionState": false
+    },
+    "scrollWidth": 1024,
+    "clientWidth": 1024
+  },
+  {
+    "width": 1100,
+    "viewport": {
+      "width": 1100,
+      "height": 900
+    },
+    "headerColumns": "418.188px 565.812px",
+    "heading": {
+      "left": 103,
+      "top": 60.1875,
+      "right": 371.15625,
+      "bottom": 118.265625,
+      "width": 268.15625,
+      "height": 58.078125
+    },
+    "headingText": {
+      "left": 103,
+      "top": 51.1875,
+      "right": 371.15625,
+      "bottom": 126.1875,
+      "width": 268.15625,
+      "height": 75
+    },
+    "description": {
+      "left": 490.1875,
+      "top": 74.765625,
+      "right": 1056,
+      "bottom": 118.265625,
+      "width": 565.8125,
+      "height": 43.5
+    },
+    "state": {
+      "left": 44,
+      "top": 138.265625,
+      "right": 1056,
+      "bottom": 170.265625,
+      "width": 1012,
+      "height": 32
+    },
+    "overlaps": {
+      "headingDescription": false,
+      "renderedHeadingDescription": false,
+      "headingState": false,
+      "renderedHeadingState": false,
+      "descriptionState": false
+    },
+    "scrollWidth": 1100,
+    "clientWidth": 1100
+  },
+  {
+    "width": 1200,
+    "viewport": {
+      "width": 1200,
+      "height": 900
+    },
+    "headerColumns": "370px 329.875px 308.125px",
+    "heading": {
+      "left": 107,
+      "top": 63.1875,
+      "right": 399.546875,
+      "bottom": 126.546875,
+      "width": 292.546875,
+      "height": 63.359375
+    },
+    "headingText": {
+      "left": 107,
+      "top": 53.1875,
+      "right": 399.546875,
+      "bottom": 135.1875,
+      "width": 292.546875,
+      "height": 82
+    },
+    "description": {
+      "left": 466,
+      "top": 61.296875,
+      "right": 795.875,
+      "bottom": 126.546875,
+      "width": 329.875,
+      "height": 65.25
+    },
+    "state": {
+      "left": 843.875,
+      "top": 94.546875,
+      "right": 1152,
+      "bottom": 126.546875,
+      "width": 308.125,
+      "height": 32
+    },
+    "overlaps": {
+      "headingDescription": false,
+      "renderedHeadingDescription": false,
+      "headingState": false,
+      "renderedHeadingState": false,
+      "descriptionState": false
+    },
+    "scrollWidth": 1200,
+    "clientWidth": 1200
+  },
+  {
+    "width": 1280,
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "headerColumns": "370px 397.125px 308.125px",
+    "heading": {
+      "left": 110.1875,
+      "top": 65.578125,
+      "right": 418.984375,
+      "bottom": 132.453125,
+      "width": 308.796875,
+      "height": 66.875
+    },
+    "headingText": {
+      "left": 110.1875,
+      "top": 54.578125,
+      "right": 418.984375,
+      "bottom": 141.578125,
+      "width": 308.796875,
+      "height": 87
+    },
+    "description": {
+      "left": 472.375,
+      "top": 67.203125,
+      "right": 869.5,
+      "bottom": 132.453125,
+      "width": 397.125,
+      "height": 65.25
+    },
+    "state": {
+      "left": 920.6875,
+      "top": 100.453125,
+      "right": 1228.8125,
+      "bottom": 132.453125,
+      "width": 308.125,
+      "height": 32
+    },
+    "overlaps": {
+      "headingDescription": false,
+      "renderedHeadingDescription": false,
+      "headingState": false,
+      "renderedHeadingState": false,
+      "descriptionState": false
+    },
+    "scrollWidth": 1280,
+    "clientWidth": 1280
+  },
+  {
+    "width": 1440,
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "headerColumns": "370px 531.5px 308.125px",
+    "heading": {
+      "left": 116.59375,
+      "top": 70.375,
+      "right": 425.390625,
+      "bottom": 137.25,
+      "width": 308.796875,
+      "height": 66.875
+    },
+    "headingText": {
+      "left": 116.59375,
+      "top": 59.375,
+      "right": 425.390625,
+      "bottom": 146.375,
+      "width": 308.796875,
+      "height": 87
+    },
+    "description": {
+      "left": 485.1875,
+      "top": 93.75,
+      "right": 1016.6875,
+      "bottom": 137.25,
+      "width": 531.5,
+      "height": 43.5
+    },
+    "state": {
+      "left": 1074.28125,
+      "top": 105.25,
+      "right": 1382.40625,
+      "bottom": 137.25,
+      "width": 308.125,
+      "height": 32
+    },
+    "overlaps": {
+      "headingDescription": false,
+      "renderedHeadingDescription": false,
+      "headingState": false,
+      "renderedHeadingState": false,
+      "descriptionState": false
+    },
+    "scrollWidth": 1440,
+    "clientWidth": 1440
+  },
+  {
+    "width": 320,
+    "viewport": {
+      "width": 320,
+      "height": 844
+    },
+    "headerColumns": "minmax(0px, 0.85fr) minmax(0px, 1.15fr)",
+    "heading": {
+      "left": 50,
+      "top": 41.1875,
+      "right": 237.6875,
+      "bottom": 69.34375,
+      "width": 187.6875,
+      "height": 28.15625
+    },
+    "headingText": {
+      "left": 50,
+      "top": 37.1875,
+      "right": 180.015625,
+      "bottom": 73.1875,
+      "width": 130.015625,
+      "height": 36
+    },
+    "description": {
+      "left": 10,
+      "top": 111.28125,
+      "right": 310,
+      "bottom": 131.578125,
+      "width": 300,
+      "height": 20.296875
+    },
+    "state": {
+      "left": 10,
+      "top": 147.578125,
+      "right": 310,
+      "bottom": 182.359375,
+      "width": 300,
+      "height": 34.78125
+    },
+    "overlaps": {
+      "headingDescription": false,
+      "renderedHeadingDescription": false,
+      "headingState": false,
+      "renderedHeadingState": false,
+      "descriptionState": false
+    },
+    "scrollWidth": 320,
+    "clientWidth": 320
+  },
+  {
+    "width": 390,
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "headerColumns": "minmax(0px, 0.85fr) minmax(0px, 1.15fr)",
+    "heading": {
+      "left": 74.59375,
+      "top": 41.1875,
+      "right": 277.75,
+      "bottom": 85.1875,
+      "width": 203.15625,
+      "height": 44
+    },
+    "headingText": {
+      "left": 74.59375,
+      "top": 34.1875,
+      "right": 277.75,
+      "bottom": 91.1875,
+      "width": 203.15625,
+      "height": 57
+    },
+    "description": {
+      "left": 15.59375,
+      "top": 127.125,
+      "right": 374.40625,
+      "bottom": 147.421875,
+      "width": 358.8125,
+      "height": 20.296875
+    },
+    "state": {
+      "left": 15.59375,
+      "top": 163.421875,
+      "right": 374.40625,
+      "bottom": 195.421875,
+      "width": 358.8125,
+      "height": 32
+    },
+    "overlaps": {
+      "headingDescription": false,
+      "renderedHeadingDescription": false,
+      "headingState": false,
+      "renderedHeadingState": false,
+      "descriptionState": false
+    },
+    "scrollWidth": 390,
+    "clientWidth": 390
+  },
+  {
+    "width": 195,
+    "viewport": {
+      "width": 195,
+      "height": 844
+    },
+    "headerColumns": "minmax(0px, 0.85fr) minmax(0px, 1.15fr)",
+    "heading": {
+      "left": 50,
+      "top": 64.375,
+      "right": 185,
+      "bottom": 92.53125,
+      "width": 135,
+      "height": 28.15625
+    },
+    "headingText": {
+      "left": 50,
+      "top": 60.375,
+      "right": 180.015625,
+      "bottom": 96.375,
+      "width": 130.015625,
+      "height": 36
+    },
+    "description": {
+      "left": 10,
+      "top": 134.46875,
+      "right": 185,
+      "bottom": 175.0625,
+      "width": 175,
+      "height": 40.59375
+    },
+    "state": {
+      "left": 10,
+      "top": 191.0625,
+      "right": 185,
+      "bottom": 243.234375,
+      "width": 175,
+      "height": 52.171875
+    },
+    "overlaps": {
+      "headingDescription": false,
+      "renderedHeadingDescription": false,
+      "headingState": false,
+      "renderedHeadingState": false,
+      "descriptionState": false
+    },
+    "scrollWidth": 195,
+    "clientWidth": 195
+  }
+]

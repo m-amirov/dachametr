@@ -12,10 +12,12 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit --project tsconfig.json",
     "test:domain": "node --experimental-strip-types --test tests/plot-domain.test.mjs",
+    "test:concepts": "node --experimental-strip-types --test tests/design-concepts.test.mjs",
     "test:ui": "node --experimental-strip-types --test tests/ui-state.test.mjs tests/ui-validation.test.mjs tests/ui-app.test.mjs",
-    "test": "npm run typecheck && npm run test:domain && npm run test:ui",
+    "test": "npm run typecheck && npm run test:domain && npm run test:concepts && npm run test:ui",
     "test:browser": "playwright test",
     "capture:evidence": "node scripts/capture-ui-evidence.mjs",
+    "capture:header-geometry": "node scripts/capture-header-geometry.mjs",
     "verify:domain": "npm run typecheck && npm run test:domain",
     "verify": "npm test && npm run build"
   },

@@ -58,6 +58,7 @@ test('critical path calculates grouped materials and shows the zone breakdown', 
   await expect(page.getByTestId('bom-row').nth(1)).toContainText('Песок');
   await expect(page.getByRole('heading', { name: 'Расшифровка по зонам' })).toBeVisible();
   await expect(page.getByText('52 уп.')).toBeVisible();
+  await expect(page.getByRole('link', { name: /К ведомости/ })).toHaveAttribute('href', '#results-panel');
   expect(errors).toEqual([]);
 });
 
@@ -86,6 +87,9 @@ test('comma editing is preserved and an invalid late zone blocks the full BOM', 
   await expect(page.getByTestId('blocked-results')).toBeVisible();
   await expect(page.getByTestId('bom-row')).toHaveCount(0);
   await expect(page.getByText('Исправьте ошибки, чтобы получить итоговую ведомость')).toBeVisible();
+  const invalidZoneLength = page.getByTestId('zone-card').nth(1).locator('[data-action="zone-field"][data-field="length"]');
+  await expect(invalidZoneLength).toHaveAttribute('aria-describedby', 'zone-length-zone-2-error');
+  await expect(page.locator('#zone-length-zone-2-error')).toContainText('Введите число');
   expect(errors).toEqual([]);
 });
 
@@ -112,5 +116,79 @@ test('keyboard focus and responsive layout do not create horizontal overflow', a
   await expect(page.locator(':focus')).toHaveAttribute('id', 'plot-width');
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   expect(overflow).toBe(false);
+  expect(errors).toEqual([]);
+});
+
+test('200 percent css viewport keeps the atlas header inside the viewport', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.setViewportSize({ width: 195, height: 844 });
+  await page.goto('/');
+  const metrics = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+    brandRight: document.querySelector('.brand-area')?.getBoundingClientRect().right ?? 0,
+  }));
+  expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth);
+  expect(metrics.brandRight).toBeLessThanOrEqual(metrics.clientWidth);
+  expect(errors).toEqual([]);
+});
+
+test('header text and session state do not geometrically overlap at responsive widths', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  const widths = [1024, 960, 961, 1100, 1200, 1280, 1440, 320, 390, 195];
+
+  for (const width of widths) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    const metrics = await page.evaluate(() => {
+      const readRect = selector => {
+        const element = document.querySelector(selector);
+        if (!element) return null;
+        const rect = element.getBoundingClientRect();
+        return { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom };
+      };
+      const readRenderedTextRect = selector => {
+        const element = document.querySelector(selector);
+        if (!element) return null;
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        const rect = range.getBoundingClientRect();
+        return { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom };
+      };
+      const intersects = (first, second) => Boolean(
+        first && second
+        && first.left < second.right
+        && first.right > second.left
+        && first.top < second.bottom
+        && first.bottom > second.top,
+      );
+      const heading = readRect('.site-header h1');
+      const headingText = readRenderedTextRect('.site-header h1');
+      const description = readRect('.site-intro');
+      const state = readRect('.session-note');
+      return {
+        heading,
+        headingText,
+        description,
+        state,
+        overlaps: {
+          headingDescription: intersects(heading, description),
+          renderedHeadingDescription: intersects(headingText, description),
+          headingState: intersects(heading, state),
+          renderedHeadingState: intersects(headingText, state),
+          descriptionState: intersects(description, state),
+        },
+      };
+    });
+
+    expect(metrics.overlaps, `header geometry at ${width}px: ${JSON.stringify(metrics)}`).toEqual({
+      headingDescription: false,
+      renderedHeadingDescription: false,
+      headingState: false,
+      renderedHeadingState: false,
+      descriptionState: false,
+    });
+  }
+
   expect(errors).toEqual([]);
 });
