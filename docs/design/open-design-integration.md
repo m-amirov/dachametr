@@ -12,7 +12,7 @@ OpenDesign **не добавляем** в зависимости Vite-кальк
 ## Как подключить на Windows
 1. Установить официальное подписанное приложение OpenDesign с https://open-design.ai/download/ самостоятельно. Не запускать непроверенные install.sh, curl|sh или удалённые PowerShell-команды.
 2. Убедиться, что Codex CLI установлен и его версия соответствует требованиям. Версия Node.js сайта (22.16.0) **не меняется** ради OpenDesign.
-3. Из корня проекта проверить состояние (без установки): 
+3. Из корня проекта проверить состояние (без установки):
    powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup-open-design-codex.ps1
 4. После самостоятельной проверки источника явно установить официальный Codex plugin в **профиль Codex**:
    powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup-open-design-codex.ps1 -InstallPlugin
