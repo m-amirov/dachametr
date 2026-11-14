@@ -114,3 +114,46 @@ test('keyboard focus and responsive layout do not create horizontal overflow', a
   expect(overflow).toBe(false);
   expect(errors).toEqual([]);
 });
+
+test('responsive result-nearby zones and per-layer editing keep values while toggling', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const first = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+  await first.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(first, { material: 'soil', label: 'Грунт для грядок', thickness: '25', packageL: '50' });
+  const layer = first.getByTestId('layer-card').first();
+  await layer.getByRole('button', { name: 'Скрыть' }).click();
+  await expect(layer.locator('.layer-edit')).toBeHidden();
+  await expect(layer.getByText('Грунт для грядок').first()).toBeVisible();
+  await layer.getByRole('button', { name: 'Настроить' }).click();
+  await expect(layer.locator('[data-action="layer-field"][data-field="thickness"]')).toHaveValue('25');
+  await page.getByTestId('add-zone').click();
+  const second = page.getByTestId('zone-card').nth(1);
+  await expect(first.locator('.zone-edit')).toBeHidden();
+  await expect(second.locator('.zone-edit')).toBeVisible();
+  await first.locator('[data-action="toggle-zone"]').click();
+  await expect(first.locator('.zone-edit')).toBeVisible();
+  await expect(second.locator('.zone-edit')).toBeHidden();
+  await expect(first.locator('[data-action="zone-field"][data-field="name"]')).toHaveValue('Грядка');
+  await expect(first.locator('[data-action="layer-field"][data-field="thickness"]')).toHaveValue('25');
+  await expect(page.locator('.jump-result')).toHaveAttribute('href', '#result');
+  expect(errors).toEqual([]);
+});
+
+test('result-nearby layout stays within the viewport at mobile tablet desktop and zoom emulation', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  for (const width of [195, 320, 390, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    const overflow = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollWidth,
+      client: document.documentElement.clientWidth,
+    }));
+    expect(overflow.scroll, 'horizontal overflow at width ' + width).toBeLessThanOrEqual(overflow.client);
+  }
+  expect(errors).toEqual([]);
+});

@@ -60,3 +60,38 @@ test('invalid state renders an explicit fail-closed message instead of stale BOM
   assert.match(html, /Исправьте ошибки, чтобы получить итоговую ведомость/);
   assert.doesNotMatch(html, /40 упаковок/);
 });
+
+test('result-nearby layout uses actual grouped BOM quantities and no hardcoded demo values', () => {
+  const state = completeState();
+  const html = renderAppHtml(state, validateDraft(state));
+  assert.match(html, /class="result-lead"/);
+  assert.match(html, /Всего нужно с запасом/);
+  assert.match(html, /2 000 л/);
+  assert.match(html, /40 уп/);
+  assert.match(html, /class="bom-values"/);
+  assert.match(html, /href="#result"/);
+  assert.doesNotMatch(html, /<h1>Дачаметр<\/h1>.*<h1>Дачаметр<\/h1>/s);
+});
+
+test('collapsed zone and layer retain accessible controls but keep editors hidden', () => {
+  const state = completeState();
+  const zoneId = state.zones[0].id;
+  const layerId = state.zones[0].layers[0].id;
+  const closed = renderAppHtml(state, validateDraft(state), { openZoneId: null, openLayerIds: new Set() });
+  assert.match(closed, new RegExp('aria-controls="zone-editor-' + zoneId + '" aria-expanded="false"'));
+  assert.match(closed, new RegExp('id="zone-editor-' + zoneId + '" hidden'));
+  assert.match(closed, new RegExp('id="layer-editor-' + layerId + '" hidden'));
+  assert.match(closed, /Грунт для грядок/);
+  const opened = renderAppHtml(state, validateDraft(state), { openZoneId: zoneId, openLayerIds: new Set([layerId]) });
+  assert.match(opened, new RegExp('aria-controls="zone-editor-' + zoneId + '" aria-expanded="true"'));
+  assert.doesNotMatch(opened, new RegExp('id="layer-editor-' + layerId + '" hidden'));
+});
+
+test('inline numeric error is bound to the offending field, while full BOM is blocked', () => {
+  const state = updatePlotField(createInitialState(), 'length', '1,');
+  const html = renderAppHtml(state, validateDraft(state));
+  assert.match(html, /aria-describedby="error-plot-length"/);
+  assert.match(html, /id="error-plot-length"/);
+  assert.match(html, /data-testid="blocked-results"/);
+  assert.doesNotMatch(html, /data-testid="bom-row"/);
+});
