@@ -184,15 +184,20 @@ function renderBomRow(row: BomRow): string {
   const purchased = row.packed_volume_l === null ? '—' : formatUnit(row.packed_volume_l, 'л');
   const surplus = row.surplus_l === null ? '—' : formatUnit(row.surplus_l, 'л');
   return `<article class="bom-row" data-testid="bom-row">
-    <div class="bom-title"><div><span class="eyebrow">${escapeHtml(MATERIAL_LABELS[row.material])}</span><h3>${escapeHtml(row.material_spec_label)}</h3></div><span class="spec-id">${escapeHtml(row.material_spec_id)}</span></div>
-    <dl class="metric-grid">
-      <div><dt>Чистый объём</dt><dd>${formatUnit(row.net_l, 'л')}</dd></div>
-      <div><dt>С запасом</dt><dd>${formatUnit(row.purchase_l, 'л')}</dd></div>
-      <div><dt>Закупка</dt><dd>${packed}</dd></div>
-      <div><dt>Куплено фактически</dt><dd>${purchased}</dd></div>
-      <div><dt>Излишек после округления</dt><dd>${surplus}</dd></div>
-      <div><dt>Масса</dt><dd>${row.mass_required_kg === null ? 'Плотность не указана' : `${formatUnit(row.mass_required_kg, 'кг')} треб. / ${formatUnit(row.mass_purchased_kg, 'кг')} куплено`}</dd></div>
-    </dl>
+    <div class="bom-title"><span class="material-swatch material-${escapeHtml(row.material)}" aria-hidden="true"></span><div><span class="eyebrow">${escapeHtml(MATERIAL_LABELS[row.material])}</span><h3>${escapeHtml(row.material_spec_label)}</h3><small class="spec-id">${escapeHtml(row.material_spec_id)}</small></div></div>
+    <div class="bom-values" role="group" aria-label="Количество материала">
+      <div><span>Нужно с запасом</span><strong>${formatUnit(row.purchase_l, 'л')}</strong></div>
+      <div class="bom-buy"><span>Купить</span><strong>${packed}</strong></div>
+      <div><span>Излишек</span><strong>${surplus}</strong></div>
+    </div>
+    <details class="bom-details">
+      <summary>Показать расчёт и массу</summary>
+      <dl class="metric-grid">
+        <div><dt>Чистый объём</dt><dd>${formatUnit(row.net_l, 'л')}</dd></div>
+        <div><dt>Куплено фактически</dt><dd>${purchased}</dd></div>
+        <div><dt>Масса</dt><dd>${row.mass_required_kg === null ? 'Плотность не указана' : `${formatUnit(row.mass_required_kg, 'кг')} требуется / ${formatUnit(row.mass_purchased_kg, 'кг')} закуплено`}</dd></div>
+      </dl>
+    </details>
   </article>`;
 }
 
@@ -208,34 +213,52 @@ function renderZoneBreakdown(state: AppState, value: DetailedCalculated): string
 function renderResults(state: AppState, validation: DraftValidation): string {
   if (!validation.valid || !validation.result?.ok) {
     const hasDraftInput = state.plot.length.trim() !== '' || state.plot.width.trim() !== '' || state.zones.length > 0;
-    if (!hasDraftInput) return `<aside class="results-column"><section class="panel result-empty"><span class="result-mark">Σ</span><span class="eyebrow">РЕЗУЛЬТАТ</span><h2>Ведомость появится здесь</h2><p>Добавьте первую зону и слой материала. Итог обновляется сразу после каждого изменения.</p></section></aside>`;
+    if (!hasDraftInput) return `<aside class="results-column" id="result"><section class="panel result-empty"><span class="eyebrow">РЕЗУЛЬТАТ</span><h2>Ведомость появится здесь</h2><p>Укажите размеры, добавьте зону и слой материала. Результат обновится автоматически.</p></section></aside>`;
     const error = validation.errors[0];
-    return `<aside class="results-column"><section class="panel result-blocked" data-testid="blocked-results" aria-live="assertive"><span class="result-mark">!</span><span class="eyebrow">РЕЗУЛЬТАТ ЗАБЛОКИРОВАН</span><h2>Сначала исправьте ввод</h2><p id="error-summary">Исправьте ошибки, чтобы получить итоговую ведомость. Частичный расчёт не показываем как готовую закупку.</p>${error ? `<p class="error-detail">${escapeHtml(error.message)} <code>${escapeHtml(error.path)}</code></p>` : ''}</section></aside>`;
+    return `<aside class="results-column" id="result"><section class="panel result-blocked" data-testid="blocked-results" aria-live="assertive"><span class="eyebrow">РЕЗУЛЬТАТ ЗАБЛОКИРОВАН</span><h2>Сначала исправьте ввод</h2><p id="error-summary">Исправьте ошибки, чтобы получить итоговую ведомость. Частичный расчёт не показываем как готовую закупку.</p>${error ? `<p class="error-detail">${escapeHtml(error.message)} <code>${escapeHtml(error.path)}</code></p>` : ''}</section></aside>`;
   }
   const value = validation.result.value;
   const sotki = decimalDivide(value.plot_area_m2, '100');
-  return `<aside class="results-column" data-testid="result-panel"><section class="panel result-panel"><div class="result-heading"><div><span class="eyebrow">ТЕКУЩИЙ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><span class="live-dot">Обновляется</span></div>
-    <div class="area-summary"><div><span>Участок</span><strong>${formatUnit(value.plot_area_m2, 'м²')}</strong></div><div><span>Это примерно</span><strong>${formatUnit(sotki, 'сотки')}</strong></div><div><span>Зоны вместе</span><strong>${formatUnit(value.zones_area_sum_m2, 'м²')}</strong></div></div>
+  const totalPurchase = value.bom.reduce((sum, row) => sum.add(Exact.decimal(row.purchase_l)), new Exact(0n)).toString();
+  const allPackaged = value.bom.length > 0 && value.bom.every(row => row.packages !== null);
+  const totalPackages = allPackaged ? value.bom.reduce((sum, row) => sum + (row.packages ?? 0), 0) : null;
+  return `<aside class="results-column" id="result" data-testid="result-panel"><section class="panel result-panel">
+    <div class="result-heading"><div><span class="eyebrow">ВАШ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><span class="live-dot">Обновляется</span></div>
+    <div class="result-lead"><div><span>Всего нужно с запасом</span><strong>${formatUnit(totalPurchase, 'л')}</strong></div>${totalPackages !== null ? `<div class="total-packages"><span>Упаковок</span><strong>${formatRuNumber(totalPackages)} уп.</strong></div>` : '<div class="total-packages"><span>Упаковки</span><strong>По материалам</strong></div>'}</div>
+    <div class="area-summary"><div><span>Участок</span><strong>${formatUnit(value.plot_area_m2, 'м²')}</strong></div><div><span>Сотки</span><strong>${formatUnit(sotki, 'сотки')}</strong></div><div><span>Зоны</span><strong>${state.zones.length}</strong></div></div>
     ${value.areas_exceed_plot ? '<div class="warning" role="status"><strong>Проверьте площадь</strong><span>Сумма площадей зон больше участка. Мы не вычитаем и не размещаем зоны автоматически.</span></div>' : ''}
-    <div class="result-list"><div class="section-title"><span class="eyebrow">BOM</span><h3>Материалы к покупке</h3></div>${value.bom.length === 0 ? '<div class="empty-inline">Добавьте хотя бы один слой, чтобы получить строку закупки.</div>' : value.bom.map(renderBomRow).join('')}</div>
+    <div class="result-list"><div class="section-title"><span class="eyebrow">МАТЕРИАЛЫ</span><h3>Что купить</h3></div>${value.bom.length === 0 ? '<div class="empty-inline">Добавьте хотя бы один слой, чтобы получить строку закупки.</div>' : value.bom.map(renderBomRow).join('')}</div>
     ${renderZoneBreakdown(state, value)}
   </section></aside>`;
 }
 
 export function renderAppHtml(state: AppState, validation: DraftValidation, view: ViewState = { openZoneId: state.zones[0]?.id ?? null, openLayerIds: new Set(state.zones.flatMap(zone => zone.layers.map(layer => layer.id))) }): string {
   return `<div class="app-shell">
-    <header class="site-header"><div><span class="eyebrow">РАСЧЁТНЫЙ ИНСТРУМЕНТ ДЛЯ УЧАСТКА</span><h1>Дачаметр</h1><p>Сколько грунта, песка или щебня понадобится для прямоугольных зон — с понятными единицами и без выдуманных норм.</p></div><div class="session-note"><span class="status-dot"></span><span>Локально · данные только в этой сессии</span><button type="button" class="button button-text" data-action="reset">Сбросить</button></div></header>
-    <main class="workspace"><section class="editor-column"><form class="panel calculator-form" novalidate>
-      <div class="section-title"><span class="eyebrow">01 / УЧАСТОК</span><h2>Начните с размеров</h2><p>Упрощённая прямоугольная геометрия. Это не межевание и не карта размещения.</p></div>
-      <div class="field-grid two-columns">
-        ${inputField({ id: 'plot-length', label: 'Длина участка', value: state.plot.length, action: 'plot-field', field: 'length', focusKey: 'plot-length', path: 'plot.length_m', validation, unit: 'м' })}
-        ${inputField({ id: 'plot-width', label: 'Ширина участка', value: state.plot.width, action: 'plot-field', field: 'width', focusKey: 'plot-width', path: 'plot.width_m', validation, unit: 'м' })}
-      </div>
-      <div class="plot-readout"><span>Площадь участка</span><strong>${validation.result?.ok ? formatUnit(validation.result.value.plot_area_m2, 'м²') : '—'}</strong><span>${validation.result?.ok ? `≈ ${formatUnit(decimalDivide(validation.result.value.plot_area_m2, '100'), 'сотки')}` : 'Введите оба размера'}</span></div>
-      <div class="section-title zones-title"><span class="eyebrow">02 / ЗОНЫ</span><div class="title-with-action"><div><h2>Что нужно посчитать</h2><p>Грядки, дорожки и другие прямоугольные области.</p></div><button type="button" class="button button-primary" data-action="add-zone" data-testid="add-zone">Добавить зону</button></div></div>
-      ${state.zones.length === 0 ? '<div class="empty-zones"><span class="empty-number">01</span><div><h3>Начните с первой зоны</h3><p>Назовите её и задайте длину с шириной. Потом добавьте один или несколько слоёв.</p></div><button type="button" class="button button-secondary" data-action="add-zone">Добавить первую зону</button></div>' : state.zones.map((zone, index) => renderZone(state, zone, index, validation, view)).join('')}
-    </form></section>${renderResults(state, validation)}</main>
-    <footer class="site-footer"><span>Расчёт объёма слоя: площадь × толщина. Запас и плотность — только ваши значения.</span><span>Нет сохранения после перезагрузки · нет внешних запросов</span></footer>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Дачаметр, к началу"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span><h1>Дачаметр</h1><small>расчёт участка и закупки</small></span></a>
+      <div class="session-note"><span class="status-dot"></span><span>Локальный расчёт</span><button type="button" class="button button-text" data-action="reset">Сбросить</button></div>
+    </header>
+    <main id="top">
+      <section class="intro" aria-labelledby="intro-title">
+        <div><span class="eyebrow">КАЛЬКУЛЯТОР МАТЕРИАЛОВ</span><h2 id="intro-title">Рассчитайте материалы <em>для участка</em></h2><p>Размеры, зоны и закупка — в одном рабочем пространстве.</p></div>
+        <a class="jump-result" href="#result">К ведомости <span aria-hidden="true">↓</span></a>
+      </section>
+      <div class="workspace"><section class="editor-column"><form class="calculator-form" novalidate>
+        <section class="panel plot-section">
+          <div class="section-title"><span class="eyebrow">УЧАСТОК</span><h2>Размеры участка</h2></div>
+          <div class="field-grid two-columns">
+            ${inputField({ id: 'plot-length', label: 'Длина участка', value: state.plot.length, action: 'plot-field', field: 'length', focusKey: 'plot-length', path: 'plot.length_m', validation, unit: 'м' })}
+            ${inputField({ id: 'plot-width', label: 'Ширина участка', value: state.plot.width, action: 'plot-field', field: 'width', focusKey: 'plot-width', path: 'plot.width_m', validation, unit: 'м' })}
+          </div>
+          <div class="plot-readout"><span>Площадь участка</span><strong>${validation.result?.ok ? formatUnit(validation.result.value.plot_area_m2, 'м²') : '—'}</strong><span>${validation.result?.ok ? `≈ ${formatUnit(decimalDivide(validation.result.value.plot_area_m2, '100'), 'сотки')}` : 'Введите оба размера'}</span></div>
+        </section>
+        <section class="zone-section">
+          <div class="section-title zones-title"><div><span class="eyebrow">ЗОНЫ</span><h2>Зоны <span class="count-badge">${state.zones.length}</span></h2><p>Грядки, дорожки и другие прямоугольные области.</p></div><button type="button" class="button button-primary" data-action="add-zone" data-testid="add-zone">+ Добавить зону</button></div>
+          ${state.zones.length === 0 ? '<div class="empty-zones"><div><h3>Начните с первой зоны</h3><p>Назовите её, задайте размеры и добавьте слой грунта, песка или щебня.</p></div><button type="button" class="button button-secondary" data-action="add-zone">Добавить первую зону</button></div>' : state.zones.map((zone, index) => renderZone(state, zone, index, validation, view)).join('')}
+        </section>
+      </form></section>${renderResults(state, validation)}</div>
+    </main>
+    <footer class="site-footer"><span>Площадь × толщина = объём слоя. Запас и плотность указываете сами.</span><span>Нет сохранения после перезагрузки · нет внешних запросов</span></footer>
   </div>`;
 }
 
