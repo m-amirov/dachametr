@@ -1,0 +1,39 @@
+name: Design-v2 exact-source visual evidence
+on:
+  pull_request:
+    paths:
+      - 'design/plot-planner-result/**'
+      - 'scripts/capture_design_v2.py'
+      - 'tests/test_design_v2_contract.py'
+      - '.github/workflows/design-v2-evidence.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  visual-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact source revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned local browser tooling
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Capture and validate exact-HEAD mobile/desktop
+        run: python scripts/capture_design_v2.py --output "$RUNNER_TEMP/design-v2-evidence"
+      - name: Upload source-bound screenshots and manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: design-v2-exact-head-evidence
+          path: ${{ runner.temp }}/design-v2-evidence
+          if-no-files-found: warn
+          retention-days: 30
