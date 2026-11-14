@@ -29,3 +29,19 @@ if (dock) {
     window.setTimeout(() => document.querySelector('#result button')?.focus({ preventScroll: true }), 350);
   });
 }
+
+// Local design spike: on narrow screens, only one zone is expanded by default.
+// Native <details> remains keyboard-accessible, with no hidden or duplicated form.
+const zoneCards = Array.from(document.querySelectorAll('details.zone-card'));
+const isMobileLayout = window.matchMedia('(max-width: 720px)');
+if (isMobileLayout.matches) {
+  zoneCards.forEach((card, index) => { card.open = index === 0; });
+}
+zoneCards.forEach((card) => {
+  card.addEventListener('toggle', () => {
+    if (!card.open || !isMobileLayout.matches) return;
+    for (const other of zoneCards) {
+      if (other !== card) other.open = false;
+    }
+  });
+});
