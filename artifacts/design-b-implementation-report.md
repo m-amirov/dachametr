@@ -45,6 +45,8 @@ Baseline PR #8 на HEAD `90bb578291d6f9aeb935470ce4784e4f9ce4a8af` сохран
 - `EVIDENCE_BASE_URL=http://127.0.0.1:4174 EVIDENCE_DIR=artifacts/ui-evidence/design-b-e62db61 npm run capture:evidence`: 16 viewport checks, `overflow=false`, runtime errors отсутствуют.
 - `git diff --check`: PASS.
 
+Проверенные цветовые пары по WCAG 2.x relative luminance: `ink/paper` 11.94:1, `muted/paper` 4.54:1, `white/accent` 4.79:1, `result/soft` 6.54:1, `danger/error` 6.15:1, `warning` 7.79:1.
+
 ## Оставшиеся ограничения
 
 - Физические телефоны и планшеты: `NOT RUN`.
