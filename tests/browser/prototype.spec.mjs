@@ -114,3 +114,94 @@ test('keyboard focus and responsive layout do not create horizontal overflow', a
   expect(overflow).toBe(false);
   expect(errors).toEqual([]);
 });
+
+test('responsive result-nearby zones and per-layer editing keep values while toggling', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const first = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+  await first.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(first, { material: 'soil', label: 'Грунт для грядок', thickness: '25', packageL: '50' });
+  const layer = first.getByTestId('layer-card').first();
+  await layer.getByRole('button', { name: 'Скрыть' }).click();
+  await expect(layer.locator('.layer-edit')).toBeHidden();
+  await expect(layer.getByText('Грунт для грядок').first()).toBeVisible();
+  await layer.getByRole('button', { name: 'Настроить' }).click();
+  await expect(layer.locator('[data-action="layer-field"][data-field="thickness"]')).toHaveValue('25');
+  await page.getByTestId('add-zone').click();
+  const second = page.getByTestId('zone-card').nth(1);
+  await expect(first.locator('.zone-edit')).toBeHidden();
+  await expect(second.locator('.zone-edit')).toBeVisible();
+  await first.locator('[data-action="toggle-zone"]').click();
+  await expect(first.locator('.zone-edit')).toBeVisible();
+  await expect(second.locator('.zone-edit')).toBeHidden();
+  await expect(first.locator('[data-action="zone-field"][data-field="name"]')).toHaveValue('Грядка');
+  await expect(first.locator('[data-action="layer-field"][data-field="thickness"]')).toHaveValue('25');
+  await expect(page.locator('.jump-result')).toHaveAttribute('href', '#result');
+  expect(errors).toEqual([]);
+});
+
+test('result-nearby layout stays within the viewport at mobile tablet desktop and zoom emulation', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  for (const width of [195, 320, 390, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    const overflow = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollWidth,
+      client: document.documentElement.clientWidth,
+    }));
+    if (overflow.scroll > overflow.client) {
+      const offenders = await page.evaluate(() => Array.from(document.querySelectorAll('*')).map(el => {
+        const rect = el.getBoundingClientRect();
+        return { tag: el.tagName.toLowerCase(), cls: typeof el.className === 'string' ? el.className.slice(0, 80) : '',
+          content: (el.textContent ?? '').trim().slice(0, 30), left: Math.round(rect.left), right: Math.round(rect.right) };
+      }).filter(x => x.right > innerWidth + 0.5 || x.left < -0.5).sort((x, y) => y.right - x.right).slice(0, 12));
+      throw new Error('horizontal overflow width ' + width + ': ' + JSON.stringify(overflow) + ' offenders ' + JSON.stringify(offenders));
+    }
+    expect(overflow.scroll, 'horizontal overflow at width ' + width).toBeLessThanOrEqual(overflow.client);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('adding another layer collapses prior settings without changing domain values', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const zone = await fillZone(page, 0, { name: 'Дорожка', length: '2', width: '5' });
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(zone, { material: 'soil', label: 'Грунт', thickness: '6', packageL: '50' });
+  const first = zone.getByTestId('layer-card').first();
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  const second = zone.getByTestId('layer-card').nth(1);
+  await expect(first.locator('.layer-edit')).toBeHidden();
+  await expect(second.locator('.layer-edit')).toBeVisible();
+  await fillLayer(zone, { material: 'sand', label: 'Песок', thickness: '10', reserve: '5', packageL: '50' });
+  await first.getByRole('button', { name: 'Настроить' }).click();
+  await expect(first.locator('.layer-edit')).toBeVisible();
+  await expect(second.locator('.layer-edit')).toBeHidden();
+  await expect(first.locator('[data-action="layer-field"][data-field="thickness"]')).toHaveValue('6');
+  await expect(second.locator('[data-action="layer-field"][data-field="thickness"]')).toHaveValue('10');
+});
+
+test('open BOM details remain open while editing and after temporary invalid input', async ({ page }) => {
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const zone = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(zone, { material: 'soil', label: 'Грунт', thickness: '25', packageL: '50' });
+  await page.getByTestId('bom-row').first().locator('.bom-details summary').click();
+  await expect(page.getByTestId('bom-row').first().locator('.bom-details')).toHaveAttribute('open', '');
+  await field(page, 'plot-field', 'length').fill('21');
+  await expect(page.getByTestId('bom-row').first().locator('.bom-details')).toHaveAttribute('open', '');
+  await field(page, 'plot-field', 'length').fill('1,');
+  await expect(page.getByTestId('blocked-results')).toBeVisible();
+  await field(page, 'plot-field', 'length').fill('21');
+  await expect(page.getByTestId('bom-row').first().locator('.bom-details')).toHaveAttribute('open', '');
+});
