@@ -153,9 +153,9 @@ function renderLayer(state: AppState, zone: ZoneDraft, layer: LayerDraft, layerI
 
 function renderLayerVisual(diagram: LayerDiagram | null): string {
   if (!diagram) return '';
-  return `<figure class="layer-visual" data-testid="layer-visual" aria-labelledby="layer-visual-title">
+  return `<figure class="layer-visual" data-testid="layer-visual">
     <div class="layer-visual-heading">
-      <div><strong id="layer-visual-title">Разрез материалов</strong><span>Пропорции по толщине · всего ${formatUnit(diagram.totalThicknessCm, 'см')}</span></div>
+      <div><strong>Разрез материалов</strong><span>Пропорции по толщине · всего ${formatUnit(diagram.totalThicknessCm, 'см')}</span></div>
       <span class="layer-visual-measure" aria-hidden="true">↕</span>
     </div>
     <div class="layer-visual-body">

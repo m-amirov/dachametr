@@ -19,7 +19,8 @@ export interface LayerDiagram {
 const ZERO = new Exact(0n);
 
 export function buildLayerDiagram(state: AppState, zone: ZoneDraft): LayerDiagram | null {
-  if (!zone.layers.length) return null;
+  // A single material needs no comparative diagram and would add mobile scroll.
+  if (zone.layers.length < 2) return null;
   const layers: LayerSlice[] = [];
   let total = ZERO;
   for (const layer of zone.layers) {
