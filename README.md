@@ -12,6 +12,9 @@
 - [Gate 1: валидация спроса](docs/seo-validation.md)
 - [Шаблон спецификации калькулятора](docs/calculator-spec-template.md)
 - [Требования к дизайну](docs/design-principles.md)
+- [DESIGN.md — baseline OpenDesign](DESIGN.md)
+- [OpenDesign × Codex — подключение](docs/design/open-design-integration.md)
+- [Референсы и anti-slop критерии](docs/design/reference-library.md)
 - [Источники и качество контента](docs/content-trust.md)
 - [Критерии качества](docs/quality-gates.md)
 - [Этапы разработки](docs/roadmap.md)
@@ -72,3 +75,6 @@ npm run dev
 ```
 
 Проверки: `npm test`, `npm run build`, `npm run test:browser`. Ввод хранится только в памяти текущей сессии и не обещает сохранение после обновления страницы; внешние API, цены, нормы, авторизация, аналитика и публикация не подключены.
+
+## OpenDesign
+В проект добавлены `DESIGN.md`, `$open-design-project` и инструкция подключения официального плагина. Дизайн-система сохраняет существующие цвета/шрифты PR #7 без редизайна. Для установки официального Codex plugin в пользовательский профиль и регистрации локального MCP требуется действие на ПК: `scripts/setup-open-design-codex.ps1`. GitHub-изменения **не доказывают**, что приложение или MCP установлены на Windows; не изменяют зависимости сайта и не разрешают платную генерацию.

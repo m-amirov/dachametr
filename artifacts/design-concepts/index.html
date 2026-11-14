@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Дачаметр — три визуальные концепции</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-concept="a" data-state="result">
+    <header class="concept-toolbar">
+      <div class="toolbar-title">
+        <span class="toolbar-kicker">DACHAMETR / OPEN DESIGN SPIKE</span>
+        <strong>Три направления до выбора владельца</strong>
+      </div>
+      <nav class="concept-nav" aria-label="Визуальные концепции">
+        <button type="button" data-concept="a">A · Мастерская</button>
+        <button type="button" data-concept="b">B · Атлас</button>
+        <button type="button" data-concept="c">C · Студия</button>
+      </nav>
+      <div class="state-nav" aria-label="Состояние макета">
+        <button type="button" data-state="initial">Пусто</button>
+        <button type="button" data-state="editing">Ввод</button>
+        <button type="button" data-state="error">Ошибка</button>
+        <button type="button" data-state="result">Результат</button>
+      </div>
+    </header>
+    <main id="app"></main>
+    <script src="./app.js"></script>
+  </body>
+</html>

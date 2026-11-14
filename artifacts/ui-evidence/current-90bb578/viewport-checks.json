@@ -1,0 +1,114 @@
+[
+  {
+    "state": "initial",
+    "width": 320,
+    "height": 844,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "error",
+    "width": 320,
+    "height": 844,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "result",
+    "width": 320,
+    "height": 844,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "initial",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "error",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "result",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "initial",
+    "width": 768,
+    "height": 1024,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "error",
+    "width": 768,
+    "height": 1024,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "result",
+    "width": 768,
+    "height": 1024,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "initial",
+    "width": 1024,
+    "height": 900,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "error",
+    "width": 1024,
+    "height": 900,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "result",
+    "width": 1024,
+    "height": 900,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "initial",
+    "width": 1440,
+    "height": 900,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "error",
+    "width": 1440,
+    "height": 900,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "result",
+    "width": 1440,
+    "height": 900,
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "state": "zoom-200-css-viewport",
+    "width": 195,
+    "height": 844,
+    "overflow": false,
+    "errors": []
+  }
+]

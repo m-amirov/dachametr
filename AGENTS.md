@@ -25,6 +25,7 @@
 - Формулы и ТЗ калькуляторов → $calculator-engineering
 - UX калькуляторов, клавиатура, адаптивность → $calculator-ux
 - Оригинальный визуальный язык → $visual-craft
+- OpenDesign, дизайн-система и галереи референсов → $open-design-project
 - Независимая скриншотная приёмка → $visual-qa
 - Индексация и технический SEO → $technical-seo
 - Источники, тексты, антислоп → $content-integrity
@@ -43,6 +44,7 @@
 ## Разрешения и preflight
 - Gate 1 (market) — BLOCKED: `docs/research/gate-1-decision.md`. `docs/research/gate-1-criteria-proposal.md` ещё не утверждён.
 - Prototype authorization — AUTHORIZED LIMITED 2026-11-13: пользователь явно утвердил PR #4 и один локальный vertical slice; scope и stop-lines записаны в docs/decisions.md. Это НЕ разрешает публичную публикацию, индексацию, DNS, аналитику, рекламу, merge в main или расширение scope.
+- Для UI сначала прочитай `DESIGN.md` и `docs/design/reference-library.md`. OpenDesign — отдельный host инструмент Codex, инструкции в `docs/design/open-design-integration.md`. Наличие project skill не означает установленного OpenDesign MCP или согласия на платный Cloud.
 - Для UI дизайн-направление, fonts/assets/tokens ещё НЕ утверждены. Начинать с pure TypeScript domain engine и тестов; не выдавать инженерные проверки за браузерную приёмку.
 - Post-launch SEO/RPM — NOT RUN. CTR, индексацию и RPM нельзя требовать как измеренные pre-launch метрики.
 - Перед задачей установить repo/base/HEAD/status, затронутые файлы, прежние design tokens/assets/fonts, обязательные gates и решение владельца. Использовать `docs/development-contract.md`, `docs/cross-project-regressions.md`, `docs/quality-gates.md`.
