@@ -67,5 +67,12 @@
     "real keyboard and soft-keyboard interaction",
     "production font rendering",
     "working application/domain integration"
-  ]
+  ],
+  "legacyProvenance": {
+    "status": "UNVERIFIED_SOURCE_REVISION",
+    "explanation": "This receipt was captured before committing/recording exact source SHA or a clean tree. Screenshot SHA-256 proves PNG byte integrity only. Do not use legacy screenshots as verification of the updated mockup.",
+    "sourceCommitSha": null,
+    "sourceDigestSha256": null,
+    "replacement": "Use the design-v2-evidence GitHub Actions artifact (manifest.json + new PNGs) with source.commitSha, source.dirty and source.sourceDigestSha256."
+  }
 }
