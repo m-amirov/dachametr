@@ -165,3 +165,25 @@ test('result-nearby layout stays within the viewport at mobile tablet desktop an
   }
   expect(errors).toEqual([]);
 });
+
+test('adding another layer collapses prior settings without changing domain values', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const zone = await fillZone(page, 0, { name: 'Дорожка', length: '2', width: '5' });
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(zone, { material: 'soil', label: 'Грунт', thickness: '6', packageL: '50' });
+  const first = zone.getByTestId('layer-card').first();
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  const second = zone.getByTestId('layer-card').nth(1);
+  await expect(first.locator('.layer-edit')).toBeHidden();
+  await expect(second.locator('.layer-edit')).toBeVisible();
+  await fillLayer(zone, { material: 'sand', label: 'Песок', thickness: '10', reserve: '5', packageL: '50' });
+  await first.getByRole('button', { name: 'Настроить' }).click();
+  await expect(first.locator('.layer-edit')).toBeVisible();
+  await expect(second.locator('.layer-edit')).toBeHidden();
+  await expect(first.locator('[data-action="layer-field"][data-field="thickness"]')).toHaveValue('6');
+  await expect(second.locator('[data-action="layer-field"][data-field="thickness"]')).toHaveValue('10');
+});

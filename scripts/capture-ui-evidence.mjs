@@ -76,6 +76,13 @@ async function capture(browser, width, state) {
   if (state === 'error') await field(page, 'plot-field', 'length').fill('bad');
   if (state === 'result') await fillResultScenario(page);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+  // Full-page screenshots must start at the real top of the page; the last input
+  // is otherwise still focused/scrolled, shifting the sticky BOM in evidence.
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  });
+  await page.waitForTimeout(100);
   const filename = `${state}-${width}.png`;
   const screenshotPath = path.join(evidenceDir, filename);
   await page.screenshot({ path: screenshotPath, fullPage: true, animations: 'disabled' });

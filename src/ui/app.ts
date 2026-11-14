@@ -332,7 +332,10 @@ export function mountApp(root: HTMLElement): void {
     }
     if (action === 'toggle-layer' && button.dataset.layerId) {
       if (openLayerIds.has(button.dataset.layerId)) openLayerIds.delete(button.dataset.layerId);
-      else openLayerIds.add(button.dataset.layerId);
+      else {
+        openLayerIds.clear();
+        openLayerIds.add(button.dataset.layerId);
+      }
       update(state);
     }
     if (action === 'add-zone') {
@@ -348,7 +351,10 @@ export function mountApp(root: HTMLElement): void {
     if (action === 'add-layer' && button.dataset.zoneId) {
       const next = addLayer(state, button.dataset.zoneId);
       const newLayer = next.zones.find(z => z.id === button.dataset.zoneId)?.layers.at(-1);
-      if (newLayer) openLayerIds.add(newLayer.id);
+      if (newLayer) {
+        openLayerIds.clear();
+        openLayerIds.add(newLayer.id);
+      }
       openZoneId = button.dataset.zoneId;
       update(next, false);
     }
