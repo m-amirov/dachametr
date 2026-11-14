@@ -293,7 +293,7 @@ export function mountApp(root: HTMLElement): void {
   const render = (focus?: FocusSnapshot) => {
     // Read native details state before replacing DOM, including across transient
     // invalid inputs where BOM is intentionally hidden by fail-closed validation.
-    for (const details of root.querySelectorAll<HTMLDetailsElement>('details.bom-details[data-bom-key]')) {
+    for (const details of Array.from(root.querySelectorAll<HTMLDetailsElement>('details.bom-details[data-bom-key]'))) {
       const key = details.dataset.bomKey;
       if (!key) continue;
       if (details.open) openBomKeys.add(key);
@@ -376,8 +376,9 @@ export function mountApp(root: HTMLElement): void {
       if (state.zones.length === 0 || window.confirm('Сбросить введённые размеры, зоны и материалы?')) {
         openZoneId = null;
         openLayerIds.clear();
-        openBomKeys.clear();
         update(createInitialState(), false);
+        // The render snapshots the old DOM before replacing it; clear after reset.
+        openBomKeys.clear();
       }
     }
   });
