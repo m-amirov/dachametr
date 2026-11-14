@@ -353,3 +353,16 @@ details[open] > summary .summary-chevron { transform: rotate(180deg); }
   .result-metrics { gap: 6px; }
   .result-metrics div + div { padding-left: 7px; }
 }
+
+/* Reflow genuinely narrow CSS viewports (e.g. 390px layout at 200% zoom).
+   Never hide the overflow or clip editable fields. */
+@media (max-width: 230px) {
+  .result-heading { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: start; }
+  .result-heading h2 { font-size: 23px; overflow-wrap: anywhere; }
+  .result-heading .icon-button { width: 36px; height: 36px; }
+  .area-readout { flex-wrap: wrap; gap: 8px; }
+  .area-readout .area-secondary { width: 100%; padding-left: 0; border-left: 0; }
+  .disclosure-content { grid-template-columns: minmax(0, 1fr); }
+  .mini-field, .mini-field > span:last-child { min-width: 0; }
+  .mini-field b { overflow-wrap: anywhere; white-space: normal; }
+}
