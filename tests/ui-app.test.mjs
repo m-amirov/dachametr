@@ -24,6 +24,8 @@ test('initial app render is task-first and shows the empty zone action', () => {
   const html = renderAppHtml(state, validateDraft(state));
   assert.match(html, /Дачаметр/);
   assert.match(html, /Добавить первую зону/);
+  assert.doesNotMatch(html, /field-invalid/);
+  assert.doesNotMatch(html, /class="field-error"/);
   assert.doesNotMatch(html, /Ведомость закупки/);
 });
 
