@@ -1,0 +1,242 @@
+[
+  {
+    "concept": "a",
+    "state": "initial",
+    "viewport": "desktop",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "a",
+    "state": "initial",
+    "viewport": "mobile",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "a",
+    "state": "editing",
+    "viewport": "desktop",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "a",
+    "state": "editing",
+    "viewport": "mobile",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "a",
+    "state": "error",
+    "viewport": "desktop",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "a",
+    "state": "error",
+    "viewport": "mobile",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "a",
+    "state": "result",
+    "viewport": "desktop",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "a",
+    "state": "result",
+    "viewport": "mobile",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "b",
+    "state": "initial",
+    "viewport": "desktop",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "b",
+    "state": "initial",
+    "viewport": "mobile",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "b",
+    "state": "editing",
+    "viewport": "desktop",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "b",
+    "state": "editing",
+    "viewport": "mobile",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "b",
+    "state": "error",
+    "viewport": "desktop",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "b",
+    "state": "error",
+    "viewport": "mobile",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "b",
+    "state": "result",
+    "viewport": "desktop",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "b",
+    "state": "result",
+    "viewport": "mobile",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "c",
+    "state": "initial",
+    "viewport": "desktop",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "c",
+    "state": "initial",
+    "viewport": "mobile",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "c",
+    "state": "editing",
+    "viewport": "desktop",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "c",
+    "state": "editing",
+    "viewport": "mobile",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "c",
+    "state": "error",
+    "viewport": "desktop",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "c",
+    "state": "error",
+    "viewport": "mobile",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "c",
+    "state": "result",
+    "viewport": "desktop",
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  },
+  {
+    "concept": "c",
+    "state": "result",
+    "viewport": "mobile",
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "overflow": false,
+    "title": "Дачаметр — три визуальные концепции",
+    "errors": []
+  }
+]
