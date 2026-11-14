@@ -6,7 +6,7 @@
 
 - Ветка: `design/modern-garden-atlas`
 - База: `design/open-design-project-integration` (`44dd04d8f0b86122c948e41a9df4bb40c739e628`)
-- Реализация: `67ff5f5a064db897240434d42b0be0d9863424a`
+- Реализация: `e62db610311669e7ae520d33060c55330772a2ca`
 - Стек: Vite + vanilla TypeScript сохранён.
 - Расчётное ядро `src/domain/` не изменялось.
 
@@ -24,16 +24,16 @@
 
 ## Before / after evidence
 
-Baseline PR #8 на HEAD `90bb578291d6f9aeb935470ce4784e4f9ce4a8af` сохранён в [`ui-evidence/current-90bb578`](./ui-evidence/current-90bb578/). After-кадры для реализации B находятся в [`ui-evidence/design-b-67ff5f5`](./ui-evidence/design-b-67ff5f5/).
+Baseline PR #8 на HEAD `90bb578291d6f9aeb935470ce4784e4f9ce4a8af` сохранён в [`ui-evidence/current-90bb578`](./ui-evidence/current-90bb578/). After-кадры для реализации B находятся в [`ui-evidence/design-b-e62db61`](./ui-evidence/design-b-e62db61/).
 
 | Viewport | Baseline | After B |
 | --- | --- | --- |
-| 320 px | `current-90bb578/initial-320.png` | `design-b-67ff5f5/initial-320.png` |
-| 390 px | `current-90bb578/result-390.png` | `design-b-67ff5f5/result-390.png` |
-| 768 px | `current-90bb578/result-768.png` | `design-b-67ff5f5/result-768.png` |
-| 1024 px | `current-90bb578/result-1024.png` | `design-b-67ff5f5/result-1024.png` |
-| 1440 px | `current-90bb578/result-1440.png` | `design-b-67ff5f5/result-1440.png` |
-| 200% CSS viewport | `current-90bb578/zoom-200-css-viewport.png` | `design-b-67ff5f5/zoom-200-css-viewport.png` |
+| 320 px | `current-90bb578/initial-320.png` | `design-b-e62db61/initial-320.png` |
+| 390 px | `current-90bb578/result-390.png` | `design-b-e62db61/result-390.png` |
+| 768 px | `current-90bb578/result-768.png` | `design-b-e62db61/result-768.png` |
+| 1024 px | `current-90bb578/result-1024.png` | `design-b-e62db61/result-1024.png` |
+| 1440 px | `current-90bb578/result-1440.png` | `design-b-e62db61/result-1440.png` |
+| 200% CSS viewport | `current-90bb578/zoom-200-css-viewport.png` | `design-b-e62db61/zoom-200-css-viewport.png` |
 
 Каждая ширина также имеет `initial`, `error` и `result`; полный список и автоматические проверки находятся в соответствующих `viewport-checks.json`. 200% кадр является CSS viewport emulation, а не проверкой физического устройства.
 
@@ -42,7 +42,7 @@ Baseline PR #8 на HEAD `90bb578291d6f9aeb935470ce4784e4f9ce4a8af` сохран
 - `npm test`: typecheck PASS; domain 9/9; concept regression 2/2; UI 13/13.
 - `npm run build`: PASS.
 - `E2E_BASE_URL=http://127.0.0.1:4174 npm run test:browser`: Chromium 5/5 PASS.
-- `EVIDENCE_BASE_URL=http://127.0.0.1:4174 EVIDENCE_DIR=artifacts/ui-evidence/design-b-67ff5f5 npm run capture:evidence`: 16 viewport checks, `overflow=false`, runtime errors отсутствуют.
+- `EVIDENCE_BASE_URL=http://127.0.0.1:4174 EVIDENCE_DIR=artifacts/ui-evidence/design-b-e62db61 npm run capture:evidence`: 16 viewport checks, `overflow=false`, runtime errors отсутствуют.
 - `git diff --check`: PASS.
 
 ## Оставшиеся ограничения
