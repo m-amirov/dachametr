@@ -25,7 +25,8 @@ button, a { cursor: pointer; }
 button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid rgb(182 95 62 / 42%); outline-offset: 3px; }
 
 .app-shell { width: min(1440px, 100%); margin: 0 auto; padding: clamp(20px, 3vw, 44px) clamp(14px, 4vw, 58px) 26px; }
-.site-header { display: grid; grid-template-columns: minmax(190px, .72fr) minmax(260px, 1.28fr) auto; align-items: end; gap: clamp(20px, 4vw, 58px); padding-bottom: 24px; border-bottom: 2px solid var(--ink); }
+.site-header { display: grid; grid-template-columns: minmax(370px, .72fr) minmax(260px, 1.28fr) auto; align-items: end; gap: clamp(20px, 4vw, 58px); padding-bottom: 24px; border-bottom: 2px solid var(--ink); }
+.site-header > * { min-width: 0; }
 .brand-area { display: flex; align-items: flex-start; gap: 14px; min-width: 0; }
 .brand-area > div { min-width: 0; }
 .atlas-mark { display: inline-grid; flex: 0 0 auto; width: 45px; height: 45px; place-items: center; border: 1px solid var(--ink); color: var(--accent); font: 700 12px/1 "Segoe UI", Arial, sans-serif; letter-spacing: .05em; }
@@ -152,9 +153,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   .results-column { position: sticky; top: 18px; max-height: calc(100vh - 36px); overflow: auto; scrollbar-color: var(--line) transparent; }
 }
 
-@media (max-width: 960px) {
-  .site-header { grid-template-columns: minmax(160px, .8fr) minmax(220px, 1.2fr); }
+@media (max-width: 1120px) {
+  .site-header { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 20px 28px; }
   .session-note { grid-column: 1 / -1; justify-content: flex-start; }
+}
+
+@media (max-width: 960px) {
   .workspace { grid-template-columns: 1fr; }
   .results-column { position: static; order: 2; }
 }
