@@ -27,7 +27,7 @@ jobs:
       - name: Domain and golden fixture tests
         run: npm run test:domain
   ui:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Checkout exact HEAD
