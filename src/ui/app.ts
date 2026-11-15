@@ -216,15 +216,15 @@ function renderZoneBreakdown(state: AppState, value: DetailedCalculated): string
 function renderResults(state: AppState, validation: DraftValidation, view: ViewState): string {
   if (!validation.valid || !validation.result?.ok) {
     const hasDraftInput = state.plot.length.trim() !== '' || state.plot.width.trim() !== '' || state.zones.length > 0;
-    if (!hasDraftInput) return `<aside class="results-column" id="result"><section class="panel result-empty"><span class="eyebrow">РЕЗУЛЬТАТ</span><h2>Ведомость появится здесь</h2><p>Укажите размеры, добавьте зону и слой материала. Результат обновится автоматически.</p></section></aside>`;
+    if (!hasDraftInput) return `<aside class="results-column" id="result"><section class="panel result-empty bom-surface"><span class="eyebrow">РЕЗУЛЬТАТ</span><h2>Ведомость появится здесь</h2><p>Укажите размеры, добавьте зону и слой материала. Результат обновится автоматически.</p></section></aside>`;
     const error = validation.errors[0];
-    return `<aside class="results-column" id="result"><section class="panel result-blocked" data-testid="blocked-results" aria-live="assertive"><span class="eyebrow">РЕЗУЛЬТАТ ЗАБЛОКИРОВАН</span><h2>Сначала исправьте ввод</h2><p id="error-summary">Исправьте ошибки, чтобы получить итоговую ведомость. Частичный расчёт не показываем как готовую закупку.</p>${error ? `<p class="error-detail">${escapeHtml(error.message)} <code>${escapeHtml(error.path)}</code></p>` : ''}</section></aside>`;
+    return `<aside class="results-column" id="result"><section class="panel result-blocked bom-surface" data-testid="blocked-results" aria-live="assertive"><span class="eyebrow">РЕЗУЛЬТАТ ЗАБЛОКИРОВАН</span><h2>Сначала исправьте ввод</h2><p id="error-summary">Исправьте ошибки, чтобы получить итоговую ведомость. Частичный расчёт не показываем как готовую закупку.</p>${error ? `<p class="error-detail">${escapeHtml(error.message)} <code>${escapeHtml(error.path)}</code></p>` : ''}</section></aside>`;
   }
   const value = validation.result.value;
   const sotki = decimalDivide(value.plot_area_m2, '100');
   const totalPurchase = value.bom.reduce((sum, row) => sum.add(Exact.decimal(row.purchase_l)), new Exact(0n)).toString();
   const totalPackages = sumWholePackages(value.bom.map(row => row.packages));
-  return `<aside class="results-column" id="result" data-testid="result-panel"><section class="panel result-panel">
+  return `<aside class="results-column" id="result" data-testid="result-panel"><section class="panel result-panel bom-surface">
     <div class="result-heading"><div><span class="eyebrow">ВАШ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><span class="live-dot">Обновляется</span></div>
     <div class="result-lead"><div><span>Всего нужно с запасом</span><strong>${formatUnit(totalPurchase, 'л')}</strong></div>${totalPackages !== null ? `<div class="total-packages"><span>Упаковок</span><strong>${formatRuNumber(totalPackages)} уп.</strong></div>` : '<div class="total-packages"><span>Упаковки</span><strong>По материалам</strong></div>'}</div>
     <div class="area-summary"><div><span>Участок</span><strong>${formatUnit(value.plot_area_m2, 'м²')}</strong></div><div><span>Сотки</span><strong>${formatUnit(sotki, 'сотки')}</strong></div><div><span>Зоны</span><strong>${state.zones.length}</strong></div></div>
