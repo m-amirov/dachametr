@@ -483,6 +483,11 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--orange); 
 .result-heading-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; min-width: 0; }
 .copy-bom-button { font-size: 11px; white-space: normal; text-align: center; }
 .copy-bom-status:not(:empty) { margin: 8px 0 0; color: var(--teal); font-size: 12px; line-height: 1.4; }
+.share-link-hint { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.share-link-status:not(:empty) { margin: 8px 0 0; color: var(--teal); font-size: 12px; line-height: 1.4; }
+.share-load-notice { margin: 0; padding: 8px 22px; background: var(--teal-soft); color: var(--teal); font-size: 12px; line-height: 1.4; }
+.share-load-notice.is-error { background: var(--danger-soft); color: var(--danger); }
+@media (max-width: 820px) { .share-load-notice { padding: 9px 14px; } }
 
 .live-dot { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; color: var(--teal); font-size: 11px; }
 .live-dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }

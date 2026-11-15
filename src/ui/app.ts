@@ -19,6 +19,7 @@ import {
 } from './model.ts';
 import { formatRuNumber, formatUnit, sumWholePackages } from './format.ts';
 import { formatBomForClipboard } from './bom-export.ts';
+import { decodeSharedCalculation, encodeSharedCalculation, isSharedCalculationHash } from './share.ts';
 import { validateDraft, type DraftValidation } from './validation.ts';
 
 const MATERIAL_LABELS: Record<MaterialKind, string> = {
@@ -53,6 +54,8 @@ interface ViewState {
   openLayerIds: ReadonlySet<string>;
   openBomKeys?: ReadonlySet<string>;
   mobileSurface?: 'zones' | 'editor' | 'bom';
+  shareNotice?: string | undefined;
+  shareProblem?: boolean;
 }
 
 function draftError(validation: DraftValidation, path: string): string | undefined {
@@ -226,7 +229,9 @@ function renderResults(state: AppState, validation: DraftValidation, view: ViewS
   const totalPurchase = value.bom.reduce((sum, row) => sum.add(Exact.decimal(row.purchase_l)), new Exact(0n)).toString();
   const totalPackages = sumWholePackages(value.bom.map(row => row.packages));
   return `<aside class="results-column" id="result" tabindex="-1" aria-label="Ведомость закупки" data-testid="result-panel"><section class="panel result-panel bom-surface">
-    <div class="result-heading"><div><span class="eyebrow">ВАШ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><div class="result-heading-actions"><span class="live-dot">Обновляется</span>${value.bom.length ? '<button type="button" class="quiet-button copy-bom-button" data-action="copy-bom">Копировать ведомость</button>' : ''}</div></div>
+    <div class="result-heading"><div><span class="eyebrow">ВАШ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><div class="result-heading-actions"><span class="live-dot">Обновляется</span><button type="button" class="quiet-button" data-action="share-calculation">Скопировать ссылку</button>${value.bom.length ? '<button type="button" class="quiet-button copy-bom-button" data-action="copy-bom">Копировать ведомость</button>' : ''}</div></div>
+    <p class="share-link-hint">Ссылка содержит введённые названия зон и материалов. Не указывайте личные данные.</p>
+    <p class="share-link-status" data-testid="share-link-status" role="status" aria-live="polite"></p>
     ${value.bom.length ? '<p class="copy-bom-status" data-testid="copy-bom-status" role="status" aria-live="polite"></p>' : ''}
     <div class="result-lead"><div><span>Всего нужно с запасом</span><strong>${formatUnit(totalPurchase, 'л')}</strong></div>${totalPackages !== null ? `<div class="total-packages"><span>Упаковок</span><strong>${formatRuNumber(totalPackages)} уп.</strong></div>` : '<div class="total-packages"><span>Упаковки</span><strong>По материалам</strong></div>'}</div>
     <div class="area-summary"><div><span>Участок</span><strong>${formatUnit(value.plot_area_m2, 'м²')}</strong></div><div><span>Сотки</span><strong>${formatUnit(sotki, 'сотки')}</strong></div><div><span>Зоны</span><strong>${state.zones.length}</strong></div></div>
@@ -329,6 +334,7 @@ export function renderAppHtml(state: AppState, validation: DraftValidation, view
     <header class="topbar"><div class="brand-lockup"><span class="brand-mark" aria-hidden="true">▱</span><h1 class="brand-name">Дачаметр</h1><span class="brand-product">WORKSPACE</span></div>
       <div class="topbar-context">Участок и материалы · точный расчёт</div>
       <div class="topbar-actions"><span class="local-status"><i></i>Локальный расчёт</span><a class="jump-result" href="#result" data-action="open-bom">К ведомости</a></div></header>
+    ${view.shareNotice ? `<p class="share-load-notice${view.shareProblem ? ' is-error' : ''}" data-testid="share-load-notice" role="${view.shareProblem ? 'alert' : 'status'}">${escapeHtml(view.shareNotice)}</p>` : ''}
     ${renderMobileTabs(active)}
     <main class="workspace-grid">
       ${renderProjectStructure(state,validation,view)}
@@ -382,6 +388,8 @@ export function mountApp(root: HTMLElement): void {
   const openLayerIds = new Set<string>();
   const openBomKeys = new Set<string>();
   let mobileSurface: 'zones' | 'editor' | 'bom' = 'zones';
+  let shareNotice: string | undefined;
+  let shareProblem = false;
   let wasMobile = window.matchMedia('(max-width: 820px)').matches;
   // Changing CSS display at a breakpoint may blur an element *before* resize
   // fires; document.activeElement is already <body> at that point.
@@ -389,21 +397,30 @@ export function mountApp(root: HTMLElement): void {
   root.addEventListener('focusin', event => {
     if (event.target instanceof HTMLElement) lastFocused = event.target;
   });
-  const render = (focus?: FocusSnapshot) => {
-    // Read native details state before replacing DOM, including across transient
-    // invalid inputs where BOM is intentionally hidden by fail-closed validation.
-    for (const details of Array.from(root.querySelectorAll<HTMLDetailsElement>('details.bom-details[data-bom-key]'))) {
+  const render = (focus?: FocusSnapshot, preserveBomDetails = true) => {
+    // Imported calculations must not inherit disclosure state from the old BOM.
+    if (!preserveBomDetails) openBomKeys.clear();
+    else for (const details of Array.from(root.querySelectorAll<HTMLDetailsElement>('details.bom-details[data-bom-key]'))) {
       const key = details.dataset.bomKey;
       if (!key) continue;
       if (details.open) openBomKeys.add(key);
       else openBomKeys.delete(key);
     }
-    root.innerHTML = renderAppHtml(state, validateDraft(state), { openZoneId, openLayerIds, openBomKeys, mobileSurface });
+    root.innerHTML = renderAppHtml(state, validateDraft(state), { openZoneId, openLayerIds, openBomKeys, mobileSurface, shareNotice, shareProblem });
     fitZoneRectangles(root);
     if (focus) restoreFocus(root, focus);
   };
   const update = (next: AppState, preserveFocus = true) => {
     const focus = preserveFocus ? captureFocus(root) : undefined;
+    if (next !== state) {
+      // Once the user edits an imported snapshot, remove the old token so a
+      // reload cannot silently revert to a stale calculation.
+      if (isSharedCalculationHash(window.location.hash)) {
+        window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search);
+      }
+      shareNotice = undefined;
+      shareProblem = false;
+    }
     state = next;
     render(focus);
   };
@@ -539,6 +556,31 @@ export function mountApp(root: HTMLElement): void {
       update(removeLayer(state, button.dataset.zoneId, button.dataset.layerId), false);
       moveFocus(`add-layer-${button.dataset.zoneId}`);
     }
+    if (action === 'share-calculation') {
+      const status = root.querySelector<HTMLElement>('[data-testid="share-link-status"]');
+      const setStatus = (message: string) => { if (status?.isConnected) status.textContent = message; };
+      const hash = encodeSharedCalculation(state);
+      if (!hash) {
+        setStatus('Не удалось создать ссылку: проверьте данные или уменьшите количество зон.');
+        return;
+      }
+      // Fragments do not travel with HTTP requests; omit existing URL query
+      // parameters as they could contain unrelated tracking/private tokens.
+      const link = window.location.origin + window.location.pathname + hash;
+      try {
+        if (!navigator.clipboard?.writeText) {
+          setStatus('Буфер обмена недоступен.');
+          return;
+        }
+        void navigator.clipboard.writeText(link).then(
+          () => setStatus('Ссылка скопирована. Она содержит введённые названия и размеры.'),
+          () => setStatus('Не удалось скопировать ссылку. Проверьте доступ к буферу обмена.'),
+        );
+      } catch {
+        setStatus('Не удалось скопировать ссылку. Проверьте доступ к буферу обмена.');
+      }
+      return;
+    }
     if (action === 'copy-bom') {
       // Copy the exact validated result only, never a stale or partial draft.
       const validation = validateDraft(state);
@@ -623,5 +665,29 @@ export function mountApp(root: HTMLElement): void {
     }
     fitZoneRectangles(root);
   }, { passive: true });
-  render();
+  const restoreFromShareHash = (): boolean => {
+    if (!isSharedCalculationHash(window.location.hash)) return false;
+    const shared = decodeSharedCalculation(window.location.hash);
+    if (shared.ok) {
+      state = shared.state;
+      openZoneId = state.zones[0]?.id ?? null;
+      openLayerIds.clear();
+      const firstLayer = state.zones[0]?.layers[0];
+      if (firstLayer) openLayerIds.add(firstLayer.id);
+      mobileSurface = validateDraft(state).result?.ok && state.zones.some(zone => zone.layers.length > 0) ? 'bom' : 'zones';
+      shareNotice = 'Расчёт восстановлен из ссылки. Изменения не сохраняются автоматически.';
+      shareProblem = false;
+    } else {
+      // Never replace the current calculation with malformed or unsupported
+      // external data; a visible warning is safer than a partial import.
+      shareNotice = shared.reason === 'unsupported_version'
+        ? 'Версия ссылки не поддерживается. Текущий расчёт не изменён.'
+        : 'Ссылка повреждена или содержит недопустимые данные. Текущий расчёт не изменён.';
+      shareProblem = true;
+    }
+    render(undefined, false);
+    return true;
+  };
+  window.addEventListener('hashchange', () => { restoreFromShareHash(); });
+  if (!restoreFromShareHash()) render();
 }
