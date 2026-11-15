@@ -4,6 +4,7 @@ import { addLayer, addZone, createInitialState, updatePlotField, updateZoneField
 import { validateDraft } from '../src/ui/validation.ts';
 import { renderAppHtml } from '../src/ui/app.ts';
 import { sumWholePackages, formatRuNumber } from '../src/ui/format.ts';
+import { formatBomForClipboard } from '../src/ui/bom-export.ts';
 
 function completeState() {
   let state = createInitialState();
@@ -167,4 +168,58 @@ test('material variant label error has a local accessible description and clears
   const corrected = renderAppHtml(valid, validateDraft(valid), view);
   assert.match(corrected, new RegExp('id="label-' + layerId + '"[^>]*aria-invalid="false"'));
   assert.doesNotMatch(corrected, new RegExp('id="error-label-' + layerId + '"'));
+});
+
+test('valid BOM exposes a clipboard action, invalid and empty results do not', () => {
+  const valid = completeState();
+  const html = renderAppHtml(valid, validateDraft(valid));
+  assert.match(html, /data-action="copy-bom"/);
+  assert.match(html, /data-testid="copy-bom-status" role="status" aria-live="polite"/);
+  const invalid = updateZoneField(valid, valid.zones[0].id, 'length', '1,');
+  assert.doesNotMatch(renderAppHtml(invalid, validateDraft(invalid)), /data-action="copy-bom"/);
+  assert.doesNotMatch(renderAppHtml(createInitialState(), validateDraft(createInitialState())), /data-action="copy-bom"/);
+  const noMaterials = updatePlotField(updatePlotField(createInitialState(), 'length', '20'), 'width', '30');
+  assert.doesNotMatch(renderAppHtml(noMaterials, validateDraft(noMaterials)), /data-action="copy-bom"/);
+});
+
+test('clipboard formatter uses exact validated quantities, spec IDs and mass semantics', () => {
+  const state = completeState();
+  const validation = validateDraft(state);
+  assert.equal(validation.result?.ok, true);
+  if (!validation.result?.ok) return;
+  const text = formatBomForClipboard(state, validation.result.value);
+  assert.match(text, /^Дачаметр — ведомость закупки/);
+  assert.match(text, /Участок: 600 м²/);
+  assert.match(text, /Грунт для грядок \(Грунт, spec-1\)/);
+  assert.match(text, /Нужно с запасом: 2 000 л/);
+  assert.match(text, /Купить: 40 уп\. × 50 л/);
+  assert.match(text, /Фактически в упаковках: 2 000 л/);
+  assert.match(text, /Излишек: 0 л/);
+  assert.doesNotMatch(text, /Цена:|РСЯ/);
+});
+
+test('clipboard formatter marks bulk purchases without invented bags or density', () => {
+  const state = completeState();
+  state.zones[0].layers[0].packageL = '';
+  const checked = validateDraft(state);
+  assert.equal(checked.result?.ok, true);
+  if (!checked.result?.ok) return;
+  const text = formatBomForClipboard(state, checked.result.value);
+  assert.match(text, /Купить: 2 000 л россыпью \/ по объёму/);
+  assert.match(text, /Фактически в упаковках: —/);
+  assert.doesNotMatch(text, /уп\. ×/);
+  assert.doesNotMatch(text, /Масса:/);
+});
+
+test('clipboard formatter sanitizes control characters and retains distinct material variants', () => {
+  const state = completeState();
+  const clone = structuredClone(state);
+  clone.materials[0].label = 'Грунт\nдля\tгрядки';
+  const value = validateDraft(state).result;
+  assert.equal(value?.ok, true);
+  if (!value?.ok) return;
+  value.value.bom[0].material_spec_label = clone.materials[0].label;
+  const text = formatBomForClipboard(clone, value.value);
+  assert.match(text, /Грунт для грядки \(Грунт, spec-1\)/);
+  assert.doesNotMatch(text, /Грунт\nдля/);
 });
