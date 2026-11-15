@@ -252,3 +252,37 @@ test('linking existing material variant preserves selector focus after root rere
   await page.keyboard.press('Tab');
   await expect(page.locator(':focus')).toHaveAttribute('data-action', 'material-field');
 });
+
+test('actual zone rectangles fit their own canvas and keep dimensions at all breakpoints', async ({ page }) => {
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+  await page.getByTestId('add-zone').click();
+  await fillZone(page, 1, { name: 'Дорожка', length: '2', width: '5' });
+  for (const width of [320, 390, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const [zoneIndex, ratio] of [[0, 2], [1, 2.5]]) {
+      if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="zones"]').click();
+      await page.locator('[data-action="select-zone"]').nth(zoneIndex).click();
+      const rect = page.getByTestId('zone-rectangle');
+      await expect(rect).toBeVisible();
+      const geo = await rect.evaluate(element => {
+        const box = element.getBoundingClientRect();
+        const canvas = element.closest('.figure-canvas').getBoundingClientRect();
+        const doc = document.documentElement;
+        return { left: box.left, right: box.right, top: box.top, bottom: box.bottom,
+          width: box.width, height: box.height, canvasLeft: canvas.left, canvasRight: canvas.right,
+          canvasTop: canvas.top, canvasBottom: canvas.bottom,
+          scrollWidth: doc.scrollWidth, clientWidth: doc.clientWidth };
+      });
+      expect(geo.scrollWidth, 'document overflow at ' + width).toBeLessThanOrEqual(geo.clientWidth);
+      expect(geo.left, 'left boundary at ' + width).toBeGreaterThanOrEqual(geo.canvasLeft - 1);
+      expect(geo.right, 'right boundary at ' + width).toBeLessThanOrEqual(geo.canvasRight + 1);
+      expect(geo.top, 'top boundary at ' + width).toBeGreaterThanOrEqual(geo.canvasTop - 1);
+      expect(geo.bottom, 'bottom boundary at ' + width).toBeLessThanOrEqual(geo.canvasBottom + 1);
+      expect(geo.width / geo.height).toBeCloseTo(ratio, 2);
+    }
+  }
+});

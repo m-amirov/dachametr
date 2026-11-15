@@ -445,8 +445,25 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--orange); 
 .layer-readout { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 11px 0 0; border-top: 1px solid var(--line); font-size: 11px; }
 .layer-readout strong { color: var(--teal); }
 .figure-placeholder { margin: 12px 0; padding: 20px; border: 1px dashed var(--line); font-size: 12px; color: var(--muted); }
-.figure-canvas { overflow: visible; }
-.zone-rectangle { box-sizing: border-box; max-width: calc(100% - 48px); min-width: 0; height: auto; justify-self: center; }
+.figure-canvas {
+  /* Grid auto tracks grew to the inline rectangle width at 320px. Fix the
+     intrinsic sizing constraint; never clip or hide invalid geometry. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  width: 100%;
+  overflow: visible;
+}
+.zone-rectangle {
+  box-sizing: border-box;
+  min-width: 0;
+  width: auto;
+  max-width: calc(100% - 48px);
+  height: auto;
+  justify-self: center;
+  overflow-wrap: anywhere;
+}
+.structure-panel, .editor-surface { background: var(--panel); }
 .zone-rectangle strong { position: relative; z-index: 1; font-size: 12px; overflow-wrap: anywhere; }
 .zone-rectangle span { position: relative; z-index: 1; color: var(--teal); font-size: 12px; }
 .measure-top::before, .measure-top::after, .measure-side::before, .measure-side::after { display: none; }
