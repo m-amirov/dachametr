@@ -18,6 +18,7 @@ import {
   type ZoneDraft,
 } from './model.ts';
 import { formatRuNumber, formatUnit, sumWholePackages } from './format.ts';
+import { formatBomForClipboard } from './bom-export.ts';
 import { validateDraft, type DraftValidation } from './validation.ts';
 
 const MATERIAL_LABELS: Record<MaterialKind, string> = {
@@ -225,7 +226,8 @@ function renderResults(state: AppState, validation: DraftValidation, view: ViewS
   const totalPurchase = value.bom.reduce((sum, row) => sum.add(Exact.decimal(row.purchase_l)), new Exact(0n)).toString();
   const totalPackages = sumWholePackages(value.bom.map(row => row.packages));
   return `<aside class="results-column" id="result" tabindex="-1" aria-label="Ведомость закупки" data-testid="result-panel"><section class="panel result-panel bom-surface">
-    <div class="result-heading"><div><span class="eyebrow">ВАШ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><span class="live-dot">Обновляется</span></div>
+    <div class="result-heading"><div><span class="eyebrow">ВАШ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><div class="result-heading-actions"><span class="live-dot">Обновляется</span>${value.bom.length ? '<button type="button" class="quiet-button copy-bom-button" data-action="copy-bom">Копировать ведомость</button>' : ''}</div></div>
+    ${value.bom.length ? '<p class="copy-bom-status" data-testid="copy-bom-status" role="status" aria-live="polite"></p>' : ''}
     <div class="result-lead"><div><span>Всего нужно с запасом</span><strong>${formatUnit(totalPurchase, 'л')}</strong></div>${totalPackages !== null ? `<div class="total-packages"><span>Упаковок</span><strong>${formatRuNumber(totalPackages)} уп.</strong></div>` : '<div class="total-packages"><span>Упаковки</span><strong>По материалам</strong></div>'}</div>
     <div class="area-summary"><div><span>Участок</span><strong>${formatUnit(value.plot_area_m2, 'м²')}</strong></div><div><span>Сотки</span><strong>${formatUnit(sotki, 'сотки')}</strong></div><div><span>Зоны</span><strong>${state.zones.length}</strong></div></div>
     ${value.areas_exceed_plot ? '<div class="warning" role="status"><strong>Проверьте площадь</strong><span>Сумма площадей зон больше участка. Мы не вычитаем и не размещаем зоны автоматически.</span></div>' : ''}
@@ -536,6 +538,29 @@ export function mountApp(root: HTMLElement): void {
       openLayerIds.delete(button.dataset.layerId);
       update(removeLayer(state, button.dataset.zoneId, button.dataset.layerId), false);
       moveFocus(`add-layer-${button.dataset.zoneId}`);
+    }
+    if (action === 'copy-bom') {
+      // Copy the exact validated result only, never a stale or partial draft.
+      const validation = validateDraft(state);
+      if (!validation.valid || !validation.result?.ok || validation.result.value.bom.length === 0) return;
+      const status = root.querySelector<HTMLElement>('[data-testid="copy-bom-status"]');
+      const setStatus = (message: string) => {
+        if (status?.isConnected) status.textContent = message;
+      };
+      const content = formatBomForClipboard(state, validation.result.value);
+      try {
+        if (!navigator.clipboard?.writeText) {
+          setStatus('Буфер обмена недоступен в этом браузере.');
+          return;
+        }
+        void navigator.clipboard.writeText(content).then(
+          () => setStatus('Ведомость скопирована.'),
+          () => setStatus('Не удалось скопировать. Проверьте разрешение на буфер обмена.'),
+        );
+      } catch {
+        setStatus('Не удалось скопировать. Проверьте разрешение на буфер обмена.');
+      }
+      return;
     }
     if (action === 'reset') {
       const hasEnteredData = state.plot.length.trim() !== '' || state.plot.width.trim() !== '' || state.zones.length > 0 || state.materials.length > 0;
