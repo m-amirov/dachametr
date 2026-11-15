@@ -570,3 +570,56 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--orange); 
 @media (prefers-reduced-motion: reduce) {
   *,*::before,*::after { scroll-behavior: auto !important; transition: none !important; }
 }
+
+
+/* Review refinement: the selected zone is already named in the workspace
+   heading, so its duplicate card header would waste a full form row. */
+.editor-surface .zone-header, .editor-surface .zone-dimensions-label, .editor-surface .zone-area { display: none; }
+.editor-surface .zone-edit { padding-top: 0; }
+.editor-surface .zone-card { margin-top: 0; }
+.editor-toolbar .workspace-remove-zone { color: var(--danger); }
+
+/* One horizontal row per material, details open in place on demand.
+   Keep indexed identity and explicit delete affordance. */
+.layer-card { margin: 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; }
+.layer-summary {
+  display: grid;
+  grid-template-columns: 22px 4px minmax(0, 1fr) auto 25px;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 4px;
+}
+.layer-summary .layer-number { display: block; color: var(--quiet); font-size: 11px; }
+.layer-summary .material-swatch { width: 4px; height: 29px; }
+.layer-summary .layer-summary-copy { min-width: 0; }
+.layer-summary-copy strong { font-size: 12px; }
+.layer-summary-copy span { font-size: 11px; }
+.layer-remove {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 32px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--danger);
+  font-size: 19px;
+  cursor: pointer;
+}
+.layer-remove:hover, .layer-remove:focus-visible { background: var(--danger-soft); }
+.layer-edit { margin-left: 27px; border-left: 2px solid var(--orange); border-top: 0; padding: 14px; background: var(--panel-soft); }
+@media (max-width: 430px) {
+  .editor-toolbar { flex-wrap: wrap; row-gap: 8px; }
+  .editor-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+  .editor-actions .quiet-button { display: inline-flex; font-size: 10px; padding: 5px 7px; min-height: 30px; }
+  .layer-summary { grid-template-columns: 18px 4px minmax(0, 1fr) auto 23px; gap: 6px; padding: 9px 0; }
+  .layer-summary .layer-summary-copy span { font-size: 10px; }
+  .layer-toggle { padding: 6px 7px; font-size: 10px; }
+  .layer-edit { margin-left: 20px; padding: 11px; }
+}
+@media (max-width: 230px) {
+  .editor-actions { justify-content: flex-start; }
+  .layer-summary { grid-template-columns: 14px 4px minmax(0, 1fr) 23px; }
+  .layer-toggle { grid-column: 3; justify-self: start; }
+  .layer-remove { grid-column: 4; grid-row: 1/3; }
+}
