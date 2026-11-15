@@ -118,6 +118,8 @@ function renderLayer(state: AppState, zone: ZoneDraft, layer: LayerDraft, layerI
   const detail = layerDetail(validation, zone.id, layer.id);
   const expanded = view.openLayerIds.has(layer.id);
   const editId = `layer-editor-${layer.id}`;
+  const materialLabelError = draftError(validation, `${prefix}.material_spec_label`);
+  const materialLabelErrorId = `error-label-${layer.id}`;
   return `<section class="layer-card" data-testid="layer-card" data-layer-id="${escapeHtml(layer.id)}" role="group" aria-label="Слой ${layerIndex + 1}">
     <div class="layer-summary">
       <span class="layer-number">${String(layerIndex + 1).padStart(2, '0')}</span>
@@ -137,7 +139,8 @@ function renderLayer(state: AppState, zone: ZoneDraft, layer: LayerDraft, layerI
       </div>
       <div class="field field-wide-mobile">
         <label for="label-${escapeHtml(layer.id)}">Название варианта материала</label>
-        <input id="label-${escapeHtml(layer.id)}" data-action="material-field" data-field="label" data-material-id="${escapeHtml(spec.id)}" data-focus-key="label-${escapeHtml(layer.id)}" value="${escapeHtml(spec.label)}" type="text" autocomplete="off" maxlength="80" aria-invalid="${errorFor(validation, `${prefix}.material_spec_label`) ? 'true' : 'false'}" />
+        <input id="label-${escapeHtml(layer.id)}" data-action="material-field" data-field="label" data-material-id="${escapeHtml(spec.id)}" data-focus-key="label-${escapeHtml(layer.id)}" value="${escapeHtml(spec.label)}" type="text" autocomplete="off" maxlength="80" aria-invalid="${materialLabelError ? 'true' : 'false'}"${materialLabelError ? ` aria-describedby="${escapeHtml(materialLabelErrorId)}"` : ''} />
+        ${materialLabelError ? `<p class="field-error" id="${escapeHtml(materialLabelErrorId)}">${escapeHtml(materialLabelError)}</p>` : ''}
       </div>
       ${inputField({ id: fieldId('thickness', layer.id), label: 'Толщина слоя', value: layer.thickness, action: 'layer-field', field: 'thickness', focusKey: `thickness-${layer.id}`, path: `${prefix}.thickness_cm`, validation, unit: 'см', zoneId: zone.id, layerId: layer.id })}
       ${inputField({ id: fieldId('reserve', layer.id), label: 'Запас', value: layer.reserve, action: 'layer-field', field: 'reserve', focusKey: `reserve-${layer.id}`, path: `${prefix}.reserve_percent`, validation, unit: '%', zoneId: zone.id, layerId: layer.id })}
@@ -539,7 +542,8 @@ export function mountApp(root: HTMLElement): void {
       moveFocus(`add-layer-${button.dataset.zoneId}`);
     }
     if (action === 'reset') {
-      if (state.zones.length === 0 || window.confirm('Сбросить введённые размеры, зоны и материалы?')) {
+      const hasEnteredData = state.plot.length.trim() !== '' || state.plot.width.trim() !== '' || state.zones.length > 0 || state.materials.length > 0;
+      if (!hasEnteredData || window.confirm('Сбросить введённые размеры, зоны и материалы?')) {
         mobileSurface = 'zones';
         openZoneId = null;
         openLayerIds.clear();
