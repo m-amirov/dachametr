@@ -217,15 +217,15 @@ function renderZoneBreakdown(state: AppState, value: DetailedCalculated): string
 function renderResults(state: AppState, validation: DraftValidation, view: ViewState): string {
   if (!validation.valid || !validation.result?.ok) {
     const hasDraftInput = state.plot.length.trim() !== '' || state.plot.width.trim() !== '' || state.zones.length > 0;
-    if (!hasDraftInput) return `<aside class="results-column" id="result"><section class="panel result-empty bom-surface"><span class="eyebrow">РЕЗУЛЬТАТ</span><h2>Ведомость появится здесь</h2><p>Укажите размеры, добавьте зону и слой материала. Результат обновится автоматически.</p></section></aside>`;
+    if (!hasDraftInput) return `<aside class="results-column" id="result" tabindex="-1" aria-label="Ведомость закупки"><section class="panel result-empty bom-surface"><span class="eyebrow">РЕЗУЛЬТАТ</span><h2>Ведомость появится здесь</h2><p>Укажите размеры, добавьте зону и слой материала. Результат обновится автоматически.</p></section></aside>`;
     const error = validation.errors[0];
-    return `<aside class="results-column" id="result"><section class="panel result-blocked bom-surface" data-testid="blocked-results" aria-live="assertive"><span class="eyebrow">РЕЗУЛЬТАТ ЗАБЛОКИРОВАН</span><h2>Сначала исправьте ввод</h2><p id="error-summary">Исправьте ошибки, чтобы получить итоговую ведомость. Частичный расчёт не показываем как готовую закупку.</p>${error ? `<p class="error-detail">${escapeHtml(error.message)} <code>${escapeHtml(error.path)}</code></p>` : ''}</section></aside>`;
+    return `<aside class="results-column" id="result" tabindex="-1" aria-label="Ведомость закупки"><section class="panel result-blocked bom-surface" data-testid="blocked-results" aria-live="assertive"><span class="eyebrow">РЕЗУЛЬТАТ ЗАБЛОКИРОВАН</span><h2>Сначала исправьте ввод</h2><p id="error-summary">Исправьте ошибки, чтобы получить итоговую ведомость. Частичный расчёт не показываем как готовую закупку.</p>${error ? `<p class="error-detail">${escapeHtml(error.message)} <code>${escapeHtml(error.path)}</code></p>` : ''}</section></aside>`;
   }
   const value = validation.result.value;
   const sotki = decimalDivide(value.plot_area_m2, '100');
   const totalPurchase = value.bom.reduce((sum, row) => sum.add(Exact.decimal(row.purchase_l)), new Exact(0n)).toString();
   const totalPackages = sumWholePackages(value.bom.map(row => row.packages));
-  return `<aside class="results-column" id="result" data-testid="result-panel"><section class="panel result-panel bom-surface">
+  return `<aside class="results-column" id="result" tabindex="-1" aria-label="Ведомость закупки" data-testid="result-panel"><section class="panel result-panel bom-surface">
     <div class="result-heading"><div><span class="eyebrow">ВАШ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><span class="live-dot">Обновляется</span></div>
     <div class="result-lead"><div><span>Всего нужно с запасом</span><strong>${formatUnit(totalPurchase, 'л')}</strong></div>${totalPackages !== null ? `<div class="total-packages"><span>Упаковок</span><strong>${formatRuNumber(totalPackages)} уп.</strong></div>` : '<div class="total-packages"><span>Упаковки</span><strong>По материалам</strong></div>'}</div>
     <div class="area-summary"><div><span>Участок</span><strong>${formatUnit(value.plot_area_m2, 'м²')}</strong></div><div><span>Сотки</span><strong>${formatUnit(sotki, 'сотки')}</strong></div><div><span>Зоны</span><strong>${state.zones.length}</strong></div></div>
@@ -264,7 +264,7 @@ function renderProjectStructure(state: AppState, validation: DraftValidation, vi
 function renderMobileTabs(active: 'zones' | 'editor' | 'bom'): string {
   return `<nav class="mobile-tabs" aria-label="Разделы калькулятора">
     ${([['zones','Зоны'],['editor','Редактор'],['bom','Ведомость']] as const).map(([key,label])=>
-      `<button type="button" data-action="mobile-tab" data-target="${key}" class="mobile-tab${active===key?' is-active':''}" aria-current="${active===key?'page':'false'}">${label}</button>`
+      `<button type="button" data-action="mobile-tab" data-target="${key}" data-focus-key="mobile-tab-${key}" class="mobile-tab${active===key?' is-active':''}" aria-current="${active===key?'page':'false'}">${label}</button>`
     ).join('')}
   </nav>`;
 }
@@ -327,7 +327,7 @@ export function renderAppHtml(state: AppState, validation: DraftValidation, view
   return `<div class="workspace-app" data-testid="workspace-layout" data-mobile-surface="${active}">
     <header class="topbar"><div class="brand-lockup"><span class="brand-mark" aria-hidden="true">▱</span><h1 class="brand-name">Дачаметр</h1><span class="brand-product">WORKSPACE</span></div>
       <div class="topbar-context">Участок и материалы · точный расчёт</div>
-      <div class="topbar-actions"><span class="local-status"><i></i>Локальный расчёт</span><a class="jump-result" href="#result">К ведомости</a></div></header>
+      <div class="topbar-actions"><span class="local-status"><i></i>Локальный расчёт</span><a class="jump-result" href="#result" data-action="open-bom">К ведомости</a></div></header>
     ${renderMobileTabs(active)}
     <main class="workspace-grid">
       ${renderProjectStructure(state,validation,view)}
@@ -440,13 +440,29 @@ export function mountApp(root: HTMLElement): void {
     const action = button.dataset.action;
     if (action === 'mobile-tab' && (button.dataset.target === 'zones' || button.dataset.target === 'editor' || button.dataset.target === 'bom')) {
       mobileSurface = button.dataset.target;
-      render();
+      // The clicked tab is destroyed and recreated during render. Restoring
+      // the exact tab keeps keyboard users on the same navigation control.
+      render({ key: `mobile-tab-${mobileSurface}`, start: null, end: null });
+      return;
+    }
+    if (action === 'open-bom') {
+      // At tablet widths the BOM is a separate hidden surface. A bare #result
+      // anchor cannot open it; desktop retains normal anchor navigation.
+      if (window.matchMedia('(max-width: 820px)').matches) {
+        event.preventDefault();
+        mobileSurface = 'bom';
+        render();
+        root.querySelector<HTMLElement>('#result')?.focus();
+      }
       return;
     }
     if (action === 'select-zone' && button.dataset.zoneId) {
       openZoneId = button.dataset.zoneId;
       mobileSurface = 'editor';
       render();
+      // Announce the new editing context instead of sending focus to <body>
+      // when the source button is replaced (and hidden on mobile).
+      root.querySelector<HTMLElement>('[data-testid="selected-zone-name"]')?.focus();
       return;
     }
     if (action === 'toggle-zone' && button.dataset.zoneId) {
