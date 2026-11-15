@@ -116,7 +116,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--orange); 
 .zone-figure, .section-figure { margin: 0; min-width: 0; }
 .figure-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .figure-scale { color: var(--quiet); letter-spacing: .04em; font-size: 9px; }
-.figure-canvas { height: 240px; display: grid; place-items: center; position: relative; border: 1px solid var(--line); background-color: #f4f4f0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 22px 22px; }
+.figure-canvas { height: 180px; display: grid; place-items: center; position: relative; border: 1px solid var(--line); background-color: #f4f4f0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 22px 22px; }
 .zone-rectangle { position: relative; width: min(76%, 360px); aspect-ratio: var(--zone-ratio); border: 2px solid var(--teal); background: rgba(32, 91, 87, .09); display: grid; place-items: center; align-content: center; gap: 5px; color: var(--teal); }
 .zone-rectangle::after { content: ''; position: absolute; inset: 6px; border: 1px dashed rgba(32, 91, 87, .45); }
 .zone-rectangle-label, .zone-rectangle-area { position: relative; z-index: 1; font-size: 12px; font-weight: 700; }
@@ -133,7 +133,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--orange); 
 .measure-side::after { left: 100%; }
 .figure-origin { position: absolute; bottom: 9px; left: 10px; color: var(--quiet); font-size: 9px; }
 .zone-figure figcaption, .section-caption { color: var(--quiet); font-size: 10px; line-height: 1.35; margin-top: 8px; }
-.section-stack { height: 240px; border: 1px solid var(--line); display: flex; flex-direction: column-reverse; background: #f4f4f0; padding: 8px; gap: 2px; }
+.section-stack { height: 180px; border: 1px solid var(--line); display: flex; flex-direction: column-reverse; background: #f4f4f0; padding: 8px; gap: 2px; }
 .section-layer { flex: var(--layer-size); min-height: 24px; display: flex; align-items: center; justify-content: space-between; border: 0; padding: 0 10px; text-align: left; color: var(--ink); cursor: pointer; font-size: 11px; }
 .section-layer span, .section-layer b { position: relative; z-index: 1; }
 .section-layer b { font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; }

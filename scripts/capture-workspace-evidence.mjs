@@ -10,7 +10,7 @@ const evidenceDir = path.resolve(process.env.EVIDENCE_DIR ?? 'artifacts/dachamet
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
 const sourceSha = git('rev-parse', 'HEAD');
 const dirty = git('status', '--porcelain=v1', '--untracked-files=all');
-const ignoredLocalCapture = line => line.includes('artifacts/baseline-pr11/');
+const ignoredLocalCapture = line => line.includes('artifacts/baseline-pr11/') || line.includes('artifacts/dachametr-workspace/evidence/latest/');
 const sourceDirty = dirty.split(/\r?\n/).filter(Boolean).filter(line => !ignoredLocalCapture(line));
 if (sourceDirty.length) throw new Error(`Capture requires a clean source checkout before writing evidence:\n${sourceDirty.join('\n')}`);
 
