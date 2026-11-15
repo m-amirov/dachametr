@@ -569,8 +569,11 @@ export function mountApp(root: HTMLElement): void {
       if (!isMobile && active?.closest('.mobile-tabs')) {
         // Mobile navigation is hidden on desktop; move focus to its destination.
         if (mobileSurface === 'zones') moveFocus('plot-length');
-        else if (mobileSurface === 'editor') root.querySelector<HTMLElement>('[data-testid="selected-zone-name"]')?.focus();
-        else root.querySelector<HTMLElement>('#result')?.focus();
+        else if (mobileSurface === 'editor') {
+          // Before the first zone exists, the selected-zone heading is absent.
+          const heading = root.querySelector<HTMLElement>('[data-testid="selected-zone-name"]');
+          (heading ?? root.querySelector<HTMLElement>('.editor-surface [data-action="add-zone"]'))?.focus();
+        } else root.querySelector<HTMLElement>('#result')?.focus();
       } else if (headerLinkHidden) {
         // The header BOM link disappears below 431px, even when the screen
         // was already in tablet mode before this resize.
