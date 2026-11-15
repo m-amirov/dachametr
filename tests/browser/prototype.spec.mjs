@@ -131,11 +131,13 @@ test('responsive result-nearby zones and per-layer editing keep values while tog
   await expect(layer.getByText('Грунт для грядок').first()).toBeVisible();
   await layer.getByRole('button', { name: 'Настроить' }).click();
   await expect(layer.locator('[data-action="layer-field"][data-field="thickness"]')).toHaveValue('25');
+  await page.locator('[data-action="mobile-tab"][data-target="zones"]').click();
   await page.getByTestId('add-zone').click();
   const second = page.getByTestId('zone-card').nth(1);
   await expect(first.locator('.zone-edit')).toBeHidden();
   await expect(second.locator('.zone-edit')).toBeVisible();
-  await first.locator('[data-action="toggle-zone"]').click();
+  await page.locator('[data-action="mobile-tab"][data-target="zones"]').click();
+  await page.locator('[data-action="select-zone"]').first().click();
   await expect(first.locator('.zone-edit')).toBeVisible();
   await expect(second.locator('.zone-edit')).toBeHidden();
   await expect(first.locator('[data-action="zone-field"][data-field="name"]')).toHaveValue('Грядка');
@@ -204,4 +206,49 @@ test('open BOM details remain open while editing and after temporary invalid inp
   await expect(page.getByTestId('blocked-results')).toBeVisible();
   await field(page, 'plot-field', 'length').fill('21');
   await expect(page.getByTestId('bom-row').first().locator('.bom-details')).toHaveAttribute('open', '');
+});
+
+test('workspace mobile zone selection and BOM tabs operate on one live calculation', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await expect(page.getByTestId('structure-panel')).toBeVisible();
+  await expect(page.locator('[data-action="mobile-tab"][data-target="zones"]')).toHaveClass(/is-active/);
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const first = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+  await first.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(first, { material: 'soil', label: 'Грунт для грядок', thickness: '25', packageL: '50' });
+  await page.locator('[data-action="mobile-tab"][data-target="zones"]').click();
+  await page.getByTestId('add-zone').click();
+  const second = await fillZone(page, 1, { name: 'Дорожка', length: '2', width: '5' });
+  await second.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(second, { material: 'sand', label: 'Песок', thickness: '10', reserve: '5', packageL: '50' });
+  await expect(page.getByTestId('selected-zone-name')).toHaveText('Дорожка');
+  await page.locator('[data-action="mobile-tab"][data-target="bom"]').click();
+  await expect(page.getByTestId('result-panel')).toBeVisible();
+  await expect(page.getByTestId('bom-row')).toHaveCount(2);
+  await page.locator('[data-action="mobile-tab"][data-target="zones"]').click();
+  await page.locator('[data-action="select-zone"]').first().click();
+  await expect(page.getByTestId('selected-zone-name')).toHaveText('Грядка');
+  await expect(first.locator('[data-action="layer-field"][data-field="thickness"]')).toHaveValue('25');
+  await page.locator('[data-action="mobile-tab"][data-target="bom"]').click();
+  await expect(page.getByTestId('bom-row')).toHaveCount(2);
+  expect(errors).toEqual([]);
+});
+
+test('linking existing material variant preserves selector focus after root rerender', async ({ page }) => {
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const zone = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  const select = zone.locator('[data-action="link-material"]').first();
+  await select.selectOption('__new__');
+  await expect(page.locator(':focus')).toHaveAttribute('data-action', 'link-material');
+  await expect(page.locator(':focus')).toHaveAttribute('data-focus-key', /source-layer/);
+  await page.keyboard.press('Tab');
+  await expect(page.locator(':focus')).toHaveAttribute('data-action', 'material-field');
 });

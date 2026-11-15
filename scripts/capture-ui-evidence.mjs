@@ -52,6 +52,7 @@ async function fillResultScenario(page) {
   const first = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
   await first.getByRole('button', { name: 'Добавить слой' }).click();
   await fillLayer(first, { material: 'soil', label: 'Грунт для грядок', thickness: '25', packageL: '50' });
+  if ((page.viewportSize()?.width ?? 1440) <= 820) await page.locator('[data-action="mobile-tab"][data-target="zones"]').click();
   await page.getByTestId('add-zone').click();
   const second = await fillZone(page, 1, { name: 'Дорожка', length: '2', width: '5' });
   await second.getByRole('button', { name: 'Добавить слой' }).click();
@@ -61,7 +62,7 @@ async function fillResultScenario(page) {
   await soilLayer.locator('[data-action="layer-field"][data-field="packageL"]').fill('50');
   await second.getByRole('button', { name: 'Добавить слой' }).click();
   await fillLayer(second, { material: 'sand', label: 'Песок', thickness: '10', reserve: '5', packageL: '50' });
-  await page.getByTestId('result-panel').waitFor();
+  await page.getByTestId('result-panel').waitFor({ state: 'attached' });
 }
 
 async function capture(browser, width, state) {
@@ -74,7 +75,8 @@ async function capture(browser, width, state) {
   page.on('requestfailed', request => errors.push(`request: ${request.url()} ${request.failure()?.errorText ?? ''}`));
   await page.goto(`${baseURL}/`);
   if (state === 'error') await field(page, 'plot-field', 'length').fill('bad');
-  if (state === 'result') await fillResultScenario(page);
+  if (state === 'result' || state === 'result-bom') await fillResultScenario(page);
+  if (state === 'result-bom') await page.locator('[data-action="mobile-tab"][data-target="bom"]').click();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   // Full-page screenshots must start at the real top of the page; the last input
   // is otherwise still focused/scrolled, shifting the sticky BOM in evidence.
@@ -98,6 +100,7 @@ for (const width of widths) {
   checks.push(await capture(browser, width, 'initial'));
   checks.push(await capture(browser, width, 'error'));
   checks.push(await capture(browser, width, 'result'));
+  if (width <= 820) checks.push(await capture(browser, width, 'result-bom'));
 }
 
 // A 195px CSS viewport emulates the layout viewport of a 390px device at 200% browser zoom.
