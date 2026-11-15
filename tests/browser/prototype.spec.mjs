@@ -706,3 +706,74 @@ test('clipboard permission failure is announced without false success or navigat
   await expect(page).toHaveURL(/\/$/);
   expect(errors).toEqual([]);
 });
+test('versioned fragment link restores complete zone/material calculation and avoids stale reload', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
+  for (const width of [390, 1024]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/?utm_test=private-value');
+    await field(page, 'plot-field', 'length').fill('20,5');
+    await field(page, 'plot-field', 'width').fill('30');
+    await page.getByTestId('add-zone').click();
+    const zone = await fillZone(page, 0, { name: 'Северная грядка', length: '2', width: '4' });
+    await zone.getByRole('button', { name: 'Добавить слой' }).click();
+    await fillLayer(zone, { material: 'soil', label: 'Грунт для ёлки', thickness: '25', reserve: '5', packageL: '50' });
+    if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="bom"]').click();
+    await page.locator('[data-action="share-calculation"]').click();
+    await expect(page.getByTestId('share-link-status')).toContainText('Ссылка скопирована');
+    const url = await page.evaluate(() => navigator.clipboard.readText());
+    expect(url).toMatch(/^http:\/\/127\.0\.0\.1:4173\/#dm=1\./);
+    expect(url).not.toContain('utm_test');
+    expect(new URL(url).hash.length).toBeLessThanOrEqual(8192);
+
+    const imported = await page.context().newPage();
+    await imported.setViewportSize({ width, height: 844 });
+    await imported.goto(url);
+    await expect(imported.getByTestId('share-load-notice')).toContainText('восстановлен из ссылки');
+    await expect(field(imported, 'plot-field', 'length')).toHaveValue('20,5');
+    await expect(field(imported, 'plot-field', 'width')).toHaveValue('30');
+    await expect(imported.getByTestId('bom-row')).toHaveCount(1);
+    await expect(imported.getByTestId('bom-row').first()).toContainText('Грунт для ёлки');
+    await expect(imported.getByTestId('bom-row').first()).toContainText('42 уп.');
+    if (width <= 820) {
+      await expect(imported.getByTestId('workspace-layout')).toHaveAttribute('data-mobile-surface', 'bom');
+      await imported.locator('[data-action="mobile-tab"][data-target="editor"]').click();
+    }
+    await expect(imported.getByTestId('selected-zone-name')).toContainText('Северная грядка');
+    await expect(imported.locator('[data-action="material-field"][data-field="label"]')).toHaveValue('Грунт для ёлки');
+    await field(imported, 'plot-field', 'width').fill('31');
+    await expect(imported).toHaveURL(/\/$/);
+    await imported.reload();
+    await expect(field(imported, 'plot-field', 'length')).toHaveValue('');
+    await expect(field(imported, 'plot-field', 'width')).toHaveValue('');
+    await expect(imported.getByTestId('share-load-notice')).toHaveCount(0);
+    await imported.close();
+  }
+  expect(errors).toEqual([]);
+});
+
+test('invalid, unsupported and markup-bearing shared links cannot silently poison the calculator', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await page.goto('/#dm=9.AAAA');
+  await expect(page.getByTestId('share-load-notice')).toContainText('Версия ссылки не поддерживается');
+  await expect(field(page, 'plot-field', 'length')).toHaveValue('');
+  await page.goto('/#dm=1.AAAA');
+  await expect(page.getByTestId('share-load-notice')).toContainText('Ссылка повреждена');
+
+  const payload = {
+    v: 1,
+    p: ['20', '30'],
+    m: [['spec-1', 'soil', 'Грунт']],
+    z: [['zone-1', '<img src=x onerror=alert(1)>', '2', '4', [['layer-1', 'spec-1', '25', '0', '50', '']]]],
+  };
+  const fragment = '#dm=1.' + Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url');
+  await page.goto('/' + fragment);
+  await expect(page.getByTestId('share-load-notice')).toContainText('восстановлен');
+  await expect(page.getByTestId('selected-zone-name')).toHaveText('<img src=x onerror=alert(1)>');
+  await expect(page.locator('img[src="x"]')).toHaveCount(0);
+  await expect(page.getByTestId('bom-row')).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
