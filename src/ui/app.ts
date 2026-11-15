@@ -118,12 +118,13 @@ function renderLayer(state: AppState, zone: ZoneDraft, layer: LayerDraft, layerI
   const detail = layerDetail(validation, zone.id, layer.id);
   const expanded = view.openLayerIds.has(layer.id);
   const editId = `layer-editor-${layer.id}`;
-  return `<fieldset class="layer-card" data-testid="layer-card" data-layer-id="${escapeHtml(layer.id)}">
-    <legend><span class="layer-number">Слой ${layerIndex + 1}</span><button type="button" class="button button-text danger" data-action="remove-layer" data-zone-id="${escapeHtml(zone.id)}" data-layer-id="${escapeHtml(layer.id)}">Удалить</button></legend>
+  return `<section class="layer-card" data-testid="layer-card" data-layer-id="${escapeHtml(layer.id)}" role="group" aria-label="Слой ${layerIndex + 1}">
     <div class="layer-summary">
+      <span class="layer-number">${String(layerIndex + 1).padStart(2, '0')}</span>
       <span class="material-swatch material-${escapeHtml(spec.material)}" aria-hidden="true"></span>
       <div class="layer-summary-copy"><strong>${escapeHtml(spec.label || MATERIAL_LABELS[spec.material])}</strong><span>${escapeHtml(MATERIAL_LABELS[spec.material])} · ${layer.thickness ? escapeHtml(layer.thickness) + ' см' : 'укажите толщину'}${detail ? ' · ' + formatUnit(detail.purchase_l, 'л') + ' с запасом' : ''}</span></div>
       <button type="button" class="button button-secondary layer-toggle" data-action="toggle-layer" data-zone-id="${escapeHtml(zone.id)}" data-layer-id="${escapeHtml(layer.id)}" data-focus-key="toggle-layer-${escapeHtml(layer.id)}" aria-controls="${escapeHtml(editId)}" aria-expanded="${expanded}">${expanded ? 'Скрыть' : 'Настроить'}</button>
+      <button type="button" class="layer-remove" data-action="remove-layer" data-zone-id="${escapeHtml(zone.id)}" data-layer-id="${escapeHtml(layer.id)}" aria-label="Удалить слой ${layerIndex + 1}" title="Удалить слой">×</button>
     </div>
     <div class="layer-edit" id="${escapeHtml(editId)}"${expanded ? '' : ' hidden'}>
     ${renderMaterialSource(state, layer).replace('data-zone-id=""', `data-zone-id="${escapeHtml(zone.id)}"`)}
@@ -148,7 +149,7 @@ function renderLayer(state: AppState, zone: ZoneDraft, layer: LayerDraft, layerI
       <strong>${detail ? `${formatUnit(detail.net_l, 'л')} чистого → ${formatUnit(detail.purchase_l, 'л')} с запасом` : 'Заполните поля, чтобы увидеть объём'}</strong>
     </div>
     </div>
-  </fieldset>`;
+  </section>`;
 }
 
 function renderZone(state: AppState, zone: ZoneDraft, zoneIndex: number, validation: DraftValidation, view: ViewState): string {
@@ -304,7 +305,7 @@ function renderWorkspaceEditor(state: AppState, validation: DraftValidation, vie
   const detail=selected?zoneDetail(validation,selected.id):undefined;
   return `<section class="editor-surface" data-testid="zone-editor" aria-label="Редактор выбранной зоны">
     <div class="editor-toolbar"><div class="breadcrumb"><span>Участок</span><span>/</span><strong>${selected?escapeHtml(selected.name):'Новая зона'}</strong></div>
-      <div class="editor-actions"><button type="button" class="quiet-button" data-action="reset">Сбросить расчёт</button></div></div>
+      <div class="editor-actions">${selected ? `<button type="button" class="quiet-button workspace-remove-zone" data-action="remove-zone" data-zone-id="${escapeHtml(selected.id)}">Удалить зону</button>` : ''}<button type="button" class="quiet-button" data-action="reset">Сбросить расчёт</button></div></div>
     ${selected?`
       <div class="editor-heading"><div><span class="eyebrow">ВЫБРАННАЯ ЗОНА</span><h2 tabindex="-1" data-testid="selected-zone-name">${escapeHtml(selected.name||'Без названия')}</h2><p>${escapeHtml(selected.length||'—')} × ${escapeHtml(selected.width||'—')} м · ${selected.layers.length} сл. · ${detail?formatUnit(detail.area_m2,'м²'):'—'}</p></div><div class="editor-stat"><span>Площадь зоны</span><strong>${detail?formatUnit(detail.area_m2,'м²'):'—'}</strong></div></div>
       <div class="zone-dimensions"><div><small>Длина</small><strong>${escapeHtml(selected.length||'—')} м</strong></div><div><small>Ширина</small><strong>${escapeHtml(selected.width||'—')} м</strong></div><div><small>Слои</small><strong>${selected.layers.length}</strong></div></div>
