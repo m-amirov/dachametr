@@ -479,6 +479,11 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--orange); 
 .result-panel { padding: 0; border-radius: 0; }
 .result-heading { display: flex; align-items: center; justify-content: space-between; gap: 9px; padding-bottom: 13px; border-bottom: 1px solid var(--line); }
 .result-heading h2 { margin: 5px 0 0; font-size: 20px; letter-spacing: -.03em; }
+.result-heading { flex-wrap: wrap; }
+.result-heading-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; min-width: 0; }
+.copy-bom-button { font-size: 11px; white-space: normal; text-align: center; }
+.copy-bom-status:not(:empty) { margin: 8px 0 0; color: var(--teal); font-size: 12px; line-height: 1.4; }
+
 .live-dot { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; color: var(--teal); font-size: 11px; }
 .live-dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
 .result-lead { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin: 16px 0; padding-bottom: 13px; border-bottom: 1px solid var(--line); }
