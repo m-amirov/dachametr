@@ -1,0 +1,156 @@
+{
+  "schema": "dachametr-workspace-scenario-v1",
+  "generatedBy": "scripts/generate-workspace-scenario.mjs",
+  "source": {
+    "file": "src/domain/plot.ts",
+    "sha256": "96324966a273b1fe5823a83ff082bb705a4d5d1adbfdf41af23028afde69e7e0"
+  },
+  "engine": "calculatePlotDetailed",
+  "labels": {
+    "project": "Участок у дома",
+    "plot": "20 × 30 м",
+    "zones": {
+      "bed": "Грядка",
+      "path": "Дорожка"
+    }
+  },
+  "input": {
+    "plot": {
+      "length_m": "20",
+      "width_m": "30"
+    },
+    "zones": [
+      {
+        "id": "bed",
+        "length_m": "2",
+        "width_m": "4",
+        "layers": [
+          {
+            "id": "bed-soil",
+            "material": "soil",
+            "material_spec_id": "workspace-soil-main",
+            "material_spec_label": "Грунт для грядок",
+            "thickness_cm": "25",
+            "reserve_percent": "0",
+            "package_l": "50",
+            "density_kg_m3": null
+          }
+        ]
+      },
+      {
+        "id": "path",
+        "length_m": "2",
+        "width_m": "5",
+        "layers": [
+          {
+            "id": "path-sand",
+            "material": "sand",
+            "material_spec_id": "workspace-sand-50l",
+            "material_spec_label": "Песок карьерный",
+            "thickness_cm": "10",
+            "reserve_percent": "5",
+            "package_l": "50",
+            "density_kg_m3": "1500"
+          },
+          {
+            "id": "path-gravel",
+            "material": "gravel",
+            "material_spec_id": "workspace-gravel-50l",
+            "material_spec_label": "Щебень фракции 5–20",
+            "thickness_cm": "5",
+            "reserve_percent": "10",
+            "package_l": "50",
+            "density_kg_m3": "1400"
+          }
+        ]
+      }
+    ]
+  },
+  "calculated": {
+    "plot_area_m2": "600",
+    "zones_area_sum_m2": "18",
+    "areas_exceed_plot": false,
+    "bom": [
+      {
+        "material": "soil",
+        "material_spec_id": "workspace-soil-main",
+        "material_spec_label": "Грунт для грядок",
+        "package_l": "50",
+        "density_kg_m3": null,
+        "net_l": "2000",
+        "purchase_l": "2000",
+        "packages": 40,
+        "mass_required_kg": null,
+        "packed_volume_l": "2000",
+        "surplus_l": "0",
+        "mass_purchased_kg": null
+      },
+      {
+        "material": "sand",
+        "material_spec_id": "workspace-sand-50l",
+        "material_spec_label": "Песок карьерный",
+        "package_l": "50",
+        "density_kg_m3": "1500",
+        "net_l": "1000",
+        "purchase_l": "1050",
+        "packages": 21,
+        "mass_required_kg": "1575",
+        "packed_volume_l": "1050",
+        "surplus_l": "0",
+        "mass_purchased_kg": "1575"
+      },
+      {
+        "material": "gravel",
+        "material_spec_id": "workspace-gravel-50l",
+        "material_spec_label": "Щебень фракции 5–20",
+        "package_l": "50",
+        "density_kg_m3": "1400",
+        "net_l": "500",
+        "purchase_l": "550",
+        "packages": 11,
+        "mass_required_kg": "770",
+        "packed_volume_l": "550",
+        "surplus_l": "0",
+        "mass_purchased_kg": "770"
+      }
+    ],
+    "zones": [
+      {
+        "id": "bed",
+        "area_m2": "8",
+        "layers": [
+          {
+            "id": "bed-soil",
+            "material_spec_id": "workspace-soil-main",
+            "material_spec_label": "Грунт для грядок",
+            "net_l": "2000",
+            "purchase_l": "2000",
+            "mass_required_kg": null
+          }
+        ]
+      },
+      {
+        "id": "path",
+        "area_m2": "10",
+        "layers": [
+          {
+            "id": "path-sand",
+            "material_spec_id": "workspace-sand-50l",
+            "material_spec_label": "Песок карьерный",
+            "net_l": "1000",
+            "purchase_l": "1050",
+            "mass_required_kg": "1575"
+          },
+          {
+            "id": "path-gravel",
+            "material_spec_id": "workspace-gravel-50l",
+            "material_spec_label": "Щебень фракции 5–20",
+            "net_l": "500",
+            "purchase_l": "550",
+            "mass_required_kg": "770"
+          }
+        ]
+      }
+    ]
+  }
+}
