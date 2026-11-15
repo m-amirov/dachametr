@@ -23,6 +23,9 @@ test('desktop workspace exposes the three working surfaces and engine-derived BO
   await expect(page.getByTestId('bom-spec')).toContainText('1 575 кг');
   await expect(page.getByTestId('bom-spec')).toContainText('770 кг');
   await expect(page.getByTestId('bom-total-packages')).toContainText('72 уп.');
+  await expect(page.locator('.figure-scale').first()).toHaveText('Условная схема размеров');
+  await expect(page.getByText('1 м : 24 px')).toHaveCount(0);
+  await expect(page.getByText('прототип').first()).toBeVisible();
   await expect(page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).resolves.toBe(false);
   expect(errors).toEqual([]);
 });
@@ -65,6 +68,44 @@ test('mobile switches between editor and BOM instead of stacking every surface',
   await expect(page.getByTestId('bom-spec')).toContainText('2 000 л');
   await expect(page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).resolves.toBe(false);
   expect(errors).toEqual([]);
+});
+
+async function assertMobileZoneNavigation(page, width, height) {
+  const errors = attachRuntimeErrors(page);
+  await page.setViewportSize({ width, height });
+  await page.goto('/artifacts/dachametr-workspace/index.html');
+
+  await expect(page.getByRole('tab', { name: 'Зоны' })).toBeVisible();
+  await page.getByRole('tab', { name: 'Зоны' }).click();
+  await expect(page.getByTestId('project-structure')).toBeVisible();
+  await expect(page.getByTestId('zone-editor')).toBeHidden();
+  await expect(page.getByTestId('bom-spec')).toBeHidden();
+
+  await page.getByTestId('zone-row-path').click();
+  await expect(page.getByTestId('zone-editor')).toBeVisible();
+  await expect(page.getByTestId('selected-zone-name')).toHaveText('Дорожка');
+  await expect(page.getByTestId('project-structure')).toBeHidden();
+
+  await page.getByRole('tab', { name: 'Ведомость' }).click();
+  await expect(page.getByTestId('bom-spec')).toBeVisible();
+  await expect(page.getByTestId('zone-editor')).toBeHidden();
+  await page.getByRole('tab', { name: 'Редактор' }).click();
+  await expect(page.getByTestId('selected-zone-name')).toHaveText('Дорожка');
+
+  await page.getByRole('tab', { name: 'Зоны' }).click();
+  await page.getByTestId('zone-row-bed').click();
+  await expect(page.getByTestId('selected-zone-name')).toHaveText('Грядка');
+  await expect(page.getByTestId('zone-dimensions')).toContainText('Длина2 м');
+  await expect(page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).resolves.toBe(false);
+  expect(errors).toEqual([]);
+}
+
+test('mobile zone navigation works at 390px and preserves the selected zone through BOM', async ({ page }) => {
+  await assertMobileZoneNavigation(page, 390, 844);
+});
+
+test('tablet zone navigation works at 768px and preserves the selected zone through BOM', async ({ page }) => {
+  await assertMobileZoneNavigation(page, 768, 900);
 });
 
 test('error state blocks the BOM instead of showing a partial total', async ({ page }) => {

@@ -73,8 +73,19 @@ await capture({ name: 'desktop-material-1440x900.png', url: '/artifacts/dachamet
   await page.getByRole('button', { name: 'Настроить Песок карьерный' }).click();
 } });
 await capture({ name: 'mobile-390x844.png', url: '/artifacts/dachametr-workspace/index.html', viewport: { width: 390, height: 844 }, state: 'mobile-editor' });
+await capture({ name: 'mobile-zones-390x844.png', url: '/artifacts/dachametr-workspace/index.html', viewport: { width: 390, height: 844 }, state: 'mobile-zones', prepare: async page => {
+  await page.getByRole('tab', { name: 'Зоны' }).click();
+} });
+await capture({ name: 'mobile-path-390x844.png', url: '/artifacts/dachametr-workspace/index.html', viewport: { width: 390, height: 844 }, state: 'mobile-selected-path', prepare: async page => {
+  await page.getByRole('tab', { name: 'Зоны' }).click();
+  await page.getByTestId('zone-row-path').click();
+} });
 await capture({ name: 'mobile-bom-390x844.png', url: '/artifacts/dachametr-workspace/index.html', viewport: { width: 390, height: 844 }, state: 'mobile-bom', prepare: async page => {
   await page.getByRole('tab', { name: 'Ведомость' }).click();
+} });
+await capture({ name: 'tablet-path-768x900.png', url: '/artifacts/dachametr-workspace/index.html', viewport: { width: 768, height: 900 }, state: 'tablet-selected-path', prepare: async page => {
+  await page.getByRole('tab', { name: 'Зоны' }).click();
+  await page.getByTestId('zone-row-path').click();
 } });
 await capture({ name: 'design-board-1440x900.png', url: '/artifacts/dachametr-workspace/design-board.html', viewport: { width: 1440, height: 900 }, state: 'design-board' });
 

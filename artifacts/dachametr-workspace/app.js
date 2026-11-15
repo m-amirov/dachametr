@@ -59,20 +59,20 @@ function renderTopbar(scenario) {
   return `<header class="topbar">
     <div class="brand-lockup"><span class="brand-mark">${icon('layers')}</span><span class="brand-name">Дачаметр</span><span class="brand-product">Workspace</span></div>
     <div class="topbar-context"><span class="context-kicker">ПРОТОТИП</span><span>${escapeHtml(scenario.labels.project)}</span><span class="topbar-separator">/</span><span>Материалы</span></div>
-    <div class="topbar-actions"><span class="local-status"><i></i> локальный расчёт</span><button class="icon-button" type="button" data-action="mock" aria-label="Дополнительные действия">${icon('more')}</button></div>
+    <div class="topbar-actions"><span class="local-status"><i></i> локальный расчёт</span><button class="icon-button prototype-action" type="button" data-action="mock" aria-label="Дополнительные действия (прототип)" title="Прототип: дополнительные действия не реализованы">${icon('more')}</button></div>
   </header>`;
 }
 
 function renderMobileTabs(activeSurface) {
   return `<nav class="mobile-tabs" data-testid="mobile-tabs" aria-label="Разделы рабочего пространства">
-    ${[['editor', 'Редактор'], ['bom', 'Ведомость']].map(([surface, label]) => `<button class="mobile-tab ${activeSurface === surface ? 'is-active' : ''}" type="button" role="tab" aria-selected="${activeSurface === surface}" data-action="mobile-tab" data-target="${surface}">${surface === 'editor' ? icon('measure') : icon('layers')}<span>${label}</span></button>`).join('')}
+    ${[['zones', 'Зоны'], ['editor', 'Редактор'], ['bom', 'Ведомость']].map(([surface, label]) => `<button class="mobile-tab ${activeSurface === surface ? 'is-active' : ''}" type="button" role="tab" aria-selected="${activeSurface === surface}" data-action="mobile-tab" data-target="${surface}">${surface === 'editor' ? icon('measure') : surface === 'zones' ? icon('cube') : icon('layers')}<span>${label}</span></button>`).join('')}
   </nav>`;
 }
 
 function renderProjectStructure(scenario, selectedZoneId) {
   const zones = scenario.input.zones;
   return `<aside class="panel structure-panel" data-testid="project-structure" data-surface="structure">
-    <div class="panel-label-row"><span class="panel-label">Структура проекта</span><button class="icon-button subtle" type="button" data-action="mock" aria-label="Добавить объект">${icon('plus')}</button></div>
+    <div class="panel-label-row"><span class="panel-label">Структура проекта</span><button class="icon-button subtle prototype-action" type="button" data-action="mock" aria-label="Добавить объект (прототип)" title="Прототип: добавление объекта не реализовано">${icon('plus')}</button></div>
     <div class="project-heading"><span class="project-glyph">${icon('cube')}</span><div><h2>${escapeHtml(scenario.labels.project)}</h2><span>Рабочий расчёт</span></div></div>
     <div class="project-meta">
       <div><span>Габариты</span><strong>${escapeHtml(scenario.labels.plot)}</strong></div>
@@ -89,7 +89,7 @@ function renderProjectStructure(scenario, selectedZoneId) {
         </button>`;
       }).join('')}
     </div>
-    <button class="add-zone-button" type="button" data-action="mock">${icon('plus')}<span>Добавить зону</span><kbd>⌘ N</kbd></button>
+    <button class="add-zone-button prototype-action" type="button" data-action="mock" aria-label="Добавить зону (прототип)" title="Прототип: добавление зоны не реализовано">${icon('plus')}<span>Добавить зону</span><small>прототип</small><kbd>⌘ N</kbd></button>
     <div class="structure-footer"><span class="tiny-dot"></span><span>Размеры зон независимы</span></div>
   </aside>`;
 }
@@ -101,7 +101,7 @@ function renderZoneFigure(zone, scenario) {
   const totalThickness = layers.reduce((sum, layer) => sum + Number(layer.thickness_cm), 0);
   return `<div class="zone-visual-grid">
     <figure class="zone-figure" aria-labelledby="figure-title">
-      <div class="figure-toolbar"><span class="figure-note">Схема размеров</span><span class="figure-scale">1 м : 24 px</span></div>
+      <div class="figure-toolbar"><span class="figure-note">Схема размеров</span><span class="figure-scale">Условная схема размеров</span></div>
       <div class="figure-canvas"><div class="measure-label measure-top"><span>${zone.width_m} м</span></div><div class="measure-label measure-side"><span>${zone.length_m} м</span></div><div class="zone-rectangle" data-testid="zone-rectangle" style="--zone-ratio:${width}/${length}"><span class="zone-rectangle-label">${escapeHtml(scenario.labels.zones[zone.id])}</span><span class="zone-rectangle-area">${formatUnit(zoneArea(zone, scenario), 'м²')}</span></div><span class="figure-origin">0,0</span></div>
       <figcaption id="figure-title">Прямоугольник выбранной зоны. Не показывает её положение на участке.</figcaption>
     </figure>
@@ -111,7 +111,7 @@ function renderZoneFigure(zone, scenario) {
 
 function renderLayerList(zone, scenario, activeLayerId) {
   const layers = zoneLayers(zone);
-  return `<section class="layers-section" aria-labelledby="layers-title"><div class="section-heading"><div><span class="eyebrow">СОСТАВ ЗОНЫ</span><h3 id="layers-title">Слои материалов</h3></div><button class="quiet-button" type="button" data-action="mock">${icon('plus')} Добавить слой</button></div>
+  return `<section class="layers-section" aria-labelledby="layers-title"><div class="section-heading"><div><span class="eyebrow">СОСТАВ ЗОНЫ</span><h3 id="layers-title">Слои материалов</h3></div><button class="quiet-button prototype-action" type="button" data-action="mock" aria-label="Добавить слой (прототип)" title="Прототип: добавление слоя не реализовано">${icon('plus')}<span>Добавить слой</span><small>прототип</small></button></div>
     <div class="layer-table-header"><span>№</span><span>Материал / вариант</span><span>Толщина</span><span>Расчёт</span><span></span></div>
     <div class="layer-list">
       ${layers.map((layer, index) => { const detail = layerDetail(layer, scenario); const open = activeLayerId === layer.id; return `<div class="layer-row ${open ? 'is-open' : ''} layer-${layer.tone}" data-testid="layer-row-${layer.id}"><button class="layer-main" type="button" data-action="toggle-layer" data-layer-id="${layer.id}"><span class="layer-number">${String(index + 1).padStart(2, '0')}</span><span class="layer-swatch"></span><span class="layer-copy"><strong>${escapeHtml(layer.material_spec_label)}</strong><small>${layer.label} · ${formatUnit(detail?.purchase_l ?? '0', 'л')} с запасом</small></span><span class="layer-thickness">${layer.thickness_cm}<small>см</small></span><span class="layer-volume">${formatUnit(detail?.purchase_l ?? '0', 'л')}</span><span class="layer-disclosure">${open ? icon('close') : icon('chevron')}</span></button>${open ? renderMaterialInspector(layer, scenario) : ''}</div>`; }).join('')}
@@ -129,9 +129,9 @@ function renderEditor(scenario, selectedZoneId, activeLayerId, errorState) {
   const label = scenario.labels.zones[zone.id];
   const details = scenario.calculated.zones.find(item => item.id === zone.id);
   return `<section class="panel editor-surface" data-testid="zone-editor" data-surface="editor">
-    <div class="editor-toolbar"><div class="breadcrumb"><span>Участок</span><span>/</span><strong>${escapeHtml(label)}</strong></div><div class="editor-actions"><button class="quiet-button" type="button" data-action="mock">Переименовать</button><button class="icon-button subtle" type="button" data-action="mock" aria-label="Действия зоны">${icon('more')}</button></div></div>
+    <div class="editor-toolbar"><div class="breadcrumb"><span>Участок</span><span>/</span><strong>${escapeHtml(label)}</strong></div><div class="editor-actions"><button class="quiet-button prototype-action" type="button" data-action="mock" aria-label="Переименовать зону (прототип)" title="Прототип: переименование зоны не реализовано"><span>Переименовать</span><small>прототип</small></button><button class="icon-button subtle prototype-action" type="button" data-action="mock" aria-label="Действия зоны (прототип)" title="Прототип: действия зоны не реализованы">${icon('more')}</button></div></div>
     <div class="editor-heading"><div><span class="eyebrow">ВЫБРАННАЯ ЗОНА</span><h1 data-testid="selected-zone-name">${escapeHtml(label)}</h1><p>${escapeHtml(zone.length_m)} × ${escapeHtml(zone.width_m)} м · ${zone.layers.length} слоя · ${formatUnit(details?.area_m2 ?? '0', 'м²')}</p></div><div class="editor-stat"><span>Площадь зоны</span><strong>${formatUnit(details?.area_m2 ?? '0', 'м²')}</strong></div></div>
-    ${errorState ? '<div class="error-banner" role="alert"><span class="error-icon">' + icon('warning') + '</span><span><strong>Расчёт приостановлен</strong><small>Исправьте толщину слоя в дорожке, чтобы обновить ведомость.</small></span><button type="button" class="icon-button subtle" data-action="mock" aria-label="Закрыть сообщение">' + icon('close') + '</button></div>' : ''}
+    ${errorState ? '<div class="error-banner" role="alert"><span class="error-icon">' + icon('warning') + '</span><span><strong>Расчёт приостановлен</strong><small>Исправьте толщину слоя в дорожке, чтобы обновить ведомость.</small></span><button type="button" class="icon-button subtle prototype-action" data-action="mock" aria-label="Закрыть сообщение (прототип)" title="Прототип: закрытие сообщения не реализовано">' + icon('close') + '</button></div>' : ''}
     <div class="zone-dimensions" data-testid="zone-dimensions"><span class="dimension-item"><small>Длина</small><strong>${zone.length_m} м</strong></span><span class="dimension-item"><small>Ширина</small><strong>${zone.width_m} м</strong></span><span class="dimension-item"><small>Суммарная толщина</small><strong>${zone.layers.reduce((sum, layer) => sum + Number(layer.thickness_cm), 0)} см</strong></span><span class="dimension-item dimension-note"><small>Режим отображения</small><strong>Выбранная зона</strong></span></div>
     ${renderZoneFigure(zone, scenario)}
     ${renderLayerList(zone, scenario, activeLayerId)}
@@ -150,7 +150,7 @@ function renderBomRow(row) {
 }
 
 function renderFooter() {
-  return `<footer class="workspace-footer"><span>Локальный визуальный прототип · данные не сохраняются после перезагрузки</span><span>Схема зоны ≠ схема размещения на участке</span></footer>`;
+  return `<footer class="workspace-footer"><span>Локальный визуальный прототип · данные не сохраняются после перезагрузки</span><span>Действия с пометкой «прототип» не выполняются</span><span>Схема зоны ≠ схема размещения на участке</span></footer>`;
 }
 
 async function boot() {
@@ -172,6 +172,7 @@ async function boot() {
     root.querySelectorAll('[data-action="select-zone"]').forEach(button => button.addEventListener('click', () => {
       state.selectedZoneId = button.dataset.zoneId;
       state.activeLayerId = null;
+      state.mobileSurface = 'editor';
       render();
     }));
     root.querySelectorAll('[data-action="toggle-layer"]').forEach(button => button.addEventListener('click', () => {
