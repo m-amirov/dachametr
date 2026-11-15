@@ -22,7 +22,7 @@ http://127.0.0.1:4173/artifacts/dachametr-workspace/side-by-side.html
 - `design-board.html` — tokens, typography, grid and component states;
 - `side-by-side.html` — actual PR #11 / PR #12 baseline against the new composition;
 - `reference-audit.md` — six official Rayon references with adopted and rejected moves.
-- `visual-audit.md` — independent composition audit with explicit PASS / NOT RUN / BLOCKED boundaries.
+- `visual-audit.md` — independent composition and geometry audit with explicit PASS / NOT RUN / BLOCKED boundaries.
 
 ## Data provenance
 
@@ -35,4 +35,4 @@ http://127.0.0.1:4173/artifacts/dachametr-workspace/side-by-side.html
 
 ## Evidence boundary
 
-Evidence under `evidence/latest/` records exact source SHA, Chromium, DPR, viewport, scrollWidth/clientWidth, console/request errors and PNG SHA-256. `BLOCKED / NOT RUN`: physical mobile device, real soft keyboard, assistive technology, production font rendering and working-app integration. OpenDesign Cloud generation is `NOT RUN`.
+Evidence under `evidence/latest/` records exact source SHA, Chromium, DPR, viewport, scrollWidth/clientWidth, console/request errors, PNG SHA-256 and `getBoundingClientRect()` geometry checks for both zones at 320, 390, 768, 1024 and 1440 px. `BLOCKED / NOT RUN`: physical mobile device, real soft keyboard, assistive technology, production font rendering and working-app integration. OpenDesign Cloud generation is `NOT RUN`.
