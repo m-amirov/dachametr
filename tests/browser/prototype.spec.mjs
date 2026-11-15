@@ -513,3 +513,62 @@ test('IME input composition does not replace a live input until the composed tex
   }
   expect(errors).toEqual([]);
 });
+
+test('desktop to mobile breakpoint keeps the focused editor or BOM surface without replacing inputs', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.setViewportSize({ width: 1024, height: 844 });
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const zone = await fillZone(page, 0, { name: 'Дорожка', length: '2', width: '5' });
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(zone, { material: 'sand', label: 'Песок', thickness: '10', packageL: '50' });
+  const input = zone.locator('[data-action="layer-field"][data-field="thickness"]');
+  const isSameNode = await input.evaluate(el => { el.dataset.resizeSentinel = 'retained'; return true; });
+  expect(isSameNode).toBe(true);
+  await input.focus();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByTestId('workspace-layout')).toHaveAttribute('data-mobile-surface', 'editor');
+  await expect(page.locator('[data-action="mobile-tab"][data-target="editor"]')).toHaveAttribute('aria-current', 'page');
+  await expect(input).toBeVisible();
+  await expect(input).toBeFocused();
+  await expect(input).toHaveAttribute('data-resize-sentinel', 'retained');
+  await input.fill('11');
+  await expect(input).toHaveValue('11');
+  await page.setViewportSize({ width: 1024, height: 844 });
+  await expect(input).toBeFocused();
+  const summary = page.getByTestId('bom-row').first().locator('.bom-details summary');
+  await summary.focus();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByTestId('workspace-layout')).toHaveAttribute('data-mobile-surface', 'bom');
+  await expect(page.locator('[data-action="mobile-tab"][data-target="bom"]')).toHaveAttribute('aria-current', 'page');
+  await expect(summary).toBeVisible();
+  await expect(summary).toBeFocused();
+  expect(errors).toEqual([]);
+});
+
+test('mobile to desktop and tablet to phone resize relocates hidden navigation focus', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.getByTestId('add-zone').click();
+  const editorTab = page.locator('[data-action="mobile-tab"][data-target="editor"]');
+  await editorTab.focus();
+  await page.setViewportSize({ width: 1024, height: 844 });
+  await expect(page.getByTestId('selected-zone-name')).toBeFocused();
+  await page.locator('[data-focus-key="plot-length"]').focus();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByTestId('workspace-layout')).toHaveAttribute('data-mobile-surface', 'zones');
+  await expect(page.locator('[data-focus-key="plot-length"]')).toBeFocused();
+  await page.setViewportSize({ width: 768, height: 1024 });
+  const jump = page.locator('.topbar .jump-result');
+  await expect(jump).toBeVisible();
+  await jump.focus();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(jump).toBeHidden();
+  await expect(page.getByTestId('workspace-layout')).toHaveAttribute('data-mobile-surface', 'bom');
+  await expect(page.locator('#result')).toBeVisible();
+  await expect(page.locator('#result')).toBeFocused();
+  expect(errors).toEqual([]);
+});
