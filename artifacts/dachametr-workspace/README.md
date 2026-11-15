@@ -22,6 +22,7 @@ http://127.0.0.1:4173/artifacts/dachametr-workspace/side-by-side.html
 - `design-board.html` — tokens, typography, grid and component states;
 - `side-by-side.html` — actual PR #11 / PR #12 baseline against the new composition;
 - `reference-audit.md` — six official Rayon references with adopted and rejected moves.
+- `visual-audit.md` — independent composition audit with explicit PASS / NOT RUN / BLOCKED boundaries.
 
 ## Data provenance
 

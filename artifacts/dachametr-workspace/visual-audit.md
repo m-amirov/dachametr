@@ -33,4 +33,4 @@
 - `NOT RUN`: production font rendering, assistive technology, физическое мобильное устройство, реальная экранная клавиатура, интеграция в рабочий Vite UI.
 - `BLOCKED`: OpenDesign Cloud — платный запуск не выполнялся; Market Gate 1 остаётся `BLOCKED` по проектным правилам.
 
-Точные viewport, Chromium, commit SHA исходников, размеры PNG и SHA-256 находятся в [evidence/latest/viewport-checks.json](./evidence/latest/viewport-checks.json) и [manifest.json](./evidence/latest/manifest.json). Эти файлы являются технической квитанцией конкретного запуска, а не заявлением о полноразмерном production QA.
+Точные viewport, Chromium, commit SHA исходников, размеры PNG и SHA-256 находятся в [evidence/latest/viewport-checks.json](./evidence/latest/viewport-checks.json). Этот файл является технической квитанцией конкретного запуска, а не заявлением о полноразмерном production QA.
