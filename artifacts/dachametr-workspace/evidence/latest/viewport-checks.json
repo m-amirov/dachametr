@@ -2,10 +2,10 @@
   "captureTool": "@playwright/test 1.65.0",
   "browser": "Chromium",
   "browserVersion": "158.0.8127.18",
-  "baseURL": "http://127.0.0.1:4173",
-  "sourceSha": "18cf091108e088bd4a233c7fd6eb93a2f1e7b3a8",
+  "baseURL": "http://127.0.0.1:4174",
+  "sourceSha": "0eeefe009a2a36d6f4832b18e8d2a0bf9104a43a",
   "dirtyBeforeCapture": false,
-  "sourceDigestSha256": "6906e14fb552d035e2dfb29cb098e40bd1566fda38201bbd56913ce0cdbb1a54",
+  "sourceDigestSha256": "21bdc2887df563c3cbd835fd8fa9c07594da8a94fd9c9d27d014f8b2234550c3",
   "sourceFiles": [
     {
       "file": "src/domain/plot.ts",
@@ -21,7 +21,7 @@
     },
     {
       "file": "artifacts/dachametr-workspace/app.js",
-      "sha256": "19712824f30e4c343c270bffc42eef079274454d65ba7827b045a71f7a517eaf"
+      "sha256": "8ad3893be4fdaebb5cfb73727bd808340d7e34e3eb92fc7c77768895e9e480ee"
     },
     {
       "file": "artifacts/dachametr-workspace/styles.css",
@@ -40,8 +40,8 @@
       "dpr": 1,
       "file": "artifacts/dachametr-workspace/evidence/latest/desktop-1440x900.png",
       "pixels": "1440x900",
-      "bytes": 76440,
-      "pngSha256": "591bb45bf52175940d6e80a2e7d5087dcd83917b9698556a46652139a99df844",
+      "bytes": 74271,
+      "pngSha256": "3acf6135ca3a52c906037d1ca649ad9030f37b83bb597012b90961e7564297a9",
       "horizontalOverflow": false,
       "geometry": {
         "scrollWidth": 1440,
@@ -59,8 +59,8 @@
       "dpr": 1,
       "file": "artifacts/dachametr-workspace/evidence/latest/desktop-material-1440x900.png",
       "pixels": "1440x900",
-      "bytes": 81985,
-      "pngSha256": "cd68e28f5794ece37859c988b92438cee843cf8e85d44dfa52d7d01116bb559e",
+      "bytes": 79885,
+      "pngSha256": "03ff2bcd56384beb02d02f1cb154c01ad59f3bdba7ad686eb5d547147d2e46bc",
       "horizontalOverflow": false,
       "geometry": {
         "scrollWidth": 1440,
@@ -78,8 +78,8 @@
       "dpr": 1,
       "file": "artifacts/dachametr-workspace/evidence/latest/mobile-390x844.png",
       "pixels": "390x844",
-      "bytes": 24323,
-      "pngSha256": "4450f29b5b024f0fe036fe89563d8ef36be5da80cf22f7db9b151eb74966bb72",
+      "bytes": 24985,
+      "pngSha256": "5240adaf46d223b2c920a59fa9b0e9bc397f79a0a83166a56ce7cc897013a045",
       "horizontalOverflow": false,
       "geometry": {
         "scrollWidth": 390,
@@ -116,8 +116,8 @@
       "dpr": 1,
       "file": "artifacts/dachametr-workspace/evidence/latest/mobile-path-390x844.png",
       "pixels": "390x844",
-      "bytes": 27924,
-      "pngSha256": "b49bf3c229c2788b6c7173f3258e8d44ebe2f8765672a0ceebf3675271803e02",
+      "bytes": 28799,
+      "pngSha256": "0b4f899ba50ffac57320fc50aef8d119c735f869f60713baa0c8365293a23efa",
       "horizontalOverflow": false,
       "geometry": {
         "scrollWidth": 390,
@@ -154,8 +154,8 @@
       "dpr": 1,
       "file": "artifacts/dachametr-workspace/evidence/latest/tablet-path-768x900.png",
       "pixels": "768x900",
-      "bytes": 34556,
-      "pngSha256": "85ab776d165917ceebf91768c38b6637a9fc3feb3ca28c60a8e5adcc08e83f50",
+      "bytes": 33857,
+      "pngSha256": "3173d24b65c66d3d2c66064723168578bcc30edb8bf2488c936ecc11e7c8c0e0",
       "horizontalOverflow": false,
       "geometry": {
         "scrollWidth": 768,
@@ -184,6 +184,528 @@
       },
       "consoleErrors": [],
       "requestFailures": []
+    }
+  ],
+  "geometryChecks": [
+    {
+      "viewport": "320x900",
+      "width": 320,
+      "zoneId": "bed",
+      "rectangle": {
+        "left": 40.046875,
+        "right": 147.953125,
+        "top": 422.421875,
+        "bottom": 476.375,
+        "width": 107.90625,
+        "height": 53.953125
+      },
+      "canvas": {
+        "left": 14,
+        "right": 174,
+        "top": 399.40625,
+        "bottom": 499.40625,
+        "width": 160,
+        "height": 100
+      },
+      "visualGrid": {
+        "top": 342.40625,
+        "bottom": 515.40625
+      },
+      "section": {
+        "left": 182,
+        "right": 306,
+        "top": 356.40625,
+        "bottom": 499.40625
+      },
+      "sectionOverlapsRectangle": false,
+      "measureRects": [
+        {
+          "left": 78.6640625,
+          "right": 109.3359375,
+          "top": 416.40625,
+          "bottom": 431.40625
+        },
+        {
+          "left": 40.8359375,
+          "right": 55.8359375,
+          "top": 434.0703125,
+          "bottom": 464.7421875
+        }
+      ],
+      "rectangleInsideCanvas": true,
+      "rectangleInsideVisualGrid": true,
+      "sectionInsideVisualGrid": true,
+      "measureLabelsInsideCanvas": true,
+      "aspectRatio": 2,
+      "pass": true
+    },
+    {
+      "viewport": "320x900",
+      "width": 320,
+      "zoneId": "path",
+      "rectangle": {
+        "left": 40.046875,
+        "right": 147.953125,
+        "top": 427.828125,
+        "bottom": 470.984375,
+        "width": 107.90625,
+        "height": 43.15625
+      },
+      "canvas": {
+        "left": 14,
+        "right": 174,
+        "top": 399.40625,
+        "bottom": 499.40625,
+        "width": 160,
+        "height": 100
+      },
+      "visualGrid": {
+        "top": 342.40625,
+        "bottom": 515.40625
+      },
+      "section": {
+        "left": 182,
+        "right": 306,
+        "top": 356.40625,
+        "bottom": 499.40625
+      },
+      "sectionOverlapsRectangle": false,
+      "measureRects": [
+        {
+          "left": 78.6640625,
+          "right": 109.3359375,
+          "top": 416.40625,
+          "bottom": 431.40625
+        },
+        {
+          "left": 40.8359375,
+          "right": 55.8359375,
+          "top": 434.0703125,
+          "bottom": 464.7421875
+        }
+      ],
+      "rectangleInsideCanvas": true,
+      "rectangleInsideVisualGrid": true,
+      "sectionInsideVisualGrid": true,
+      "measureLabelsInsideCanvas": true,
+      "aspectRatio": 2.500362056480811,
+      "pass": true
+    },
+    {
+      "viewport": "390x900",
+      "width": 390,
+      "zoneId": "bed",
+      "rectangle": {
+        "left": 48.4375,
+        "right": 209.546875,
+        "top": 394.125,
+        "bottom": 474.671875,
+        "width": 161.109375,
+        "height": 80.546875
+      },
+      "canvas": {
+        "left": 14,
+        "right": 244,
+        "top": 384.40625,
+        "bottom": 484.40625,
+        "width": 230,
+        "height": 100
+      },
+      "visualGrid": {
+        "top": 327.40625,
+        "bottom": 500.40625
+      },
+      "section": {
+        "left": 252,
+        "right": 376,
+        "top": 341.40625,
+        "bottom": 484.40625
+      },
+      "sectionOverlapsRectangle": false,
+      "measureRects": [
+        {
+          "left": 113.6640625,
+          "right": 144.3359375,
+          "top": 401.40625,
+          "bottom": 416.40625
+        },
+        {
+          "left": 40.8359375,
+          "right": 55.8359375,
+          "top": 419.0703125,
+          "bottom": 449.7421875
+        }
+      ],
+      "rectangleInsideCanvas": true,
+      "rectangleInsideVisualGrid": true,
+      "sectionInsideVisualGrid": true,
+      "measureLabelsInsideCanvas": true,
+      "aspectRatio": 2.0001939864209506,
+      "pass": true
+    },
+    {
+      "viewport": "390x900",
+      "width": 390,
+      "zoneId": "path",
+      "rectangle": {
+        "left": 48.4375,
+        "right": 209.546875,
+        "top": 402.1875,
+        "bottom": 466.625,
+        "width": 161.109375,
+        "height": 64.4375
+      },
+      "canvas": {
+        "left": 14,
+        "right": 244,
+        "top": 384.40625,
+        "bottom": 484.40625,
+        "width": 230,
+        "height": 100
+      },
+      "visualGrid": {
+        "top": 327.40625,
+        "bottom": 500.40625
+      },
+      "section": {
+        "left": 252,
+        "right": 376,
+        "top": 341.40625,
+        "bottom": 484.40625
+      },
+      "sectionOverlapsRectangle": false,
+      "measureRects": [
+        {
+          "left": 113.6640625,
+          "right": 144.3359375,
+          "top": 401.40625,
+          "bottom": 416.40625
+        },
+        {
+          "left": 40.8359375,
+          "right": 55.8359375,
+          "top": 419.0703125,
+          "bottom": 449.7421875
+        }
+      ],
+      "rectangleInsideCanvas": true,
+      "rectangleInsideVisualGrid": true,
+      "sectionInsideVisualGrid": true,
+      "measureLabelsInsideCanvas": true,
+      "aspectRatio": 2.500242483026188,
+      "pass": true
+    },
+    {
+      "viewport": "768x900",
+      "width": 768,
+      "zoneId": "bed",
+      "rectangle": {
+        "left": 212,
+        "right": 400,
+        "top": 396.40625,
+        "bottom": 490.40625,
+        "width": 188,
+        "height": 94
+      },
+      "canvas": {
+        "left": 14,
+        "right": 598,
+        "top": 387.40625,
+        "bottom": 499.40625,
+        "width": 584,
+        "height": 112
+      },
+      "visualGrid": {
+        "top": 330.40625,
+        "bottom": 515.40625
+      },
+      "section": {
+        "left": 608,
+        "right": 754,
+        "top": 344.40625,
+        "bottom": 499.40625
+      },
+      "sectionOverlapsRectangle": false,
+      "measureRects": [
+        {
+          "left": 290.6640625,
+          "right": 321.3359375,
+          "top": 404.40625,
+          "bottom": 419.40625
+        },
+        {
+          "left": 40.8359375,
+          "right": 55.8359375,
+          "top": 428.0703125,
+          "bottom": 458.7421875
+        }
+      ],
+      "rectangleInsideCanvas": true,
+      "rectangleInsideVisualGrid": true,
+      "sectionInsideVisualGrid": true,
+      "measureLabelsInsideCanvas": true,
+      "aspectRatio": 2,
+      "pass": true
+    },
+    {
+      "viewport": "768x900",
+      "width": 768,
+      "zoneId": "path",
+      "rectangle": {
+        "left": 188.5,
+        "right": 423.5,
+        "top": 396.40625,
+        "bottom": 490.40625,
+        "width": 235,
+        "height": 94
+      },
+      "canvas": {
+        "left": 14,
+        "right": 598,
+        "top": 387.40625,
+        "bottom": 499.40625,
+        "width": 584,
+        "height": 112
+      },
+      "visualGrid": {
+        "top": 330.40625,
+        "bottom": 515.40625
+      },
+      "section": {
+        "left": 608,
+        "right": 754,
+        "top": 344.40625,
+        "bottom": 499.40625
+      },
+      "sectionOverlapsRectangle": false,
+      "measureRects": [
+        {
+          "left": 290.6640625,
+          "right": 321.3359375,
+          "top": 404.40625,
+          "bottom": 419.40625
+        },
+        {
+          "left": 40.8359375,
+          "right": 55.8359375,
+          "top": 428.0703125,
+          "bottom": 458.7421875
+        }
+      ],
+      "rectangleInsideCanvas": true,
+      "rectangleInsideVisualGrid": true,
+      "sectionInsideVisualGrid": true,
+      "measureLabelsInsideCanvas": true,
+      "aspectRatio": 2.5,
+      "pass": true
+    },
+    {
+      "viewport": "1024x900",
+      "width": 1024,
+      "zoneId": "bed",
+      "rectangle": {
+        "left": 282.546875,
+        "right": 463.421875,
+        "top": 432.875,
+        "bottom": 523.3125,
+        "width": 180.875,
+        "height": 90.4375
+      },
+      "canvas": {
+        "left": 245,
+        "right": 500.984375,
+        "top": 388.09375,
+        "bottom": 568.09375,
+        "width": 255.984375,
+        "height": 180
+      },
+      "visualGrid": {
+        "top": 328.09375,
+        "bottom": 642.625
+      },
+      "section": {
+        "left": 512.984375,
+        "right": 692.984375,
+        "top": 350.09375,
+        "bottom": 616.625
+      },
+      "sectionOverlapsRectangle": false,
+      "measureRects": [
+        {
+          "left": 357.6484375,
+          "right": 388.3203125,
+          "top": 405.09375,
+          "bottom": 420.09375
+        },
+        {
+          "left": 271.8359375,
+          "right": 286.8359375,
+          "top": 462.7578125,
+          "bottom": 493.4296875
+        }
+      ],
+      "rectangleInsideCanvas": true,
+      "rectangleInsideVisualGrid": true,
+      "sectionInsideVisualGrid": true,
+      "measureLabelsInsideCanvas": true,
+      "aspectRatio": 2,
+      "pass": true
+    },
+    {
+      "viewport": "1024x900",
+      "width": 1024,
+      "zoneId": "path",
+      "rectangle": {
+        "left": 282.546875,
+        "right": 463.421875,
+        "top": 441.921875,
+        "bottom": 514.265625,
+        "width": 180.875,
+        "height": 72.34375
+      },
+      "canvas": {
+        "left": 245,
+        "right": 500.984375,
+        "top": 388.09375,
+        "bottom": 568.09375,
+        "width": 255.984375,
+        "height": 180
+      },
+      "visualGrid": {
+        "top": 328.09375,
+        "bottom": 642.625
+      },
+      "section": {
+        "left": 512.984375,
+        "right": 692.984375,
+        "top": 350.09375,
+        "bottom": 616.625
+      },
+      "sectionOverlapsRectangle": false,
+      "measureRects": [
+        {
+          "left": 357.6484375,
+          "right": 388.3203125,
+          "top": 405.09375,
+          "bottom": 420.09375
+        },
+        {
+          "left": 271.8359375,
+          "right": 286.8359375,
+          "top": 462.7578125,
+          "bottom": 493.4296875
+        }
+      ],
+      "rectangleInsideCanvas": true,
+      "rectangleInsideVisualGrid": true,
+      "sectionInsideVisualGrid": true,
+      "measureLabelsInsideCanvas": true,
+      "aspectRatio": 2.5002159827213823,
+      "pass": true
+    },
+    {
+      "viewport": "1440x900",
+      "width": 1440,
+      "zoneId": "bed",
+      "rectangle": {
+        "left": 361.625,
+        "right": 685.625,
+        "top": 361.234375,
+        "bottom": 523.234375,
+        "width": 324,
+        "height": 162
+      },
+      "canvas": {
+        "left": 278,
+        "right": 769.265625,
+        "top": 352.234375,
+        "bottom": 532.234375,
+        "width": 491.265625,
+        "height": 180
+      },
+      "visualGrid": {
+        "top": 307.234375,
+        "bottom": 606.921875
+      },
+      "section": {
+        "left": 787.265625,
+        "right": 1067.984375,
+        "top": 329.234375,
+        "bottom": 580.921875
+      },
+      "sectionOverlapsRectangle": false,
+      "measureRects": [
+        {
+          "left": 508.2890625,
+          "right": 538.9609375,
+          "top": 369.234375,
+          "bottom": 384.234375
+        },
+        {
+          "left": 304.8359375,
+          "right": 319.8359375,
+          "top": 426.8984375,
+          "bottom": 457.5703125
+        }
+      ],
+      "rectangleInsideCanvas": true,
+      "rectangleInsideVisualGrid": true,
+      "sectionInsideVisualGrid": true,
+      "measureLabelsInsideCanvas": true,
+      "aspectRatio": 2,
+      "pass": true
+    },
+    {
+      "viewport": "1440x900",
+      "width": 1440,
+      "zoneId": "path",
+      "rectangle": {
+        "left": 343.890625,
+        "right": 703.359375,
+        "top": 370.34375,
+        "bottom": 514.125,
+        "width": 359.46875,
+        "height": 143.78125
+      },
+      "canvas": {
+        "left": 278,
+        "right": 769.265625,
+        "top": 352.234375,
+        "bottom": 532.234375,
+        "width": 491.265625,
+        "height": 180
+      },
+      "visualGrid": {
+        "top": 307.234375,
+        "bottom": 606.921875
+      },
+      "section": {
+        "left": 787.265625,
+        "right": 1067.984375,
+        "top": 329.234375,
+        "bottom": 580.921875
+      },
+      "sectionOverlapsRectangle": false,
+      "measureRects": [
+        {
+          "left": 508.2890625,
+          "right": 538.9609375,
+          "top": 369.234375,
+          "bottom": 384.234375
+        },
+        {
+          "left": 304.8359375,
+          "right": 319.8359375,
+          "top": 426.8984375,
+          "bottom": 457.5703125
+        }
+      ],
+      "rectangleInsideCanvas": true,
+      "rectangleInsideVisualGrid": true,
+      "sectionInsideVisualGrid": true,
+      "measureLabelsInsideCanvas": true,
+      "aspectRatio": 2.50010867202782,
+      "pass": true
     }
   ],
   "gates": {
