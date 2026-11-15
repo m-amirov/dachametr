@@ -551,8 +551,9 @@ export function mountApp(root: HTMLElement): void {
   // would discard the active input, caret and native keyboard composition.
   window.addEventListener('resize', () => {
     const isMobile = window.matchMedia('(max-width: 820px)').matches;
-    if (isMobile !== wasMobile) {
-      const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const headerLinkHidden = isMobile && active?.matches('.jump-result') && window.matchMedia('(max-width: 430px)').matches;
+    if (isMobile !== wasMobile || headerLinkHidden) {
       if (isMobile) {
         if (active?.closest('.editor-surface')) mobileSurface = 'editor';
         else if (active?.closest('.results-column') || active?.matches('.jump-result')) mobileSurface = 'bom';
@@ -570,8 +571,9 @@ export function mountApp(root: HTMLElement): void {
         if (mobileSurface === 'zones') moveFocus('plot-length');
         else if (mobileSurface === 'editor') root.querySelector<HTMLElement>('[data-testid="selected-zone-name"]')?.focus();
         else root.querySelector<HTMLElement>('#result')?.focus();
-      } else if (isMobile && active?.matches('.jump-result') && window.matchMedia('(max-width: 430px)').matches) {
-        // The header BOM link disappears on narrow phones.
+      } else if (headerLinkHidden) {
+        // The header BOM link disappears below 431px, even when the screen
+        // was already in tablet mode before this resize.
         root.querySelector<HTMLElement>('#result')?.focus();
       }
       wasMobile = isMobile;
