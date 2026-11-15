@@ -331,3 +331,64 @@ test('mobile layer edit and delete actions do not overlap at 320px', async ({ pa
   await remove.click();
   await expect(zone.getByTestId('layer-card')).toHaveCount(0);
 });
+
+test('mobile keyboard navigation retains focus after tab render and zone selection', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const editorTab = page.locator('[data-action="mobile-tab"][data-target="editor"]');
+  const zonesTab = page.locator('[data-action="mobile-tab"][data-target="zones"]');
+  await editorTab.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator(':focus')).toHaveAttribute('data-focus-key', 'mobile-tab-editor');
+  await expect(page.getByTestId('zone-editor')).toBeVisible();
+  await page.keyboard.press('Shift+Tab');
+  await expect(page.locator(':focus')).toHaveAttribute('data-target', 'zones');
+  await page.keyboard.press('Enter');
+  await expect(page.locator(':focus')).toHaveAttribute('data-focus-key', 'mobile-tab-zones');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+  await zonesTab.click();
+  const zoneSelect = page.locator('[data-action="select-zone"]').first();
+  await zoneSelect.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator(':focus')).toHaveAttribute('data-testid', 'selected-zone-name');
+  await expect(page.getByTestId('selected-zone-name')).toHaveText('Грядка');
+  await expect(page.getByTestId('zone-editor')).toBeVisible();
+});
+
+test('tablet jump to BOM reveals the hidden panel and focuses it, desktop anchor remains native', async ({ page }) => {
+  await page.setViewportSize({ width: 768, height: 900 });
+  await page.goto('/');
+  const jump = page.locator('.topbar .jump-result');
+  await expect(jump).toHaveAttribute('href', '#result');
+  await jump.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('workspace-layout')).toHaveAttribute('data-mobile-surface', 'bom');
+  await expect(page.locator('#result')).toBeVisible();
+  await expect(page.locator(':focus')).toHaveAttribute('id', 'result');
+  await page.setViewportSize({ width: 1024, height: 900 });
+  await page.goto('/');
+  await page.locator('.topbar .jump-result').click();
+  await expect(page).toHaveURL(/#result$/);
+  await expect(page.locator('#result')).toBeVisible();
+});
+
+test('three-pane workspace fits widths just above mobile breakpoint', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  for (const width of [821, 834, 900, 990, 1100]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    await field(page, 'plot-field', 'length').fill('20');
+    await field(page, 'plot-field', 'width').fill('30');
+    await page.getByTestId('add-zone').click();
+    const zone = await fillZone(page, 0, { name: 'Дорожка', length: '2', width: '5' });
+    await zone.getByRole('button', { name: 'Добавить слой' }).click();
+    await fillLayer(zone, { material: 'sand', label: 'Песок', thickness: '10', reserve: '5', packageL: '50' });
+    await expect(page.getByTestId('result-panel')).toBeVisible();
+    const metrics = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
+    expect(metrics.scroll, 'horizontal overflow at ' + width).toBeLessThanOrEqual(metrics.client);
+  }
+  expect(errors).toEqual([]);
+});
