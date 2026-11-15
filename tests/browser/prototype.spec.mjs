@@ -392,3 +392,61 @@ test('three-pane workspace fits widths just above mobile breakpoint', async ({ p
   }
   expect(errors).toEqual([]);
 });
+
+test('adding, deleting and resetting workspace items retains keyboard focus on a usable control', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  for (const width of [390, 1024]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    await page.getByTestId('add-zone').click();
+    const zone = page.getByTestId('zone-card').first();
+    const name = zone.locator('[data-action="zone-field"][data-field="name"]');
+    await expect(name).toBeFocused();
+
+    await zone.getByRole('button', { name: 'Добавить слой' }).click();
+    const layer = zone.getByTestId('layer-card').first();
+    await expect(layer.locator('[data-action="link-material"]')).toBeFocused();
+
+    await layer.getByRole('button', { name: 'Удалить слой 1' }).click();
+    await expect(zone.getByRole('button', { name: 'Добавить слой' })).toBeFocused();
+
+    await page.locator('.editor-actions [data-action="remove-zone"]').click();
+    await expect(page.locator('[data-focus-key="plot-length"]')).toBeFocused();
+    await page.getByTestId('add-zone').click();
+    await expect(zone.locator('[data-action="zone-field"][data-field="name"]')).toBeFocused();
+
+    page.once('dialog', dialog => dialog.accept());
+    await page.locator('.editor-actions [data-action="reset"]').click();
+    await expect(page.locator('[data-focus-key="plot-length"]')).toBeFocused();
+    await expect(page.getByTestId('zone-card')).toHaveCount(0);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('layer diagram control preserves keyboard focus through DOM replacement', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  for (const width of [390, 1024]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    await field(page, 'plot-field', 'length').fill('20');
+    await field(page, 'plot-field', 'width').fill('30');
+    await page.getByTestId('add-zone').click();
+    const zone = await fillZone(page, 0, { name: 'Дорожка', length: '2', width: '5' });
+    await zone.getByRole('button', { name: 'Добавить слой' }).click();
+    await fillLayer(zone, { material: 'sand', label: 'Песок', thickness: '10', reserve: '5', packageL: '50' });
+    const diagramLayer = page.locator('.section-layer').first();
+    await expect(diagramLayer).toBeVisible();
+    await diagramLayer.focus();
+    await page.keyboard.press('Enter');
+    await expect(diagramLayer).toBeFocused();
+    await expect(zone.getByTestId('layer-card').first().locator('.layer-edit')).toBeHidden();
+    await page.keyboard.press('Enter');
+    await expect(diagramLayer).toBeFocused();
+    await expect(zone.getByTestId('layer-card').first().locator('.layer-edit')).toBeVisible();
+    const before = await zone.locator('[data-action="zone-field"][data-field="name"]').inputValue();
+    await page.locator('form.calculator-form').evaluate(form => form.requestSubmit());
+    await expect(zone.locator('[data-action="zone-field"][data-field="name"]')).toHaveValue(before);
+    await expect(page).toHaveURL(/\/$/);
+  }
+  expect(errors).toEqual([]);
+});
