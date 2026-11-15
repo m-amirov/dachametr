@@ -381,6 +381,7 @@ export function mountApp(root: HTMLElement): void {
   const openLayerIds = new Set<string>();
   const openBomKeys = new Set<string>();
   let mobileSurface: 'zones' | 'editor' | 'bom' = 'zones';
+  let wasMobile = window.matchMedia('(max-width: 820px)').matches;
   const render = (focus?: FocusSnapshot) => {
     // Read native details state before replacing DOM, including across transient
     // invalid inputs where BOM is intentionally hidden by fail-closed validation.
@@ -545,6 +546,37 @@ export function mountApp(root: HTMLElement): void {
     }
   });
 
-  window.addEventListener('resize', () => fitZoneRectangles(root), { passive: true });
+  // A width change can hide the focused desktop panel via mobile CSS. Keep
+  // that panel visible and update tab state in-place: rebuilding the DOM here
+  // would discard the active input, caret and native keyboard composition.
+  window.addEventListener('resize', () => {
+    const isMobile = window.matchMedia('(max-width: 820px)').matches;
+    if (isMobile !== wasMobile) {
+      const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      if (isMobile) {
+        if (active?.closest('.editor-surface')) mobileSurface = 'editor';
+        else if (active?.closest('.results-column') || active?.matches('.jump-result')) mobileSurface = 'bom';
+        else if (active?.closest('.structure-panel')) mobileSurface = 'zones';
+      }
+      const layout = root.querySelector<HTMLElement>('.workspace-app');
+      if (layout) layout.dataset.mobileSurface = mobileSurface;
+      for (const tab of Array.from(root.querySelectorAll<HTMLButtonElement>('[data-action="mobile-tab"]'))) {
+        const selected = tab.dataset.target === mobileSurface;
+        tab.classList.toggle('is-active', selected);
+        tab.setAttribute('aria-current', selected ? 'page' : 'false');
+      }
+      if (!isMobile && active?.closest('.mobile-tabs')) {
+        // Mobile navigation is hidden on desktop; move focus to its destination.
+        if (mobileSurface === 'zones') moveFocus('plot-length');
+        else if (mobileSurface === 'editor') root.querySelector<HTMLElement>('[data-testid="selected-zone-name"]')?.focus();
+        else root.querySelector<HTMLElement>('#result')?.focus();
+      } else if (isMobile && active?.matches('.jump-result') && window.matchMedia('(max-width: 430px)').matches) {
+        // The header BOM link disappears on narrow phones.
+        root.querySelector<HTMLElement>('#result')?.focus();
+      }
+      wasMobile = isMobile;
+    }
+    fitZoneRectangles(root);
+  }, { passive: true });
   render();
 }
