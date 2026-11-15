@@ -47,14 +47,11 @@ function decimalDivide(value: string, divisor: string): string {
   }
 }
 
-function errorFor(validation: DraftValidation, path: string): boolean {
-  return validation.errors.some(error => error.path === path);
-}
-
 interface ViewState {
   openZoneId: string | null;
   openLayerIds: ReadonlySet<string>;
   openBomKeys?: ReadonlySet<string>;
+  mobileSurface?: 'zones' | 'editor' | 'bom';
 }
 
 function draftError(validation: DraftValidation, path: string): string | undefined {
@@ -117,12 +114,15 @@ function renderLayer(state: AppState, zone: ZoneDraft, layer: LayerDraft, layerI
   const detail = layerDetail(validation, zone.id, layer.id);
   const expanded = view.openLayerIds.has(layer.id);
   const editId = `layer-editor-${layer.id}`;
-  return `<fieldset class="layer-card" data-testid="layer-card" data-layer-id="${escapeHtml(layer.id)}">
-    <legend><span class="layer-number">Слой ${layerIndex + 1}</span><button type="button" class="button button-text danger" data-action="remove-layer" data-zone-id="${escapeHtml(zone.id)}" data-layer-id="${escapeHtml(layer.id)}">Удалить</button></legend>
+  const materialLabelError = draftError(validation, `${prefix}.material_spec_label`);
+  const materialLabelErrorId = `error-label-${layer.id}`;
+  return `<section class="layer-card" data-testid="layer-card" data-layer-id="${escapeHtml(layer.id)}" role="group" aria-label="Слой ${layerIndex + 1}">
     <div class="layer-summary">
+      <span class="layer-number">${String(layerIndex + 1).padStart(2, '0')}</span>
       <span class="material-swatch material-${escapeHtml(spec.material)}" aria-hidden="true"></span>
       <div class="layer-summary-copy"><strong>${escapeHtml(spec.label || MATERIAL_LABELS[spec.material])}</strong><span>${escapeHtml(MATERIAL_LABELS[spec.material])} · ${layer.thickness ? escapeHtml(layer.thickness) + ' см' : 'укажите толщину'}${detail ? ' · ' + formatUnit(detail.purchase_l, 'л') + ' с запасом' : ''}</span></div>
       <button type="button" class="button button-secondary layer-toggle" data-action="toggle-layer" data-zone-id="${escapeHtml(zone.id)}" data-layer-id="${escapeHtml(layer.id)}" data-focus-key="toggle-layer-${escapeHtml(layer.id)}" aria-controls="${escapeHtml(editId)}" aria-expanded="${expanded}">${expanded ? 'Скрыть' : 'Настроить'}</button>
+      <button type="button" class="layer-remove" data-action="remove-layer" data-zone-id="${escapeHtml(zone.id)}" data-layer-id="${escapeHtml(layer.id)}" aria-label="Удалить слой ${layerIndex + 1}" title="Удалить слой">×</button>
     </div>
     <div class="layer-edit" id="${escapeHtml(editId)}"${expanded ? '' : ' hidden'}>
     ${renderMaterialSource(state, layer).replace('data-zone-id=""', `data-zone-id="${escapeHtml(zone.id)}"`)}
@@ -135,7 +135,8 @@ function renderLayer(state: AppState, zone: ZoneDraft, layer: LayerDraft, layerI
       </div>
       <div class="field field-wide-mobile">
         <label for="label-${escapeHtml(layer.id)}">Название варианта материала</label>
-        <input id="label-${escapeHtml(layer.id)}" data-action="material-field" data-field="label" data-material-id="${escapeHtml(spec.id)}" data-focus-key="label-${escapeHtml(layer.id)}" value="${escapeHtml(spec.label)}" type="text" autocomplete="off" maxlength="80" aria-invalid="${errorFor(validation, `${prefix}.material_spec_label`) ? 'true' : 'false'}" />
+        <input id="label-${escapeHtml(layer.id)}" data-action="material-field" data-field="label" data-material-id="${escapeHtml(spec.id)}" data-focus-key="label-${escapeHtml(layer.id)}" value="${escapeHtml(spec.label)}" type="text" autocomplete="off" maxlength="80" aria-invalid="${materialLabelError ? 'true' : 'false'}"${materialLabelError ? ` aria-describedby="${escapeHtml(materialLabelErrorId)}"` : ''} />
+        ${materialLabelError ? `<p class="field-error" id="${escapeHtml(materialLabelErrorId)}">${escapeHtml(materialLabelError)}</p>` : ''}
       </div>
       ${inputField({ id: fieldId('thickness', layer.id), label: 'Толщина слоя', value: layer.thickness, action: 'layer-field', field: 'thickness', focusKey: `thickness-${layer.id}`, path: `${prefix}.thickness_cm`, validation, unit: 'см', zoneId: zone.id, layerId: layer.id })}
       ${inputField({ id: fieldId('reserve', layer.id), label: 'Запас', value: layer.reserve, action: 'layer-field', field: 'reserve', focusKey: `reserve-${layer.id}`, path: `${prefix}.reserve_percent`, validation, unit: '%', zoneId: zone.id, layerId: layer.id })}
@@ -147,7 +148,7 @@ function renderLayer(state: AppState, zone: ZoneDraft, layer: LayerDraft, layerI
       <strong>${detail ? `${formatUnit(detail.net_l, 'л')} чистого → ${formatUnit(detail.purchase_l, 'л')} с запасом` : 'Заполните поля, чтобы увидеть объём'}</strong>
     </div>
     </div>
-  </fieldset>`;
+  </section>`;
 }
 
 function renderZone(state: AppState, zone: ZoneDraft, zoneIndex: number, validation: DraftValidation, view: ViewState): string {
@@ -174,7 +175,7 @@ function renderZone(state: AppState, zone: ZoneDraft, zoneIndex: number, validat
       ${inputField({ id: `zone-width-${zone.id}`, label: 'Ширина', value: zone.width, action: 'zone-field', field: 'width', focusKey: `zone-width-${zone.id}`, path: `${prefix}.width_m`, validation, unit: 'м', zoneId: zone.id })}
     </div>
     <div class="zone-area"><span>Площадь зоны</span><strong>${detail ? formatUnit(detail.area_m2, 'м²') : '—'}</strong></div>
-    <div class="layers-heading"><div><span class="eyebrow">СЛОИ И МАТЕРИАЛЫ</span><p>Каждый вариант и его фракция считаются отдельно.</p></div><button type="button" class="button button-secondary" data-action="add-layer" data-zone-id="${escapeHtml(zone.id)}">Добавить слой</button></div>
+    <div class="layers-heading"><div><span class="eyebrow">СЛОИ И МАТЕРИАЛЫ</span><p>Каждый вариант и его фракция считаются отдельно.</p></div><button type="button" class="button button-secondary" data-action="add-layer" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="add-layer-${escapeHtml(zone.id)}">Добавить слой</button></div>
     ${zone.layers.length === 0 ? '<div class="empty-inline">В этой зоне пока нет слоёв. Добавьте грунт, песок или щебень.</div>' : zone.layers.map((layer, layerIndex) => renderLayer(state, zone, layer, layerIndex, zoneIndex, validation, view)).join('')}
     </div>
   </article>`;
@@ -215,15 +216,15 @@ function renderZoneBreakdown(state: AppState, value: DetailedCalculated): string
 function renderResults(state: AppState, validation: DraftValidation, view: ViewState): string {
   if (!validation.valid || !validation.result?.ok) {
     const hasDraftInput = state.plot.length.trim() !== '' || state.plot.width.trim() !== '' || state.zones.length > 0;
-    if (!hasDraftInput) return `<aside class="results-column" id="result"><section class="panel result-empty"><span class="eyebrow">РЕЗУЛЬТАТ</span><h2>Ведомость появится здесь</h2><p>Укажите размеры, добавьте зону и слой материала. Результат обновится автоматически.</p></section></aside>`;
+    if (!hasDraftInput) return `<aside class="results-column" id="result" tabindex="-1" aria-label="Ведомость закупки"><section class="panel result-empty bom-surface"><span class="eyebrow">РЕЗУЛЬТАТ</span><h2>Ведомость появится здесь</h2><p>Укажите размеры, добавьте зону и слой материала. Результат обновится автоматически.</p></section></aside>`;
     const error = validation.errors[0];
-    return `<aside class="results-column" id="result"><section class="panel result-blocked" data-testid="blocked-results" aria-live="assertive"><span class="eyebrow">РЕЗУЛЬТАТ ЗАБЛОКИРОВАН</span><h2>Сначала исправьте ввод</h2><p id="error-summary">Исправьте ошибки, чтобы получить итоговую ведомость. Частичный расчёт не показываем как готовую закупку.</p>${error ? `<p class="error-detail">${escapeHtml(error.message)} <code>${escapeHtml(error.path)}</code></p>` : ''}</section></aside>`;
+    return `<aside class="results-column" id="result" tabindex="-1" aria-label="Ведомость закупки"><section class="panel result-blocked bom-surface" data-testid="blocked-results" aria-live="assertive"><span class="eyebrow">РЕЗУЛЬТАТ ЗАБЛОКИРОВАН</span><h2>Сначала исправьте ввод</h2><p id="error-summary">Исправьте ошибки, чтобы получить итоговую ведомость. Частичный расчёт не показываем как готовую закупку.</p>${error ? `<p class="error-detail">${escapeHtml(error.message)} <code>${escapeHtml(error.path)}</code></p>` : ''}</section></aside>`;
   }
   const value = validation.result.value;
   const sotki = decimalDivide(value.plot_area_m2, '100');
   const totalPurchase = value.bom.reduce((sum, row) => sum.add(Exact.decimal(row.purchase_l)), new Exact(0n)).toString();
   const totalPackages = sumWholePackages(value.bom.map(row => row.packages));
-  return `<aside class="results-column" id="result" data-testid="result-panel"><section class="panel result-panel">
+  return `<aside class="results-column" id="result" tabindex="-1" aria-label="Ведомость закупки" data-testid="result-panel"><section class="panel result-panel bom-surface">
     <div class="result-heading"><div><span class="eyebrow">ВАШ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><span class="live-dot">Обновляется</span></div>
     <div class="result-lead"><div><span>Всего нужно с запасом</span><strong>${formatUnit(totalPurchase, 'л')}</strong></div>${totalPackages !== null ? `<div class="total-packages"><span>Упаковок</span><strong>${formatRuNumber(totalPackages)} уп.</strong></div>` : '<div class="total-packages"><span>Упаковки</span><strong>По материалам</strong></div>'}</div>
     <div class="area-summary"><div><span>Участок</span><strong>${formatUnit(value.plot_area_m2, 'м²')}</strong></div><div><span>Сотки</span><strong>${formatUnit(sotki, 'сотки')}</strong></div><div><span>Зоны</span><strong>${state.zones.length}</strong></div></div>
@@ -233,34 +234,122 @@ function renderResults(state: AppState, validation: DraftValidation, view: ViewS
   </section></aside>`;
 }
 
-export function renderAppHtml(state: AppState, validation: DraftValidation, view: ViewState = { openZoneId: state.zones[0]?.id ?? null, openLayerIds: new Set(state.zones.flatMap(zone => zone.layers.map(layer => layer.id))) }): string {
-  return `<div class="app-shell">
-    <header class="site-header">
-      <a class="brand" href="#top" aria-label="Дачаметр, к началу"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span><h1>Дачаметр</h1><small>расчёт участка и закупки</small></span></a>
-      <div class="session-note"><span class="status-dot"></span><span>Локальный расчёт</span><button type="button" class="button button-text" data-action="reset">Сбросить</button></div>
-    </header>
-    <main id="top">
-      <section class="intro" aria-labelledby="intro-title">
-        <div><span class="eyebrow">КАЛЬКУЛЯТОР МАТЕРИАЛОВ</span><h2 id="intro-title">Рассчитайте материалы <em>для участка</em></h2><p>Размеры, зоны и закупка — в одном рабочем пространстве.</p></div>
-        <a class="jump-result" href="#result">К ведомости <span aria-hidden="true">↓</span></a>
-      </section>
-      <div class="workspace"><section class="editor-column"><form class="calculator-form" novalidate>
-        <section class="panel plot-section">
-          <div class="section-title"><span class="eyebrow">УЧАСТОК</span><h2>Размеры участка</h2></div>
-          <div class="field-grid two-columns">
-            ${inputField({ id: 'plot-length', label: 'Длина участка', value: state.plot.length, action: 'plot-field', field: 'length', focusKey: 'plot-length', path: 'plot.length_m', validation, unit: 'м' })}
-            ${inputField({ id: 'plot-width', label: 'Ширина участка', value: state.plot.width, action: 'plot-field', field: 'width', focusKey: 'plot-width', path: 'plot.width_m', validation, unit: 'м' })}
-          </div>
-          <div class="plot-readout"><span>Площадь участка</span><strong>${validation.result?.ok ? formatUnit(validation.result.value.plot_area_m2, 'м²') : '—'}</strong><span>${validation.result?.ok ? `≈ ${formatUnit(decimalDivide(validation.result.value.plot_area_m2, '100'), 'сотки')}` : 'Введите оба размера'}</span></div>
-        </section>
-        <section class="zone-section">
-          <div class="section-title zones-title"><div><span class="eyebrow">ЗОНЫ</span><h2>Зоны <span class="count-badge">${state.zones.length}</span></h2><p>Грядки, дорожки и другие прямоугольные области.</p></div><button type="button" class="button button-primary" data-action="add-zone" data-testid="add-zone">+ Добавить зону</button></div>
-          ${state.zones.length === 0 ? '<div class="empty-zones"><div><h3>Начните с первой зоны</h3><p>Назовите её, задайте размеры и добавьте слой грунта, песка или щебня.</p></div><button type="button" class="button button-secondary" data-action="add-zone">Добавить первую зону</button></div>' : state.zones.map((zone, index) => renderZone(state, zone, index, validation, view)).join('')}
-        </section>
-      </form></section>${renderResults(state, validation, view)}</div>
-    </main>
-    <footer class="site-footer"><span>Площадь × толщина = объём слоя. Запас и плотность указываете сами.</span><span>Нет сохранения после перезагрузки · нет внешних запросов</span></footer>
+
+function renderProjectStructure(state: AppState, validation: DraftValidation, view: ViewState): string {
+  const activeId = view.openZoneId ?? state.zones[0]?.id;
+  const area = validation.result?.ok ? validation.result.value.plot_area_m2 : null;
+  return `<aside class="structure-panel" data-testid="structure-panel" aria-label="Структура участка">
+    <div class="panel-label-row"><span class="eyebrow">СТРУКТУРА ПРОЕКТА</span><button type="button" class="icon-button" data-action="add-zone" title="Добавить зону" aria-label="Добавить зону">+</button></div>
+    <div class="project-heading"><span class="project-glyph" aria-hidden="true">▱</span><div><strong>Участок</strong><small>Рабочий расчёт · без сохранения</small></div></div>
+    <div class="project-meta"><div><span>Габариты</span><strong>${state.plot.length && state.plot.width ? `${escapeHtml(state.plot.length)} × ${escapeHtml(state.plot.width)} м` : '—'}</strong></div><div><span>Площадь</span><strong>${area === null ? '—' : formatUnit(area, 'м²')}</strong></div></div>
+    <div class="project-dimensions" aria-label="Размеры участка">
+      ${inputField({id:'plot-length',label:'Длина участка',value:state.plot.length,action:'plot-field',field:'length',focusKey:'plot-length',path:'plot.length_m',validation,unit:'м'})}
+      ${inputField({id:'plot-width',label:'Ширина участка',value:state.plot.width,action:'plot-field',field:'width',focusKey:'plot-width',path:'plot.width_m',validation,unit:'м'})}
+    </div>
+    <div class="structure-divider"></div>
+    <div class="list-heading"><span>ЗОНЫ</span><span class="list-count">${state.zones.length}</span></div>
+    <nav class="zone-list" aria-label="Зоны участка">
+      ${state.zones.map((zone,index)=>{
+        const detail=zoneDetail(validation,zone.id);
+        const selected=zone.id===activeId;
+        return `<button type="button" class="zone-row${selected?' is-selected':''}" data-action="select-zone" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="select-zone-${escapeHtml(zone.id)}" aria-current="${selected?'true':'false'}" aria-label="Выбрать зону ${escapeHtml(zone.name)}"><span class="zone-index">${String(index+1).padStart(2,'0')}</span><span class="zone-row-copy"><strong>${escapeHtml(zone.name||'Без названия')}</strong><small>${escapeHtml(zone.length||'—')} × ${escapeHtml(zone.width||'—')} м</small></span><span class="zone-row-metric"><strong>${detail?formatUnit(detail.area_m2,'м²'):'—'}</strong><small>${zone.layers.length} сл.</small></span><span class="row-chevron" aria-hidden="true">›</span></button>`;
+      }).join('')}
+    </nav>
+    <button type="button" class="add-zone-button" data-action="add-zone" data-testid="add-zone">+ Добавить зону</button>
+    <div class="structure-footer"><span class="tiny-dot"></span><span>Зоны не размещаются на карте автоматически</span></div>
+  </aside>`;
+}
+
+function renderMobileTabs(active: 'zones' | 'editor' | 'bom'): string {
+  return `<nav class="mobile-tabs" aria-label="Разделы калькулятора">
+    ${([['zones','Зоны'],['editor','Редактор'],['bom','Ведомость']] as const).map(([key,label])=>
+      `<button type="button" data-action="mobile-tab" data-target="${key}" data-focus-key="mobile-tab-${key}" class="mobile-tab${active===key?' is-active':''}" aria-current="${active===key?'page':'false'}">${label}</button>`
+    ).join('')}
+  </nav>`;
+}
+
+function renderZoneFigure(state: AppState, zone: ZoneDraft, validation: DraftValidation): string {
+  const detail=zoneDetail(validation,zone.id);
+  if (!detail) return '<p class="figure-placeholder">Схема размеров появится после корректного заполнения полей. Недостоверные размеры не отображаются.</p>';
+  const length=Number(zone.length.replace(',','.')), width=Number(zone.width.replace(',','.'));
+  if (!Number.isFinite(length) || !Number.isFinite(width) || length<=0 || width<=0) return '';
+  const ratio=width/length;
+  const layers=zone.layers.map(layer=>{
+    const spec=state.materials.find(item=>item.id===layer.materialSpecId);
+    const visual=Number(layer.thickness.replace(',','.'));
+    if(!spec || !Number.isFinite(visual) || visual<=0) return null;
+    return {id:layer.id,name:spec.label||MATERIAL_LABELS[spec.material],kind:spec.material,visual,thickness:layer.thickness};
+  });
+  if(layers.some(layer=>!layer)) return '';
+  return `<div class="zone-visual-grid" data-testid="zone-visual-grid">
+    <figure class="zone-figure">
+      <div class="figure-toolbar"><span class="figure-note">СХЕМА РАЗМЕРОВ</span><span class="figure-scale">Условная схема</span></div>
+      <div class="figure-canvas"><span class="measure-label measure-top">${formatUnit(zone.width,'м')}</span><span class="measure-label measure-side">${formatUnit(zone.length,'м')}</span>
+        <div class="zone-rectangle" data-testid="zone-rectangle" data-ratio="${ratio}" style="aspect-ratio:${width}/${length}"><strong>${escapeHtml(zone.name)}</strong><span>${formatUnit(detail.area_m2,'м²')}</span></div></div>
+      <figcaption>Схема выбранной зоны без координат на участке.</figcaption>
+    </figure>
+    <div class="section-figure"><div class="figure-toolbar"><span class="figure-note">РАЗРЕЗ СЛОЁВ</span><span class="figure-scale">${zone.layers.length} сл.</span></div>
+      <div class="section-stack">
+        ${layers.length?layers.map(layer=>layer===null?'':`<button type="button" class="section-layer layer-${escapeHtml(layer.kind)}" data-action="toggle-layer" data-layer-id="${escapeHtml(layer.id)}" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="section-layer-${escapeHtml(layer.id)}" style="flex-grow:${layer.visual}" aria-label="Настроить ${escapeHtml(layer.name)}"><span>${escapeHtml(layer.name)}</span><strong>${escapeHtml(layer.thickness)} см</strong></button>`).join(''):'<p>Добавьте слой</p>'}
+      </div>
+      <p class="section-caption">Пропорции по введённым толщинам, не строительная норма.</p>
+    </div>
   </div>`;
+}
+
+function renderWorkspaceEditor(state: AppState, validation: DraftValidation, view: ViewState): string {
+  const selectedId=view.openZoneId ?? state.zones[0]?.id;
+  const selected=state.zones.find(zone=>zone.id===selectedId);
+  const activeIndex=state.zones.findIndex(zone=>zone.id===selectedId);
+  const detail=selected?zoneDetail(validation,selected.id):undefined;
+  return `<section class="editor-surface" data-testid="zone-editor" aria-label="Редактор выбранной зоны">
+    <div class="editor-toolbar"><div class="breadcrumb"><span>Участок</span><span>/</span><strong>${selected?escapeHtml(selected.name):'Новая зона'}</strong></div>
+      <div class="editor-actions">${selected ? `<button type="button" class="quiet-button workspace-remove-zone" data-action="remove-zone" data-zone-id="${escapeHtml(selected.id)}">Удалить зону</button>` : ''}<button type="button" class="quiet-button" data-action="reset">Сбросить расчёт</button></div></div>
+    ${selected?`
+      <div class="editor-heading"><div><span class="eyebrow">ВЫБРАННАЯ ЗОНА</span><h2 tabindex="-1" data-testid="selected-zone-name">${escapeHtml(selected.name||'Без названия')}</h2><p>${escapeHtml(selected.length||'—')} × ${escapeHtml(selected.width||'—')} м · ${selected.layers.length} сл. · ${detail?formatUnit(detail.area_m2,'м²'):'—'}</p></div><div class="editor-stat"><span>Площадь зоны</span><strong>${detail?formatUnit(detail.area_m2,'м²'):'—'}</strong></div></div>
+      <div class="zone-dimensions"><div><small>Длина</small><strong>${escapeHtml(selected.length||'—')} м</strong></div><div><small>Ширина</small><strong>${escapeHtml(selected.width||'—')} м</strong></div><div><small>Слои</small><strong>${selected.layers.length}</strong></div></div>
+      ${renderZoneFigure(state,selected,validation)}
+      <div class="section-heading"><div><span class="eyebrow">СОСТАВ ЗОНЫ</span><h3>Редактирование и материалы</h3></div></div>
+    `:'<div class="workspace-empty"><h2>Начните с зоны</h2><p>Укажите размеры участка слева и добавьте первую зону. Материалы и ведомость появятся автоматически.</p><button type="button" class="quiet-button" data-action="add-zone">Добавить зону</button></div>'}
+    <form class="calculator-form" novalidate>
+      ${state.zones.map((zone,index)=>`<div class="workspace-zone-wrap"${zone.id===selectedId?'':' hidden'}>${renderZone(state,zone,index,validation,view)}</div>`).join('')}
+    </form>
+  </section>`;
+}
+
+export function renderAppHtml(state: AppState, validation: DraftValidation, view: ViewState = {
+  openZoneId: state.zones[0]?.id ?? null,
+  openLayerIds: new Set(state.zones.flatMap(zone=>zone.layers.map(layer=>layer.id))),
+  mobileSurface: 'zones',
+}): string {
+  const active=view.mobileSurface??'zones';
+  return `<div class="workspace-app" data-testid="workspace-layout" data-mobile-surface="${active}">
+    <header class="topbar"><div class="brand-lockup"><span class="brand-mark" aria-hidden="true">▱</span><h1 class="brand-name">Дачаметр</h1><span class="brand-product">WORKSPACE</span></div>
+      <div class="topbar-context">Участок и материалы · точный расчёт</div>
+      <div class="topbar-actions"><span class="local-status"><i></i>Локальный расчёт</span><a class="jump-result" href="#result" data-action="open-bom">К ведомости</a></div></header>
+    ${renderMobileTabs(active)}
+    <main class="workspace-grid">
+      ${renderProjectStructure(state,validation,view)}
+      ${renderWorkspaceEditor(state,validation,view)}
+      ${renderResults(state,validation,view)}
+    </main>
+    <footer class="workspace-footer"><span>Размеры × толщина = объём; запас и плотность вводите самостоятельно.</span><span>Локальная сессия · без автосохранения</span></footer>
+  </div>`;
+}
+
+/** Fit only the selected zone, never a fictional placement of all zones. */
+function fitZoneRectangles(root: HTMLElement): void {
+  for (const canvas of Array.from(root.querySelectorAll<HTMLElement>('.figure-canvas'))) {
+    const rectangle = canvas.querySelector<HTMLElement>('.zone-rectangle');
+    if (!rectangle) continue;
+    const ratio = Number(rectangle.dataset.ratio);
+    if (!Number.isFinite(ratio) || ratio <= 0) continue;
+    const availableWidth = Math.max(0, canvas.clientWidth - 16);
+    const availableHeight = Math.max(0, canvas.clientHeight - 16);
+    const width = Math.min(availableWidth * .76, 360, availableHeight * ratio);
+    rectangle.style.width = `${width}px`;
+    rectangle.style.height = `${width / ratio}px`;
+  }
 }
 
 interface FocusSnapshot {
@@ -290,6 +379,14 @@ export function mountApp(root: HTMLElement): void {
   let openZoneId: string | null = null;
   const openLayerIds = new Set<string>();
   const openBomKeys = new Set<string>();
+  let mobileSurface: 'zones' | 'editor' | 'bom' = 'zones';
+  let wasMobile = window.matchMedia('(max-width: 820px)').matches;
+  // Changing CSS display at a breakpoint may blur an element *before* resize
+  // fires; document.activeElement is already <body> at that point.
+  let lastFocused: HTMLElement | null = null;
+  root.addEventListener('focusin', event => {
+    if (event.target instanceof HTMLElement) lastFocused = event.target;
+  });
   const render = (focus?: FocusSnapshot) => {
     // Read native details state before replacing DOM, including across transient
     // invalid inputs where BOM is intentionally hidden by fail-closed validation.
@@ -299,7 +396,8 @@ export function mountApp(root: HTMLElement): void {
       if (details.open) openBomKeys.add(key);
       else openBomKeys.delete(key);
     }
-    root.innerHTML = renderAppHtml(state, validateDraft(state), { openZoneId, openLayerIds, openBomKeys });
+    root.innerHTML = renderAppHtml(state, validateDraft(state), { openZoneId, openLayerIds, openBomKeys, mobileSurface });
+    fitZoneRectangles(root);
     if (focus) restoreFocus(root, focus);
   };
   const update = (next: AppState, preserveFocus = true) => {
@@ -308,25 +406,58 @@ export function mountApp(root: HTMLElement): void {
     render(focus);
   };
 
-  root.addEventListener('input', event => {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement)) return;
+  const moveFocus = (key: string) => restoreFocus(root, { key, start: null, end: null });
+
+  // This form is a live calculator, not a navigation/submission endpoint.
+  root.addEventListener('submit', event => {
+    if (event.target instanceof HTMLFormElement && event.target.matches('.calculator-form')) event.preventDefault();
+  });
+
+  const applyInput = (target: HTMLInputElement) => {
     const action = target.dataset.action;
     const value = target.value;
     if (action === 'plot-field' && (target.dataset.field === 'length' || target.dataset.field === 'width')) update(updatePlotField(state, target.dataset.field, value));
     if (action === 'zone-field' && target.dataset.zoneId && (target.dataset.field === 'name' || target.dataset.field === 'length' || target.dataset.field === 'width')) update(updateZoneField(state, target.dataset.zoneId, target.dataset.field, value));
     if (action === 'layer-field' && target.dataset.zoneId && target.dataset.layerId && ['thickness', 'reserve', 'packageL', 'density'].includes(target.dataset.field ?? '')) update(updateLayerField(state, target.dataset.zoneId, target.dataset.layerId, target.dataset.field as 'thickness' | 'reserve' | 'packageL' | 'density', value));
     if (action === 'material-field' && target.dataset.materialId && (target.dataset.field === 'label')) update(updateMaterialSpec(state, target.dataset.materialId, 'label', value));
+  };
+
+  // Replacing an input during an IME composition cancels the native editing
+  // session (notably on mobile keyboards). Commit the final value on compositionend.
+  let composingInput: HTMLInputElement | null = null;
+  root.addEventListener('compositionstart', event => {
+    if (event.target instanceof HTMLInputElement) composingInput = event.target;
+  });
+  root.addEventListener('compositionend', event => {
+    if (!(event.target instanceof HTMLInputElement) || event.target !== composingInput) return;
+    composingInput = null;
+    applyInput(event.target);
+  });
+  root.addEventListener('input', event => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (target === composingInput || (event instanceof InputEvent && event.isComposing)) return;
+    applyInput(target);
   });
 
   root.addEventListener('change', event => {
     const target = event.target;
     if (!(target instanceof HTMLSelectElement)) return;
     const action = target.dataset.action;
-    if (action === 'material-field' && target.dataset.materialId && target.dataset.field === 'material') update(updateMaterialSpec(state, target.dataset.materialId, 'material', target.value));
+    // The changed SELECT is the reliable focus target. Playwright and some
+    // browsers fire change without leaving document.activeElement on SELECT.
+    const restoreChangedSelect = () => {
+      const key = target.dataset.focusKey;
+      if (key) restoreFocus(root, { key, start: null, end: null });
+    };
+    if (action === 'material-field' && target.dataset.materialId && target.dataset.field === 'material') {
+      update(updateMaterialSpec(state, target.dataset.materialId, 'material', target.value), false);
+      restoreChangedSelect();
+    }
     if (action === 'link-material' && target.dataset.zoneId && target.dataset.layerId) {
       const next = target.value === '__new__' ? linkLayerToNewMaterial(state, target.dataset.zoneId, target.dataset.layerId) : updateLayerField(state, target.dataset.zoneId, target.dataset.layerId, 'materialSpecId', target.value);
       update(next, false);
+      restoreChangedSelect();
     }
   });
 
@@ -336,6 +467,33 @@ export function mountApp(root: HTMLElement): void {
     const button = target.closest<HTMLElement>('[data-action]');
     if (!button) return;
     const action = button.dataset.action;
+    if (action === 'mobile-tab' && (button.dataset.target === 'zones' || button.dataset.target === 'editor' || button.dataset.target === 'bom')) {
+      mobileSurface = button.dataset.target;
+      // The clicked tab is destroyed and recreated during render. Restoring
+      // the exact tab keeps keyboard users on the same navigation control.
+      render({ key: `mobile-tab-${mobileSurface}`, start: null, end: null });
+      return;
+    }
+    if (action === 'open-bom') {
+      // At tablet widths the BOM is a separate hidden surface. A bare #result
+      // anchor cannot open it; desktop retains normal anchor navigation.
+      if (window.matchMedia('(max-width: 820px)').matches) {
+        event.preventDefault();
+        mobileSurface = 'bom';
+        render();
+        root.querySelector<HTMLElement>('#result')?.focus();
+      }
+      return;
+    }
+    if (action === 'select-zone' && button.dataset.zoneId) {
+      openZoneId = button.dataset.zoneId;
+      mobileSurface = 'editor';
+      render();
+      // Announce the new editing context instead of sending focus to <body>
+      // when the source button is replaced (and hidden on mobile).
+      root.querySelector<HTMLElement>('[data-testid="selected-zone-name"]')?.focus();
+      return;
+    }
     if (action === 'toggle-zone' && button.dataset.zoneId) {
       openZoneId = openZoneId === button.dataset.zoneId ? null : button.dataset.zoneId;
       update(state);
@@ -351,12 +509,17 @@ export function mountApp(root: HTMLElement): void {
     if (action === 'add-zone') {
       const next = addZone(state);
       openZoneId = next.zones.at(-1)?.id ?? null;
+      mobileSurface = 'editor';
       update(next, false);
+      if (openZoneId) moveFocus(`zone-name-${openZoneId}`);
     }
     if (action === 'remove-zone' && button.dataset.zoneId) {
       const next = removeZone(state, button.dataset.zoneId);
       if (openZoneId === button.dataset.zoneId) openZoneId = next.zones[0]?.id ?? null;
+      if (next.zones.length === 0) mobileSurface = 'zones';
       update(next, false);
+      if (openZoneId) root.querySelector<HTMLElement>('[data-testid="selected-zone-name"]')?.focus();
+      else moveFocus('plot-length');
     }
     if (action === 'add-layer' && button.dataset.zoneId) {
       const next = addLayer(state, button.dataset.zoneId);
@@ -367,21 +530,73 @@ export function mountApp(root: HTMLElement): void {
       }
       openZoneId = button.dataset.zoneId;
       update(next, false);
+      if (newLayer) moveFocus(`source-${newLayer.id}`);
     }
     if (action === 'remove-layer' && button.dataset.zoneId && button.dataset.layerId) {
       openLayerIds.delete(button.dataset.layerId);
       update(removeLayer(state, button.dataset.zoneId, button.dataset.layerId), false);
+      moveFocus(`add-layer-${button.dataset.zoneId}`);
     }
     if (action === 'reset') {
-      if (state.zones.length === 0 || window.confirm('Сбросить введённые размеры, зоны и материалы?')) {
+      const hasEnteredData = state.plot.length.trim() !== '' || state.plot.width.trim() !== '' || state.zones.length > 0 || state.materials.length > 0;
+      if (!hasEnteredData || window.confirm('Сбросить введённые размеры, зоны и материалы?')) {
+        mobileSurface = 'zones';
         openZoneId = null;
         openLayerIds.clear();
         update(createInitialState(), false);
-        // The render snapshots the old DOM before replacing it; clear after reset.
+        // render() snapshots the old DOM's details state; clear that snapshot
+        // after replacing it so reused material IDs cannot inherit prior BOM UI.
         openBomKeys.clear();
+        moveFocus('plot-length');
       }
     }
   });
 
+  // A width change can hide the focused desktop panel via mobile CSS. Keep
+  // that panel visible and update tab state in-place: rebuilding the DOM here
+  // would discard the active input, caret and native keyboard composition.
+  window.addEventListener('resize', () => {
+    const isMobile = window.matchMedia('(max-width: 820px)').matches;
+    const currentFocus = document.activeElement;
+    const active = currentFocus instanceof HTMLElement && root.contains(currentFocus)
+      ? currentFocus
+      : currentFocus === document.body && lastFocused?.isConnected && root.contains(lastFocused)
+        ? lastFocused
+        : null;
+    const headerLinkHidden = isMobile && active?.matches('.jump-result') && window.matchMedia('(max-width: 430px)').matches;
+    if (isMobile !== wasMobile || headerLinkHidden) {
+      if (isMobile) {
+        if (active?.closest('.editor-surface')) mobileSurface = 'editor';
+        else if (active?.closest('.results-column') || active?.matches('.jump-result')) mobileSurface = 'bom';
+        else if (active?.closest('.structure-panel')) mobileSurface = 'zones';
+      }
+      const layout = root.querySelector<HTMLElement>('.workspace-app');
+      if (layout) layout.dataset.mobileSurface = mobileSurface;
+      for (const tab of Array.from(root.querySelectorAll<HTMLButtonElement>('[data-action="mobile-tab"]'))) {
+        const selected = tab.dataset.target === mobileSurface;
+        tab.classList.toggle('is-active', selected);
+        tab.setAttribute('aria-current', selected ? 'page' : 'false');
+      }
+      if (!isMobile && active?.closest('.mobile-tabs')) {
+        // Mobile navigation is hidden on desktop; move focus to its destination.
+        if (mobileSurface === 'zones') moveFocus('plot-length');
+        else if (mobileSurface === 'editor') {
+          // Before the first zone exists, the selected-zone heading is absent.
+          const heading = root.querySelector<HTMLElement>('[data-testid="selected-zone-name"]');
+          (heading ?? root.querySelector<HTMLElement>('.editor-surface [data-action="add-zone"]'))?.focus();
+        } else root.querySelector<HTMLElement>('#result')?.focus();
+      } else if (headerLinkHidden) {
+        // The header BOM link disappears below 431px, even when the screen
+        // was already in tablet mode before this resize.
+        root.querySelector<HTMLElement>('#result')?.focus();
+      } else if (isMobile && active && currentFocus !== active && root.contains(active)) {
+        // CSS may have blurred the previous control when its panel was hidden.
+        // Restore the same node after revealing the correct mobile surface.
+        active.focus({ preventScroll: true });
+      }
+      wasMobile = isMobile;
+    }
+    fitZoneRectangles(root);
+  }, { passive: true });
   render();
 }

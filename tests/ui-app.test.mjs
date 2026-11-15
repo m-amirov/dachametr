@@ -20,12 +20,15 @@ function completeState() {
   return state;
 }
 
-test('initial app render is task-first and shows the empty zone action', () => {
+test('initial runtime workspace shows structure, empty editor and blank output without fake numbers', () => {
   const state = createInitialState();
   const html = renderAppHtml(state, validateDraft(state));
   assert.match(html, /Дачаметр/);
-  assert.match(html, /Добавить первую зону/);
-  assert.doesNotMatch(html, /Ведомость закупки/);
+  assert.match(html, /data-testid="structure-panel"/);
+  assert.match(html, /Начните с зоны/);
+  assert.match(html, /data-testid="add-zone"/);
+  assert.match(html, /Ведомость появится здесь/);
+  assert.doesNotMatch(html, /3 600 л/);
 });
 
 test('invalid plot input blocks results even before the first zone exists', () => {
@@ -117,4 +120,51 @@ test('BOM detail disclosure can be restored from render-only view state', () => 
     openBomKeys: new Set([key]),
   });
   assert.match(expanded, /class="bom-details" data-bom-key="spec-1\|soil\|50\|" open/);
+});
+
+test('Rayon workspace selects a single real zone and preserves its current data', () => {
+  let state = completeState();
+  state = addZone(state);
+  const first = state.zones[0].id;
+  const second = state.zones[1].id;
+  state = updateZoneField(state, second, 'name', 'Дорожка');
+  const validation = validateDraft(state);
+  const html = renderAppHtml(state, validation, {
+    openZoneId: second,
+    openLayerIds: new Set(),
+    mobileSurface: 'editor',
+  });
+  assert.match(html, /class="workspace-grid"/);
+  assert.match(html, /data-mobile-surface="editor"/);
+  assert.match(html, /data-action="mobile-tab" data-target="zones"/);
+  assert.match(html, /data-action="mobile-tab" data-target="editor"/);
+  assert.match(html, /data-action="mobile-tab" data-target="bom"/);
+  assert.match(html, new RegExp('data-zone-id="' + second + '" data-focus-key="select-zone-' + second + '" aria-current="true"'));
+  assert.match(html, new RegExp('data-zone-id="' + first + '" data-focus-key="select-zone-' + first + '" aria-current="false"'));
+  assert.match(html, new RegExp('class="workspace-zone-wrap" hidden>[\\s\\S]*?data-zone-id="' + first + '"'));
+  assert.match(html, /Дорожка/);
+});
+
+test('workspace drawing cannot assert real spatial placement for an invalid zone', () => {
+  const state = updateZoneField(completeState(), 'zone-1', 'length', '1,');
+  const html = renderAppHtml(state, validateDraft(state));
+  assert.match(html, /Схема размеров появится после корректного заполнения полей/);
+  assert.match(html, /data-testid="blocked-results"/);
+  assert.doesNotMatch(html, /data-testid="zone-rectangle"/);
+});
+
+test('material variant label error has a local accessible description and clears after correction', () => {
+  const valid = completeState();
+  const zoneId = valid.zones[0].id;
+  const layerId = valid.zones[0].layers[0].id;
+  const invalid = { ...valid, materials: valid.materials.map(material => ({ ...material, label: '' })) };
+  const validation = validateDraft(invalid);
+  assert.equal(validation.errors[0]?.path, 'zones[0].layers[0].material_spec_label');
+  const view = { openZoneId: zoneId, openLayerIds: new Set([layerId]) };
+  const html = renderAppHtml(invalid, validation, view);
+  assert.match(html, new RegExp('id="label-' + layerId + '"[^>]*aria-invalid="true" aria-describedby="error-label-' + layerId + '"'));
+  assert.match(html, new RegExp('id="error-label-' + layerId + '">Добавьте название варианта материала\\.'));
+  const corrected = renderAppHtml(valid, validateDraft(valid), view);
+  assert.match(corrected, new RegExp('id="label-' + layerId + '"[^>]*aria-invalid="false"'));
+  assert.doesNotMatch(corrected, new RegExp('id="error-label-' + layerId + '"'));
 });

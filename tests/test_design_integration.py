@@ -10,12 +10,12 @@ class OpenDesignProjectTests(unittest.TestCase):
         css = (ROOT / "src/styles.css").read_text(encoding="utf-8")
         design = (ROOT / "DESIGN.md").read_text(encoding="utf-8")
         for name, value in (
-            ("canvas", "#f4f6f0"),
-            ("paper", "#ffffff"),
-            ("ink", "#14251f"),
-            ("pine", "#2f705d"),
-            ("coral", "#be4c2d"),
-            ("danger", "#a53428"),
+            ("canvas", "#e9e8e3"),
+            ("panel", "#f8f8f5"),
+            ("ink", "#242b2d"),
+            ("teal", "#205b57"),
+            ("orange", "#ca6238"),
+            ("danger", "#b84739"),
         ):
             with self.subTest(token=name):
                 self.assertIn("--" + name + ": " + value, css)
