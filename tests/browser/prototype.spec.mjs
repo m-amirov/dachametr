@@ -648,3 +648,61 @@ test('blank material variant label exposes a visible inline error and accessible
   }
   expect(errors).toEqual([]);
 });
+
+test('copying the exact purchase list works on mobile and desktop without external requests', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
+  for (const width of [390, 1024]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    await field(page, 'plot-field', 'length').fill('20');
+    await field(page, 'plot-field', 'width').fill('30');
+    await page.getByTestId('add-zone').click();
+    const zone = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+    await zone.getByRole('button', { name: 'Добавить слой' }).click();
+    await fillLayer(zone, { material: 'soil', label: 'Грунт для грядок', thickness: '25', packageL: '50' });
+    if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="bom"]').click();
+    const copy = page.locator('[data-action="copy-bom"]');
+    await expect(copy).toBeVisible();
+    await copy.click();
+    await expect(page.getByTestId('copy-bom-status')).toHaveText('Ведомость скопирована.');
+    const value = await page.evaluate(() => navigator.clipboard.readText());
+    expect(value).toContain('Дачаметр — ведомость закупки');
+    expect(value).toContain('Грунт для грядок (Грунт, spec-1)');
+    expect(value).toContain('Нужно с запасом: 2 000 л');
+    expect(value).toContain('Купить: 40 уп. × 50 л');
+    expect(value).toContain('Излишек: 0 л');
+    expect(value).not.toContain('undefined');
+
+    if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="editor"]').click();
+    await zone.locator('[data-action="zone-field"][data-field="length"]').fill('1,');
+    if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="bom"]').click();
+    await expect(page.getByTestId('blocked-results')).toBeVisible();
+    await expect(page.locator('[data-action="copy-bom"]')).toHaveCount(0);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('clipboard permission failure is announced without false success or navigation', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: () => Promise.reject(new Error('Permission denied')) },
+    });
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const zone = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(zone, { material: 'soil', label: 'Грунт', thickness: '25', packageL: '50' });
+  await page.locator('[data-action="mobile-tab"][data-target="bom"]').click();
+  await page.locator('[data-action="copy-bom"]').click();
+  await expect(page.getByTestId('copy-bom-status')).toHaveText('Не удалось скопировать. Проверьте разрешение на буфер обмена.');
+  await expect(page.getByTestId('result-panel')).toBeVisible();
+  await expect(page).toHaveURL(/\/$/);
+  expect(errors).toEqual([]);
+});
