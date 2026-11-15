@@ -251,4 +251,3 @@ test('clipboard formatter keeps two same-named independent material variants sep
   assert.match(text, /Купить: 40 уп\. × 50 л/);
   assert.match(text, /Купить: 4 уп\. × 50 л/);
 });
-
