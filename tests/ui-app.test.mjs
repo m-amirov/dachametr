@@ -152,3 +152,19 @@ test('workspace drawing cannot assert real spatial placement for an invalid zone
   assert.match(html, /data-testid="blocked-results"/);
   assert.doesNotMatch(html, /data-testid="zone-rectangle"/);
 });
+
+test('material variant label error has a local accessible description and clears after correction', () => {
+  const valid = completeState();
+  const zoneId = valid.zones[0].id;
+  const layerId = valid.zones[0].layers[0].id;
+  const invalid = { ...valid, materials: valid.materials.map(material => ({ ...material, label: '' })) };
+  const validation = validateDraft(invalid);
+  assert.equal(validation.errors[0]?.path, 'zones[0].layers[0].material_spec_label');
+  const view = { openZoneId: zoneId, openLayerIds: new Set([layerId]) };
+  const html = renderAppHtml(invalid, validation, view);
+  assert.match(html, new RegExp('id="label-' + layerId + '"[^>]*aria-invalid="true" aria-describedby="error-label-' + layerId + '"'));
+  assert.match(html, new RegExp('id="error-label-' + layerId + '">Добавьте название варианта материала\\.'));
+  const corrected = renderAppHtml(valid, validateDraft(valid), view);
+  assert.match(corrected, new RegExp('id="label-' + layerId + '"[^>]*aria-invalid="false"'));
+  assert.doesNotMatch(corrected, new RegExp('id="error-label-' + layerId + '"'));
+});
