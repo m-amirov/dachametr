@@ -17,7 +17,7 @@ http://127.0.0.1:4173/artifacts/dachametr-workspace/side-by-side.html
 
 - `index.html` — desktop workspace 1440×900: structure / editor / BOM;
 - clicking `Дорожка` and then `Песок карьерный` opens the selected-material inspector;
-- at 390×844 `Редактор` and `Ведомость` are separate tabs;
+- at 390×844 and 768×900 `Зоны`, `Редактор` and `Ведомость` are separate tabs; selecting a zone returns to the editor and persists through the BOM tab;
 - `?state=error` shows a fail-closed BOM state;
 - `design-board.html` — tokens, typography, grid and component states;
 - `side-by-side.html` — actual PR #11 / PR #12 baseline against the new composition;
