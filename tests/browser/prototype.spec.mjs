@@ -306,3 +306,28 @@ test('compact editor still exposes real layer and zone deletion on mobile', asyn
   await expect(page.getByTestId('zone-card')).toHaveCount(0);
   await expect(page.getByTestId('structure-panel')).toBeVisible();
 });
+
+test('mobile layer edit and delete actions do not overlap at 320px', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 844 });
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const zone = await fillZone(page, 0, { name: 'Дорожка', length: '2', width: '5' });
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  const layer = zone.getByTestId('layer-card').first();
+  const edit = layer.locator('.layer-toggle');
+  const remove = layer.locator('.layer-remove');
+  const boxes = await Promise.all([edit.boundingBox(), remove.boundingBox()]);
+  expect(boxes[0]).not.toBeNull();
+  expect(boxes[1]).not.toBeNull();
+  const [a, b] = boxes;
+  const overlap = a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+  expect(overlap).toBe(false);
+  await edit.click();
+  await expect(layer.locator('.layer-edit')).toBeHidden();
+  await edit.click();
+  await expect(layer.locator('.layer-edit')).toBeVisible();
+  await remove.click();
+  await expect(zone.getByTestId('layer-card')).toHaveCount(0);
+});
