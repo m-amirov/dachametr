@@ -75,7 +75,11 @@ async function capture(browser, width, state) {
   page.on('requestfailed', request => errors.push(`request: ${request.url()} ${request.failure()?.errorText ?? ''}`));
   await page.goto(`${baseURL}/`);
   if (state === 'error') await field(page, 'plot-field', 'length').fill('bad');
-  if (state === 'result' || state === 'result-bom') await fillResultScenario(page);
+  if (state === 'result' || state === 'result-bom' || state === 'editing') await fillResultScenario(page);
+  if (state === 'result') {
+    const openLayer = page.locator('.layer-toggle[aria-expanded="true"]:visible');
+    if (await openLayer.count()) await openLayer.first().click();
+  }
   if (state === 'result-bom') await page.locator('[data-action="mobile-tab"][data-target="bom"]').click();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   // Full-page screenshots must start at the real top of the page; the last input
@@ -100,6 +104,7 @@ for (const width of widths) {
   checks.push(await capture(browser, width, 'initial'));
   checks.push(await capture(browser, width, 'error'));
   checks.push(await capture(browser, width, 'result'));
+  if (width === 390 || width === 1440) checks.push(await capture(browser, width, 'editing'));
   if (width <= 820) checks.push(await capture(browser, width, 'result-bom'));
 }
 
