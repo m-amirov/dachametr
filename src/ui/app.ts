@@ -47,10 +47,6 @@ function decimalDivide(value: string, divisor: string): string {
   }
 }
 
-function errorFor(validation: DraftValidation, path: string): boolean {
-  return validation.errors.some(error => error.path === path);
-}
-
 interface ViewState {
   openZoneId: string | null;
   openLayerIds: ReadonlySet<string>;
