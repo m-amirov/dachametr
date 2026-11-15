@@ -382,6 +382,12 @@ export function mountApp(root: HTMLElement): void {
   const openBomKeys = new Set<string>();
   let mobileSurface: 'zones' | 'editor' | 'bom' = 'zones';
   let wasMobile = window.matchMedia('(max-width: 820px)').matches;
+  // Changing CSS display at a breakpoint may blur an element *before* resize
+  // fires; document.activeElement is already <body> at that point.
+  let lastFocused: HTMLElement | null = null;
+  root.addEventListener('focusin', event => {
+    if (event.target instanceof HTMLElement) lastFocused = event.target;
+  });
   const render = (focus?: FocusSnapshot) => {
     // Read native details state before replacing DOM, including across transient
     // invalid inputs where BOM is intentionally hidden by fail-closed validation.
@@ -551,7 +557,12 @@ export function mountApp(root: HTMLElement): void {
   // would discard the active input, caret and native keyboard composition.
   window.addEventListener('resize', () => {
     const isMobile = window.matchMedia('(max-width: 820px)').matches;
-    const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const currentFocus = document.activeElement;
+    const active = currentFocus instanceof HTMLElement && root.contains(currentFocus)
+      ? currentFocus
+      : currentFocus === document.body && lastFocused?.isConnected && root.contains(lastFocused)
+        ? lastFocused
+        : null;
     const headerLinkHidden = isMobile && active?.matches('.jump-result') && window.matchMedia('(max-width: 430px)').matches;
     if (isMobile !== wasMobile || headerLinkHidden) {
       if (isMobile) {
@@ -578,6 +589,10 @@ export function mountApp(root: HTMLElement): void {
         // The header BOM link disappears below 431px, even when the screen
         // was already in tablet mode before this resize.
         root.querySelector<HTMLElement>('#result')?.focus();
+      } else if (isMobile && active && currentFocus !== active && root.contains(active)) {
+        // CSS may have blurred the previous control when its panel was hidden.
+        // Restore the same node after revealing the correct mobile surface.
+        active.focus({ preventScroll: true });
       }
       wasMobile = isMobile;
     }
