@@ -1,7 +1,7 @@
 # Dachametr Workspace — визуальный дизайн-срез
 
-**Дата:** 2026-11-15  
-**Статус:** visual prototype for owner review; рабочее Vite-приложение не изменяется  
+**Дата:** 2026-11-15
+**Статус:** visual prototype for owner review; рабочее Vite-приложение не изменяется
 **База:** PR #11 `101cd559d82c807c036c319265b57c98e8bc3162`
 
 ## Intent

@@ -1,7 +1,7 @@
 # Независимый визуальный аудит Dachametr Workspace
 
-Дата аудита: 2026-11-15  
-Ветка: `design/dachametr-workspace`  
+Дата аудита: 2026-11-15
+Ветка: `design/dachametr-workspace`
 Область: только локальный визуальный прототип в `artifacts/dachametr-workspace/`; рабочий Vite UI и `src/domain` не изменялись.
 
 Сравнение выполнено на одном сценарии и вынесено в [side-by-side.html](./side-by-side.html): PR #11 (`101cd559d82c807c036c319265b57c98e8bc3162`), PR #12 (`2b26a2ac9e516147b1fd7b7e8ff94832d4a7d98a`) и новый workspace.
