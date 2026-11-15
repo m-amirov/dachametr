@@ -19,6 +19,7 @@ import {
 } from './model.ts';
 import { formatRuNumber, formatUnit, sumWholePackages } from './format.ts';
 import { formatBomForClipboard } from './bom-export.ts';
+import { BOM_CSV_FILENAME, BOM_CSV_MIME, formatBomCsv } from './bom-csv.ts';
 import { decodeSharedCalculation, encodeSharedCalculation, isSharedCalculationHash } from './share.ts';
 import { validateDraft, type DraftValidation } from './validation.ts';
 
@@ -229,10 +230,10 @@ function renderResults(state: AppState, validation: DraftValidation, view: ViewS
   const totalPurchase = value.bom.reduce((sum, row) => sum.add(Exact.decimal(row.purchase_l)), new Exact(0n)).toString();
   const totalPackages = sumWholePackages(value.bom.map(row => row.packages));
   return `<aside class="results-column" id="result" tabindex="-1" aria-label="Ведомость закупки" data-testid="result-panel"><section class="panel result-panel bom-surface">
-    <div class="result-heading"><div><span class="eyebrow">ВАШ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><div class="result-heading-actions"><span class="live-dot">Обновляется</span><button type="button" class="quiet-button" data-action="share-calculation">Скопировать ссылку</button>${value.bom.length ? '<button type="button" class="quiet-button copy-bom-button" data-action="copy-bom">Копировать ведомость</button>' : ''}</div></div>
+    <div class="result-heading"><div><span class="eyebrow">ВАШ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><div class="result-heading-actions"><span class="live-dot">Обновляется</span><button type="button" class="quiet-button" data-action="share-calculation">Скопировать ссылку</button>${value.bom.length ? '<button type="button" class="quiet-button copy-bom-button" data-action="copy-bom">Копировать ведомость</button><button type="button" class="quiet-button copy-bom-button" data-action="download-bom-csv">Скачать CSV</button>' : ''}</div></div>
     <p class="share-link-hint">Ссылка содержит введённые названия зон и материалов. Не указывайте личные данные.</p>
     <p class="share-link-status" data-testid="share-link-status" role="status" aria-live="polite"></p>
-    ${value.bom.length ? '<p class="copy-bom-status" data-testid="copy-bom-status" role="status" aria-live="polite"></p>' : ''}
+    ${value.bom.length ? '<p class="copy-bom-status" data-testid="copy-bom-status" role="status" aria-live="polite"></p><p class="csv-bom-status" data-testid="csv-bom-status" role="status" aria-live="polite"></p>' : ''}
     <div class="result-lead"><div><span>Всего нужно с запасом</span><strong>${formatUnit(totalPurchase, 'л')}</strong></div>${totalPackages !== null ? `<div class="total-packages"><span>Упаковок</span><strong>${formatRuNumber(totalPackages)} уп.</strong></div>` : '<div class="total-packages"><span>Упаковки</span><strong>По материалам</strong></div>'}</div>
     <div class="area-summary"><div><span>Участок</span><strong>${formatUnit(value.plot_area_m2, 'м²')}</strong></div><div><span>Сотки</span><strong>${formatUnit(sotki, 'сотки')}</strong></div><div><span>Зоны</span><strong>${state.zones.length}</strong></div></div>
     ${value.areas_exceed_plot ? '<div class="warning" role="status"><strong>Проверьте площадь</strong><span>Сумма площадей зон больше участка. Мы не вычитаем и не размещаем зоны автоматически.</span></div>' : ''}
@@ -578,6 +579,42 @@ export function mountApp(root: HTMLElement): void {
         );
       } catch {
         setStatus('Не удалось скопировать ссылку. Проверьте доступ к буферу обмена.');
+      }
+      return;
+    }
+    if (action === 'download-bom-csv') {
+      // Calculate only from the currently valid domain result. Incomplete or
+      // invalid drafts can never generate a seemingly authoritative document.
+      const validation = validateDraft(state);
+      if (!validation.valid || !validation.result?.ok || validation.result.value.bom.length === 0) return;
+      const status = root.querySelector<HTMLElement>('[data-testid="csv-bom-status"]');
+      const setStatus = (message: string) => {
+        if (status?.isConnected) status.textContent = message;
+      };
+      try {
+        const csv = formatBomCsv(validation.result.value);
+        if (!csv) return;
+        const blob = new Blob([csv], { type: BOM_CSV_MIME });
+        const url = URL.createObjectURL(blob);
+        try {
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = BOM_CSV_FILENAME;
+          link.hidden = true;
+          document.body.appendChild(link);
+          try {
+            link.click();
+          } finally {
+            link.remove();
+          }
+          setStatus('CSV подготовлен для скачивания. Проверьте загрузки браузера.');
+        } finally {
+          // Do not revoke synchronously: Chromium/WebKit can cancel a download
+          // when its object URL disappears before the file transfer begins.
+          window.setTimeout(() => URL.revokeObjectURL(url), 3000);
+        }
+      } catch {
+        setStatus('Не удалось подготовить CSV. Повторите попытку.');
       }
       return;
     }
