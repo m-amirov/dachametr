@@ -274,7 +274,6 @@ function renderZoneFigure(state: AppState, zone: ZoneDraft, validation: DraftVal
   const length=Number(zone.length.replace(',','.')), width=Number(zone.width.replace(',','.'));
   if (!Number.isFinite(length) || !Number.isFinite(width) || length<=0 || width<=0) return '';
   const ratio=width/length;
-  const rectWidth=Math.min(340, 140 * ratio);
   const layers=zone.layers.map(layer=>{
     const spec=state.materials.find(item=>item.id===layer.materialSpecId);
     const visual=Number(layer.thickness.replace(',','.'));
@@ -286,7 +285,7 @@ function renderZoneFigure(state: AppState, zone: ZoneDraft, validation: DraftVal
     <figure class="zone-figure">
       <div class="figure-toolbar"><span class="figure-note">СХЕМА РАЗМЕРОВ</span><span class="figure-scale">Условная схема</span></div>
       <div class="figure-canvas"><span class="measure-label measure-top">${formatUnit(zone.width,'м')}</span><span class="measure-label measure-side">${formatUnit(zone.length,'м')}</span>
-        <div class="zone-rectangle" data-testid="zone-rectangle" style="width:${rectWidth}px;aspect-ratio:${width}/${length}"><strong>${escapeHtml(zone.name)}</strong><span>${formatUnit(detail.area_m2,'м²')}</span></div></div>
+        <div class="zone-rectangle" data-testid="zone-rectangle" data-ratio="${ratio}" style="aspect-ratio:${width}/${length}"><strong>${escapeHtml(zone.name)}</strong><span>${formatUnit(detail.area_m2,'м²')}</span></div></div>
       <figcaption>Схема выбранной зоны без координат на участке.</figcaption>
     </figure>
     <div class="section-figure"><div class="figure-toolbar"><span class="figure-note">РАЗРЕЗ СЛОЁВ</span><span class="figure-scale">${zone.layers.length} сл.</span></div>
@@ -338,6 +337,21 @@ export function renderAppHtml(state: AppState, validation: DraftValidation, view
   </div>`;
 }
 
+/** Fit only the selected zone, never a fictional placement of all zones. */
+function fitZoneRectangles(root: HTMLElement): void {
+  for (const canvas of Array.from(root.querySelectorAll<HTMLElement>('.figure-canvas'))) {
+    const rectangle = canvas.querySelector<HTMLElement>('.zone-rectangle');
+    if (!rectangle) continue;
+    const ratio = Number(rectangle.dataset.ratio);
+    if (!Number.isFinite(ratio) || ratio <= 0) continue;
+    const availableWidth = Math.max(0, canvas.clientWidth - 16);
+    const availableHeight = Math.max(0, canvas.clientHeight - 16);
+    const width = Math.min(availableWidth * .76, 360, availableHeight * ratio);
+    rectangle.style.width = `${width}px`;
+    rectangle.style.height = `${width / ratio}px`;
+  }
+}
+
 interface FocusSnapshot {
   key: string | null;
   start: number | null;
@@ -376,6 +390,7 @@ export function mountApp(root: HTMLElement): void {
       else openBomKeys.delete(key);
     }
     root.innerHTML = renderAppHtml(state, validateDraft(state), { openZoneId, openLayerIds, openBomKeys, mobileSurface });
+    fitZoneRectangles(root);
     if (focus) restoreFocus(root, focus);
   };
   const update = (next: AppState, preserveFocus = true) => {
@@ -483,5 +498,6 @@ export function mountApp(root: HTMLElement): void {
     }
   });
 
+  window.addEventListener('resize', () => fitZoneRectangles(root), { passive: true });
   render();
 }
