@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Дачаметр — side-by-side визуальное сравнение</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="comparison-page">
+    <main class="comparison-board">
+      <header class="board-header"><div><span class="eyebrow">VISUAL AUDIT / COMPOSITION</span><h1>Почему это не PR #11 и не PR #12</h1><p>Одинаковый рабочий сценарий, снятый в Chromium на exact baseline SHA. Сравнивается структура, а не только цвет.</p></div><a href="./index.html">Открыть workspace ↗</a></header>
+      <div class="comparison-grid">
+        <figure><figcaption><strong>PR #11</strong><span>101cd559… · форма + результат</span></figcaption><img src="./baseline/pr11-result-1440.png" alt="PR #11 result screenshot" /></figure>
+        <figure><figcaption><strong>PR #12</strong><span>2b26a2a… · форма + результат + разрез</span></figcaption><img src="./baseline/pr12-result-1440.png" alt="PR #12 result screenshot" /></figure>
+        <figure class="comparison-current"><figcaption><strong>Workspace</strong><span>см. evidence/latest/viewport-checks.json · три поверхности</span></figcaption><img src="./evidence/latest/desktop-1440x900.png" alt="Dachametr Workspace desktop screenshot" /></figure>
+      </div>
+      <section class="comparison-notes"><div><span class="eyebrow">PR #11 / #12</span><p>Главный поток — длинная вертикальная форма слева, результат справа. Зоны открываются внутри списка, а рабочее пространство считывается как калькулятор.</p></div><div><span class="eyebrow">WORKSPACE</span><p>Главный поток — выбранная зона как объект редактора. Структура проекта, свойства и BOM имеют устойчивые места; мобильный вариант переключает surfaces вкладками.</p></div></section>
+    </main>
+  </body>
+</html>
