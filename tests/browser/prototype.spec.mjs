@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 
 function field(page, action, fieldName, index = 0) {
   return page.locator(`[data-action="${action}"][data-field="${fieldName}"]`).nth(index);
@@ -777,5 +778,74 @@ test('invalid, unsupported and markup-bearing shared links cannot silently poiso
   await expect(page.getByTestId('selected-zone-name')).toHaveText('<img src=x onerror=alert(1)>');
   await expect(page.locator('img[src="x"]')).toHaveCount(0);
   await expect(page.getByTestId('bom-row')).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
+test('CSV download yields Cyrillic UTF-8, exact quantities and usable filename across 320–1024px', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  for (const width of [320, 390, 1024]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    await field(page, 'plot-field', 'length').fill('20');
+    await field(page, 'plot-field', 'width').fill('30');
+    await page.getByTestId('add-zone').click();
+    const zone = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+    await zone.getByRole('button', { name: 'Добавить слой' }).click();
+    await fillLayer(zone, { material: 'soil', label: 'Грунт для ёлки', thickness: '25', packageL: '50' });
+
+    if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="bom"]').click();
+    const downloadButton = page.locator('[data-action="download-bom-csv"]');
+    await expect(downloadButton).toBeVisible();
+    const pending = page.waitForEvent('download');
+    await downloadButton.click();
+    const file = await pending;
+    expect(file.suggestedFilename()).toBe('dachametr-vedomost.csv');
+    const bytes = await readFile(await file.path());
+    expect([...bytes.subarray(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
+    const csv = bytes.toString('utf8').slice(1);
+    const lines = csv.trimEnd().split('\r\n');
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toContain('"Количество упаковок, шт"');
+    expect(lines[1]).toContain('"Грунт для ёлки";"Грунт";"spec-1";');
+    expect(lines[1]).toContain(';"2000";"2000";"50";"40";"2000";"0";"";""');
+    await expect(page.getByTestId('csv-bom-status')).toContainText('CSV подготовлен');
+    await expect(page.getByTestId('bom-row')).toHaveCount(1);
+    await expect(page).toHaveURL(/\/$/);
+    const metrics = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollWidth,
+      client: document.documentElement.clientWidth,
+    }));
+    expect(metrics.scroll, 'CSV action overflow at ' + width + 'px').toBeLessThanOrEqual(metrics.client);
+
+    if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="editor"]').click();
+    await zone.locator('[data-action="zone-field"][data-field="length"]').fill('1,');
+    if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="bom"]').click();
+    await expect(page.getByTestId('blocked-results')).toBeVisible();
+    await expect(page.locator('[data-action="download-bom-csv"]')).toHaveCount(0);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('CSV download failure reports an error without fake success, navigation or draft loss', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const zone = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(zone, { material: 'soil', label: 'Грунт', thickness: '25', packageL: '50' });
+
+  await page.evaluate(() => {
+    URL.createObjectURL = () => { throw new Error('Blocked blob download'); };
+  });
+  await page.locator('[data-action="mobile-tab"][data-target="bom"]').click();
+  await page.locator('[data-action="download-bom-csv"]').click();
+  await expect(page.getByTestId('csv-bom-status')).toHaveText('Не удалось подготовить CSV. Повторите попытку.');
+  await expect(page.getByTestId('bom-row')).toHaveCount(1);
+  await expect(page).toHaveURL(/\/$/);
+  await page.locator('[data-action="mobile-tab"][data-target="editor"]').click();
+  await expect(zone.locator('[data-action="zone-field"][data-field="name"]')).toHaveValue('Грядка');
   expect(errors).toEqual([]);
 });
