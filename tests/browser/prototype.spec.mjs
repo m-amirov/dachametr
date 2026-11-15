@@ -450,3 +450,66 @@ test('layer diagram control preserves keyboard focus through DOM replacement', a
   }
   expect(errors).toEqual([]);
 });
+
+test('reset drops old BOM expansion when newly created materials reuse the same IDs', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  for (const width of [390, 1024]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    const createMaterial = async () => {
+      await field(page, 'plot-field', 'length').fill('20');
+      await field(page, 'plot-field', 'width').fill('30');
+      await page.getByTestId('add-zone').click();
+      const zone = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+      await zone.getByRole('button', { name: 'Добавить слой' }).click();
+      await fillLayer(zone, { material: 'soil', label: 'Грунт', thickness: '25', packageL: '50' });
+      if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="bom"]').click();
+    };
+    await createMaterial();
+    const details = page.getByTestId('bom-row').first().locator('.bom-details');
+    const previousKey = await details.getAttribute('data-bom-key');
+    await details.locator('summary').click();
+    await expect(details).toHaveAttribute('open', '');
+    if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="editor"]').click();
+    page.once('dialog', dialog => dialog.accept());
+    await page.locator('.editor-actions [data-action="reset"]').click();
+    await expect(page.getByTestId('bom-row')).toHaveCount(0);
+    await createMaterial();
+    await expect(details).toHaveAttribute('data-bom-key', previousKey);
+    await expect(details).not.toHaveAttribute('open', '');
+  }
+  expect(errors).toEqual([]);
+});
+
+test('IME input composition does not replace a live input until the composed text is committed', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  for (const width of [390, 1024]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    await page.getByTestId('add-zone').click();
+    const interim = await page.evaluate(() => {
+      const input = document.querySelector('[data-action="zone-field"][data-field="name"]');
+      if (!(input instanceof HTMLInputElement)) throw new Error('zone name input not found');
+      input.focus();
+      input.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, data: '' }));
+      input.value = 'Северн';
+      input.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertCompositionText', data: 'Северн', isComposing: true }));
+      return { attached: input.isConnected, focused: document.activeElement === input, value: input.value };
+    });
+    expect(interim).toEqual({ attached: true, focused: true, value: 'Северн' });
+    await page.evaluate(() => {
+      const input = document.querySelector('[data-action="zone-field"][data-field="name"]');
+      if (!(input instanceof HTMLInputElement)) throw new Error('zone name input disappeared before IME commit');
+      input.value = 'Северная грядка';
+      input.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertCompositionText', data: 'Северная грядка', isComposing: true }));
+      input.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: 'Северная грядка' }));
+    });
+    await expect(page.getByTestId('selected-zone-name')).toHaveText('Северная грядка');
+    await expect(page.locator('[data-action="zone-field"][data-field="name"]')).toHaveValue('Северная грядка');
+    await expect(page.locator('[data-action="zone-field"][data-field="name"]')).toBeFocused();
+    // A subsequent ordinary input must still update the same model.
+    await page.locator('[data-action="zone-field"][data-field="name"]').fill('Дорожка');
+    await expect(page.getByTestId('selected-zone-name')).toHaveText('Дорожка');
+  }
+  expect(errors).toEqual([]);
+});
