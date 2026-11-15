@@ -286,3 +286,23 @@ test('actual zone rectangles fit their own canvas and keep dimensions at all bre
     }
   }
 });
+
+test('compact editor still exposes real layer and zone deletion on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await field(page, 'plot-field', 'length').fill('20');
+  await field(page, 'plot-field', 'width').fill('30');
+  await page.getByTestId('add-zone').click();
+  const zone = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(zone, { material: 'soil', label: 'Грунт', thickness: '25', packageL: '50' });
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  await fillLayer(zone, { material: 'sand', label: 'Песок', thickness: '10', packageL: '50' });
+  await expect(zone.getByTestId('layer-card')).toHaveCount(2);
+  await zone.getByRole('button', { name: 'Удалить слой 1' }).click();
+  await expect(zone.getByTestId('layer-card')).toHaveCount(1);
+  await expect(zone.getByTestId('layer-card').first()).toContainText('Песок');
+  await page.locator('.editor-toolbar [data-action="remove-zone"]').click();
+  await expect(page.getByTestId('zone-card')).toHaveCount(0);
+  await expect(page.getByTestId('structure-panel')).toBeVisible();
+});
