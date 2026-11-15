@@ -585,3 +585,66 @@ test('empty editor tab does not leave focus on hidden mobile navigation after de
   await page.keyboard.press('Enter');
   await expect(page.getByTestId('zone-card')).toHaveCount(1);
 });
+
+test('reset requests confirmation for plot dimensions even without any zones', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  for (const width of [390, 1024]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    await field(page, 'plot-field', 'length').fill('18');
+    await field(page, 'plot-field', 'width').fill('25');
+    await expect(page.getByTestId('zone-card')).toHaveCount(0);
+    if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="editor"]').click();
+
+    let dismissed = false;
+    page.once('dialog', async dialog => {
+      expect(dialog.message()).toContain('Сбросить введённые размеры');
+      dismissed = true;
+      await dialog.dismiss();
+    });
+    await page.locator('.editor-actions [data-action="reset"]').click();
+    expect(dismissed, 'unsaved plot values require explicit confirmation').toBe(true);
+    await expect(field(page, 'plot-field', 'length')).toHaveValue('18');
+    await expect(field(page, 'plot-field', 'width')).toHaveValue('25');
+
+    let accepted = false;
+    page.once('dialog', async dialog => {
+      accepted = true;
+      await dialog.accept();
+    });
+    await page.locator('.editor-actions [data-action="reset"]').click();
+    expect(accepted).toBe(true);
+    await expect(field(page, 'plot-field', 'length')).toHaveValue('');
+    await expect(field(page, 'plot-field', 'width')).toHaveValue('');
+    await expect(page.getByTestId('zone-card')).toHaveCount(0);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('blank material variant label exposes a visible inline error and accessible description', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  for (const width of [390, 1024]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    await field(page, 'plot-field', 'length').fill('20');
+    await field(page, 'plot-field', 'width').fill('30');
+    await page.getByTestId('add-zone').click();
+    const zone = await fillZone(page, 0, { name: 'Грядка', length: '2', width: '4' });
+    await zone.getByRole('button', { name: 'Добавить слой' }).click();
+    await fillLayer(zone, { material: 'soil', label: 'Грунт', thickness: '25', packageL: '50' });
+    const label = zone.locator('[data-action="material-field"][data-field="label"]');
+    await label.fill('');
+    await expect(label).toHaveAttribute('aria-invalid', 'true');
+    const errorId = await label.getAttribute('aria-describedby');
+    expect(errorId).toMatch(/^error-label-layer-/);
+    await expect(page.locator('[id="' + errorId + '"]')).toHaveText('Добавьте название варианта материала.');
+    if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="bom"]').click();
+    await expect(page.getByTestId('blocked-results')).toBeVisible();
+    if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="editor"]').click();
+    await label.fill('Грунт для грядок');
+    await expect(label).toHaveAttribute('aria-invalid', 'false');
+    await expect(label).not.toHaveAttribute('aria-describedby', /error-label/);
+    await expect(page.getByTestId('result-panel')).toBeAttached();
+  }
+  expect(errors).toEqual([]);
+});
