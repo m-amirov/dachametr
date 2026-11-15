@@ -572,3 +572,16 @@ test('mobile to desktop and tablet to phone resize relocates hidden navigation f
   await expect(page.locator('#result')).toBeFocused();
   expect(errors).toEqual([]);
 });
+
+test('empty editor tab does not leave focus on hidden mobile navigation after desktop resize', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const tab = page.locator('[data-action="mobile-tab"][data-target="editor"]');
+  await tab.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('selected-zone-name')).toHaveCount(0);
+  await page.setViewportSize({ width: 1024, height: 844 });
+  await expect(page.locator('.editor-surface [data-action="add-zone"]')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('zone-card')).toHaveCount(1);
+});
