@@ -2,7 +2,7 @@
 
 Дата аудита: 2026-11-15, повторный аудит после мобильной UX- и геометрической поправки
 Ветка: `design/dachametr-workspace`
-Точный HEAD источника: `640a3300540f4fb9ade4372b587efc1755291a56`
+SHA исходников, привязанный к запуску `viewport-checks.json`: `0eeefe009a2a36d6f4832b18e8d2a0bf9104a43a`
 Область: только локальный визуальный прототип в `artifacts/dachametr-workspace/`; рабочий Vite UI и `src/domain` не изменялись.
 
 Сравнение выполнено на одном сценарии и вынесено в [side-by-side.html](./side-by-side.html): PR #11 (`101cd559d82c807c036c319265b57c98e8bc3162`), PR #12 (`2b26a2ac9e516147b1fd7b7e8ff94832d4a7d98a`) и новый workspace.
