@@ -12,7 +12,9 @@ test('workspace contract has a self-contained prototype entrypoint', () => {
 
 test('workspace copy does not promise persistence or invent zone placement', () => {
   const html = readFileSync(new URL('index.html', prototypeDir), 'utf8');
-  assert.match(html, /не сохраняется|не обещает сохранение/i);
-  assert.match(html, /не схема размещения|только выбранн/i);
-  assert.doesNotMatch(html, /автосохранен|GPS|кадастр/i);
+  const app = readFileSync(new URL('app.js', prototypeDir), 'utf8');
+  const copy = `${html}\n${app}`;
+  assert.match(copy, /не сохраняются|не сохраняется|не обещает сохранение/i);
+  assert.match(copy, /не показывает её положение|не схема размещения|только выбранн/i);
+  assert.doesNotMatch(copy, /автосохранен|GPS|кадастр/i);
 });
