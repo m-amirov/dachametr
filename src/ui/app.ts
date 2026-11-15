@@ -55,6 +55,7 @@ interface ViewState {
   openZoneId: string | null;
   openLayerIds: ReadonlySet<string>;
   openBomKeys?: ReadonlySet<string>;
+  mobileSurface?: 'zones' | 'editor' | 'bom';
 }
 
 function draftError(validation: DraftValidation, path: string): string | undefined {
@@ -233,33 +234,107 @@ function renderResults(state: AppState, validation: DraftValidation, view: ViewS
   </section></aside>`;
 }
 
-export function renderAppHtml(state: AppState, validation: DraftValidation, view: ViewState = { openZoneId: state.zones[0]?.id ?? null, openLayerIds: new Set(state.zones.flatMap(zone => zone.layers.map(layer => layer.id))) }): string {
-  return `<div class="app-shell">
-    <header class="site-header">
-      <a class="brand" href="#top" aria-label="Дачаметр, к началу"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span><h1>Дачаметр</h1><small>расчёт участка и закупки</small></span></a>
-      <div class="session-note"><span class="status-dot"></span><span>Локальный расчёт</span><button type="button" class="button button-text" data-action="reset">Сбросить</button></div>
-    </header>
-    <main id="top">
-      <section class="intro" aria-labelledby="intro-title">
-        <div><span class="eyebrow">КАЛЬКУЛЯТОР МАТЕРИАЛОВ</span><h2 id="intro-title">Рассчитайте материалы <em>для участка</em></h2><p>Размеры, зоны и закупка — в одном рабочем пространстве.</p></div>
-        <a class="jump-result" href="#result">К ведомости <span aria-hidden="true">↓</span></a>
-      </section>
-      <div class="workspace"><section class="editor-column"><form class="calculator-form" novalidate>
-        <section class="panel plot-section">
-          <div class="section-title"><span class="eyebrow">УЧАСТОК</span><h2>Размеры участка</h2></div>
-          <div class="field-grid two-columns">
-            ${inputField({ id: 'plot-length', label: 'Длина участка', value: state.plot.length, action: 'plot-field', field: 'length', focusKey: 'plot-length', path: 'plot.length_m', validation, unit: 'м' })}
-            ${inputField({ id: 'plot-width', label: 'Ширина участка', value: state.plot.width, action: 'plot-field', field: 'width', focusKey: 'plot-width', path: 'plot.width_m', validation, unit: 'м' })}
-          </div>
-          <div class="plot-readout"><span>Площадь участка</span><strong>${validation.result?.ok ? formatUnit(validation.result.value.plot_area_m2, 'м²') : '—'}</strong><span>${validation.result?.ok ? `≈ ${formatUnit(decimalDivide(validation.result.value.plot_area_m2, '100'), 'сотки')}` : 'Введите оба размера'}</span></div>
-        </section>
-        <section class="zone-section">
-          <div class="section-title zones-title"><div><span class="eyebrow">ЗОНЫ</span><h2>Зоны <span class="count-badge">${state.zones.length}</span></h2><p>Грядки, дорожки и другие прямоугольные области.</p></div><button type="button" class="button button-primary" data-action="add-zone" data-testid="add-zone">+ Добавить зону</button></div>
-          ${state.zones.length === 0 ? '<div class="empty-zones"><div><h3>Начните с первой зоны</h3><p>Назовите её, задайте размеры и добавьте слой грунта, песка или щебня.</p></div><button type="button" class="button button-secondary" data-action="add-zone">Добавить первую зону</button></div>' : state.zones.map((zone, index) => renderZone(state, zone, index, validation, view)).join('')}
-        </section>
-      </form></section>${renderResults(state, validation, view)}</div>
+
+function renderProjectStructure(state: AppState, validation: DraftValidation, view: ViewState): string {
+  const activeId = view.openZoneId ?? state.zones[0]?.id;
+  const area = validation.result?.ok ? validation.result.value.plot_area_m2 : null;
+  return `<aside class="structure-panel" data-testid="structure-panel" aria-label="Структура участка">
+    <div class="panel-label-row"><span class="eyebrow">СТРУКТУРА ПРОЕКТА</span><button type="button" class="icon-button" data-action="add-zone" title="Добавить зону" aria-label="Добавить зону">+</button></div>
+    <div class="project-heading"><span class="project-glyph" aria-hidden="true">▱</span><div><strong>Участок</strong><small>Рабочий расчёт · без сохранения</small></div></div>
+    <div class="project-meta"><div><span>Габариты</span><strong>${state.plot.length && state.plot.width ? `${escapeHtml(state.plot.length)} × ${escapeHtml(state.plot.width)} м` : '—'}</strong></div><div><span>Площадь</span><strong>${area === null ? '—' : formatUnit(area, 'м²')}</strong></div></div>
+    <div class="project-dimensions" aria-label="Размеры участка">
+      ${inputField({id:'plot-length',label:'Длина участка',value:state.plot.length,action:'plot-field',field:'length',focusKey:'plot-length',path:'plot.length_m',validation,unit:'м'})}
+      ${inputField({id:'plot-width',label:'Ширина участка',value:state.plot.width,action:'plot-field',field:'width',focusKey:'plot-width',path:'plot.width_m',validation,unit:'м'})}
+    </div>
+    <div class="structure-divider"></div>
+    <div class="list-heading"><span>ЗОНЫ</span><span class="list-count">${state.zones.length}</span></div>
+    <nav class="zone-list" aria-label="Зоны участка">
+      ${state.zones.map((zone,index)=>{
+        const detail=zoneDetail(validation,zone.id);
+        const selected=zone.id===activeId;
+        return `<button type="button" class="zone-row${selected?' is-selected':''}" data-action="select-zone" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="select-zone-${escapeHtml(zone.id)}" aria-current="${selected?'true':'false'}" aria-label="Выбрать зону ${escapeHtml(zone.name)}"><span class="zone-index">${String(index+1).padStart(2,'0')}</span><span class="zone-row-copy"><strong>${escapeHtml(zone.name||'Без названия')}</strong><small>${escapeHtml(zone.length||'—')} × ${escapeHtml(zone.width||'—')} м</small></span><span class="zone-row-metric"><strong>${detail?formatUnit(detail.area_m2,'м²'):'—'}</strong><small>${zone.layers.length} сл.</small></span><span class="row-chevron" aria-hidden="true">›</span></button>`;
+      }).join('')}
+    </nav>
+    <button type="button" class="add-zone-button" data-action="add-zone" data-testid="add-zone">+ Добавить зону</button>
+    <div class="structure-footer"><span class="tiny-dot"></span><span>Зоны не размещаются на карте автоматически</span></div>
+  </aside>`;
+}
+
+function renderMobileTabs(active: 'zones' | 'editor' | 'bom'): string {
+  return `<nav class="mobile-tabs" aria-label="Разделы калькулятора">
+    ${([['zones','Зоны'],['editor','Редактор'],['bom','Ведомость']] as const).map(([key,label])=>
+      `<button type="button" data-action="mobile-tab" data-target="${key}" class="mobile-tab${active===key?' is-active':''}" aria-current="${active===key?'page':'false'}">${label}</button>`
+    ).join('')}
+  </nav>`;
+}
+
+function renderZoneFigure(state: AppState, zone: ZoneDraft, validation: DraftValidation): string {
+  const detail=zoneDetail(validation,zone.id);
+  if (!detail) return '<p class="figure-placeholder">Схема размеров появится после корректного заполнения полей. Недостоверные размеры не отображаются.</p>';
+  const length=Number(zone.length.replace(',','.')), width=Number(zone.width.replace(',','.'));
+  if (!Number.isFinite(length) || !Number.isFinite(width) || length<=0 || width<=0) return '';
+  const ratio=width/length;
+  const rectWidth=Math.min(340, 140 * ratio);
+  const layers=zone.layers.map(layer=>{
+    const spec=state.materials.find(item=>item.id===layer.materialSpecId);
+    const visual=Number(layer.thickness.replace(',','.'));
+    if(!spec || !Number.isFinite(visual) || visual<=0) return null;
+    return {id:layer.id,name:spec.label||MATERIAL_LABELS[spec.material],kind:spec.material,visual,thickness:layer.thickness};
+  });
+  if(layers.some(layer=>!layer)) return '';
+  return `<div class="zone-visual-grid" data-testid="zone-visual-grid">
+    <figure class="zone-figure">
+      <div class="figure-toolbar"><span class="figure-note">СХЕМА РАЗМЕРОВ</span><span class="figure-scale">Условная схема</span></div>
+      <div class="figure-canvas"><span class="measure-label measure-top">${formatUnit(zone.width,'м')}</span><span class="measure-label measure-side">${formatUnit(zone.length,'м')}</span>
+        <div class="zone-rectangle" data-testid="zone-rectangle" style="width:${rectWidth}px;aspect-ratio:${width}/${length}"><strong>${escapeHtml(zone.name)}</strong><span>${formatUnit(detail.area_m2,'м²')}</span></div></div>
+      <figcaption>Схема выбранной зоны без координат на участке.</figcaption>
+    </figure>
+    <div class="section-figure"><div class="figure-toolbar"><span class="figure-note">РАЗРЕЗ СЛОЁВ</span><span class="figure-scale">${zone.layers.length} сл.</span></div>
+      <div class="section-stack">
+        ${layers.length?layers.map(layer=>layer===null?'':`<button type="button" class="section-layer layer-${escapeHtml(layer.kind)}" data-action="toggle-layer" data-layer-id="${escapeHtml(layer.id)}" data-zone-id="${escapeHtml(zone.id)}" style="flex-grow:${layer.visual}" aria-label="Настроить ${escapeHtml(layer.name)}"><span>${escapeHtml(layer.name)}</span><strong>${escapeHtml(layer.thickness)} см</strong></button>`).join(''):'<p>Добавьте слой</p>'}
+      </div>
+      <p class="section-caption">Пропорции по введённым толщинам, не строительная норма.</p>
+    </div>
+  </div>`;
+}
+
+function renderWorkspaceEditor(state: AppState, validation: DraftValidation, view: ViewState): string {
+  const selectedId=view.openZoneId ?? state.zones[0]?.id;
+  const selected=state.zones.find(zone=>zone.id===selectedId);
+  const activeIndex=state.zones.findIndex(zone=>zone.id===selectedId);
+  const detail=selected?zoneDetail(validation,selected.id):undefined;
+  return `<section class="editor-surface" data-testid="zone-editor" aria-label="Редактор выбранной зоны">
+    <div class="editor-toolbar"><div class="breadcrumb"><span>Участок</span><span>/</span><strong>${selected?escapeHtml(selected.name):'Новая зона'}</strong></div>
+      <div class="editor-actions"><button type="button" class="quiet-button" data-action="reset">Сбросить расчёт</button></div></div>
+    ${selected?`
+      <div class="editor-heading"><div><span class="eyebrow">ВЫБРАННАЯ ЗОНА</span><h2 tabindex="-1" data-testid="selected-zone-name">${escapeHtml(selected.name||'Без названия')}</h2><p>${escapeHtml(selected.length||'—')} × ${escapeHtml(selected.width||'—')} м · ${selected.layers.length} сл. · ${detail?formatUnit(detail.area_m2,'м²'):'—'}</p></div><div class="editor-stat"><span>Площадь зоны</span><strong>${detail?formatUnit(detail.area_m2,'м²'):'—'}</strong></div></div>
+      <div class="zone-dimensions"><div><small>Длина</small><strong>${escapeHtml(selected.length||'—')} м</strong></div><div><small>Ширина</small><strong>${escapeHtml(selected.width||'—')} м</strong></div><div><small>Слои</small><strong>${selected.layers.length}</strong></div></div>
+      ${renderZoneFigure(state,selected,validation)}
+      <div class="section-heading"><div><span class="eyebrow">СОСТАВ ЗОНЫ</span><h3>Редактирование и материалы</h3></div></div>
+    `:'<div class="workspace-empty"><h2>Начните с зоны</h2><p>Укажите размеры участка слева и добавьте первую зону. Материалы и ведомость появятся автоматически.</p><button type="button" class="quiet-button" data-action="add-zone">Добавить зону</button></div>'}
+    <form class="calculator-form" novalidate>
+      ${state.zones.map((zone,index)=>`<div class="workspace-zone-wrap"${zone.id===selectedId?'':' hidden'}>${renderZone(state,zone,index,validation,view)}</div>`).join('')}
+    </form>
+  </section>`;
+}
+
+export function renderAppHtml(state: AppState, validation: DraftValidation, view: ViewState = {
+  openZoneId: state.zones[0]?.id ?? null,
+  openLayerIds: new Set(state.zones.flatMap(zone=>zone.layers.map(layer=>layer.id))),
+  mobileSurface: 'zones',
+}): string {
+  const active=view.mobileSurface??'zones';
+  return `<div class="workspace-app" data-testid="workspace-layout" data-mobile-surface="${active}">
+    <header class="topbar"><div class="brand-lockup"><span class="brand-mark" aria-hidden="true">▱</span><h1 class="brand-name">Дачаметр</h1><span class="brand-product">WORKSPACE</span></div>
+      <div class="topbar-context">Участок и материалы · точный расчёт</div>
+      <div class="topbar-actions"><span class="local-status"><i></i>Локальный расчёт</span><a class="jump-result" href="#result">К ведомости</a></div></header>
+    ${renderMobileTabs(active)}
+    <main class="workspace-grid">
+      ${renderProjectStructure(state,validation,view)}
+      ${renderWorkspaceEditor(state,validation,view)}
+      ${renderResults(state,validation,view)}
     </main>
-    <footer class="site-footer"><span>Площадь × толщина = объём слоя. Запас и плотность указываете сами.</span><span>Нет сохранения после перезагрузки · нет внешних запросов</span></footer>
+    <footer class="workspace-footer"><span>Размеры × толщина = объём; запас и плотность вводите самостоятельно.</span><span>Локальная сессия · без автосохранения</span></footer>
   </div>`;
 }
 
@@ -290,6 +365,7 @@ export function mountApp(root: HTMLElement): void {
   let openZoneId: string | null = null;
   const openLayerIds = new Set<string>();
   const openBomKeys = new Set<string>();
+  let mobileSurface: 'zones' | 'editor' | 'bom' = 'zones';
   const render = (focus?: FocusSnapshot) => {
     // Read native details state before replacing DOM, including across transient
     // invalid inputs where BOM is intentionally hidden by fail-closed validation.
@@ -299,7 +375,7 @@ export function mountApp(root: HTMLElement): void {
       if (details.open) openBomKeys.add(key);
       else openBomKeys.delete(key);
     }
-    root.innerHTML = renderAppHtml(state, validateDraft(state), { openZoneId, openLayerIds, openBomKeys });
+    root.innerHTML = renderAppHtml(state, validateDraft(state), { openZoneId, openLayerIds, openBomKeys, mobileSurface });
     if (focus) restoreFocus(root, focus);
   };
   const update = (next: AppState, preserveFocus = true) => {
@@ -326,7 +402,7 @@ export function mountApp(root: HTMLElement): void {
     if (action === 'material-field' && target.dataset.materialId && target.dataset.field === 'material') update(updateMaterialSpec(state, target.dataset.materialId, 'material', target.value));
     if (action === 'link-material' && target.dataset.zoneId && target.dataset.layerId) {
       const next = target.value === '__new__' ? linkLayerToNewMaterial(state, target.dataset.zoneId, target.dataset.layerId) : updateLayerField(state, target.dataset.zoneId, target.dataset.layerId, 'materialSpecId', target.value);
-      update(next, false);
+      update(next);
     }
   });
 
@@ -336,6 +412,17 @@ export function mountApp(root: HTMLElement): void {
     const button = target.closest<HTMLElement>('[data-action]');
     if (!button) return;
     const action = button.dataset.action;
+    if (action === 'mobile-tab' && (button.dataset.target === 'zones' || button.dataset.target === 'editor' || button.dataset.target === 'bom')) {
+      mobileSurface = button.dataset.target;
+      render();
+      return;
+    }
+    if (action === 'select-zone' && button.dataset.zoneId) {
+      openZoneId = button.dataset.zoneId;
+      mobileSurface = 'editor';
+      render();
+      return;
+    }
     if (action === 'toggle-zone' && button.dataset.zoneId) {
       openZoneId = openZoneId === button.dataset.zoneId ? null : button.dataset.zoneId;
       update(state);
@@ -351,11 +438,13 @@ export function mountApp(root: HTMLElement): void {
     if (action === 'add-zone') {
       const next = addZone(state);
       openZoneId = next.zones.at(-1)?.id ?? null;
+      mobileSurface = 'editor';
       update(next, false);
     }
     if (action === 'remove-zone' && button.dataset.zoneId) {
       const next = removeZone(state, button.dataset.zoneId);
       if (openZoneId === button.dataset.zoneId) openZoneId = next.zones[0]?.id ?? null;
+      if (next.zones.length === 0) mobileSurface = 'zones';
       update(next, false);
     }
     if (action === 'add-layer' && button.dataset.zoneId) {
@@ -374,6 +463,7 @@ export function mountApp(root: HTMLElement): void {
     }
     if (action === 'reset') {
       if (state.zones.length === 0 || window.confirm('Сбросить введённые размеры, зоны и материалы?')) {
+        mobileSurface = 'zones';
         openZoneId = null;
         openLayerIds.clear();
         update(createInitialState(), false);
