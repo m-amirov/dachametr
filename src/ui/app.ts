@@ -407,15 +407,31 @@ export function mountApp(root: HTMLElement): void {
     if (event.target instanceof HTMLFormElement && event.target.matches('.calculator-form')) event.preventDefault();
   });
 
-  root.addEventListener('input', event => {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement)) return;
+  const applyInput = (target: HTMLInputElement) => {
     const action = target.dataset.action;
     const value = target.value;
     if (action === 'plot-field' && (target.dataset.field === 'length' || target.dataset.field === 'width')) update(updatePlotField(state, target.dataset.field, value));
     if (action === 'zone-field' && target.dataset.zoneId && (target.dataset.field === 'name' || target.dataset.field === 'length' || target.dataset.field === 'width')) update(updateZoneField(state, target.dataset.zoneId, target.dataset.field, value));
     if (action === 'layer-field' && target.dataset.zoneId && target.dataset.layerId && ['thickness', 'reserve', 'packageL', 'density'].includes(target.dataset.field ?? '')) update(updateLayerField(state, target.dataset.zoneId, target.dataset.layerId, target.dataset.field as 'thickness' | 'reserve' | 'packageL' | 'density', value));
     if (action === 'material-field' && target.dataset.materialId && (target.dataset.field === 'label')) update(updateMaterialSpec(state, target.dataset.materialId, 'label', value));
+  };
+
+  // Replacing an input during an IME composition cancels the native editing
+  // session (notably on mobile keyboards). Commit the final value on compositionend.
+  let composingInput: HTMLInputElement | null = null;
+  root.addEventListener('compositionstart', event => {
+    if (event.target instanceof HTMLInputElement) composingInput = event.target;
+  });
+  root.addEventListener('compositionend', event => {
+    if (!(event.target instanceof HTMLInputElement) || event.target !== composingInput) return;
+    composingInput = null;
+    applyInput(event.target);
+  });
+  root.addEventListener('input', event => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (target === composingInput || (event instanceof InputEvent && event.isComposing)) return;
+    applyInput(target);
   });
 
   root.addEventListener('change', event => {
@@ -520,8 +536,10 @@ export function mountApp(root: HTMLElement): void {
         mobileSurface = 'zones';
         openZoneId = null;
         openLayerIds.clear();
-        openBomKeys.clear();
         update(createInitialState(), false);
+        // render() snapshots the old DOM's details state; clear that snapshot
+        // after replacing it so reused material IDs cannot inherit prior BOM UI.
+        openBomKeys.clear();
         moveFocus('plot-length');
       }
     }
