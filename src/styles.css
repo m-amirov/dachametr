@@ -416,7 +416,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--orange); 
 .field select { padding-right: 16px; }
 .field .unit { position: absolute; right: 11px; top: 11px; pointer-events: none; color: var(--muted); font-size: 11px; }
 .field .field-hint { margin: 4px 0 0; font-size: 11px; color: var(--muted); }
-.field .field-error { margin: 4px 0 0; color: var(--danger); font-size: 12px; font-weight: 650; }
+.field .field-error, .field-wide-mobile .field-error { margin: 4px 0 0; color: var(--danger); font-size: 12px; font-weight: 650; }
 .field-invalid input, input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--danger); background: #fffafa; }
 .zone-area { display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 12px; }
 .zone-area span { color: var(--muted); }
