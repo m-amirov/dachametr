@@ -176,7 +176,7 @@ function renderZone(state: AppState, zone: ZoneDraft, zoneIndex: number, validat
       ${inputField({ id: `zone-width-${zone.id}`, label: 'Ширина', value: zone.width, action: 'zone-field', field: 'width', focusKey: `zone-width-${zone.id}`, path: `${prefix}.width_m`, validation, unit: 'м', zoneId: zone.id })}
     </div>
     <div class="zone-area"><span>Площадь зоны</span><strong>${detail ? formatUnit(detail.area_m2, 'м²') : '—'}</strong></div>
-    <div class="layers-heading"><div><span class="eyebrow">СЛОИ И МАТЕРИАЛЫ</span><p>Каждый вариант и его фракция считаются отдельно.</p></div><button type="button" class="button button-secondary" data-action="add-layer" data-zone-id="${escapeHtml(zone.id)}">Добавить слой</button></div>
+    <div class="layers-heading"><div><span class="eyebrow">СЛОИ И МАТЕРИАЛЫ</span><p>Каждый вариант и его фракция считаются отдельно.</p></div><button type="button" class="button button-secondary" data-action="add-layer" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="add-layer-${escapeHtml(zone.id)}">Добавить слой</button></div>
     ${zone.layers.length === 0 ? '<div class="empty-inline">В этой зоне пока нет слоёв. Добавьте грунт, песок или щебень.</div>' : zone.layers.map((layer, layerIndex) => renderLayer(state, zone, layer, layerIndex, zoneIndex, validation, view)).join('')}
     </div>
   </article>`;
@@ -291,7 +291,7 @@ function renderZoneFigure(state: AppState, zone: ZoneDraft, validation: DraftVal
     </figure>
     <div class="section-figure"><div class="figure-toolbar"><span class="figure-note">РАЗРЕЗ СЛОЁВ</span><span class="figure-scale">${zone.layers.length} сл.</span></div>
       <div class="section-stack">
-        ${layers.length?layers.map(layer=>layer===null?'':`<button type="button" class="section-layer layer-${escapeHtml(layer.kind)}" data-action="toggle-layer" data-layer-id="${escapeHtml(layer.id)}" data-zone-id="${escapeHtml(zone.id)}" style="flex-grow:${layer.visual}" aria-label="Настроить ${escapeHtml(layer.name)}"><span>${escapeHtml(layer.name)}</span><strong>${escapeHtml(layer.thickness)} см</strong></button>`).join(''):'<p>Добавьте слой</p>'}
+        ${layers.length?layers.map(layer=>layer===null?'':`<button type="button" class="section-layer layer-${escapeHtml(layer.kind)}" data-action="toggle-layer" data-layer-id="${escapeHtml(layer.id)}" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="section-layer-${escapeHtml(layer.id)}" style="flex-grow:${layer.visual}" aria-label="Настроить ${escapeHtml(layer.name)}"><span>${escapeHtml(layer.name)}</span><strong>${escapeHtml(layer.thickness)} см</strong></button>`).join(''):'<p>Добавьте слой</p>'}
       </div>
       <p class="section-caption">Пропорции по введённым толщинам, не строительная норма.</p>
     </div>
@@ -400,6 +400,13 @@ export function mountApp(root: HTMLElement): void {
     render(focus);
   };
 
+  const moveFocus = (key: string) => restoreFocus(root, { key, start: null, end: null });
+
+  // This form is a live calculator, not a navigation/submission endpoint.
+  root.addEventListener('submit', event => {
+    if (event.target instanceof HTMLFormElement && event.target.matches('.calculator-form')) event.preventDefault();
+  });
+
   root.addEventListener('input', event => {
     const target = event.target;
     if (!(target instanceof HTMLInputElement)) return;
@@ -482,12 +489,15 @@ export function mountApp(root: HTMLElement): void {
       openZoneId = next.zones.at(-1)?.id ?? null;
       mobileSurface = 'editor';
       update(next, false);
+      if (openZoneId) moveFocus(`zone-name-${openZoneId}`);
     }
     if (action === 'remove-zone' && button.dataset.zoneId) {
       const next = removeZone(state, button.dataset.zoneId);
       if (openZoneId === button.dataset.zoneId) openZoneId = next.zones[0]?.id ?? null;
       if (next.zones.length === 0) mobileSurface = 'zones';
       update(next, false);
+      if (openZoneId) root.querySelector<HTMLElement>('[data-testid="selected-zone-name"]')?.focus();
+      else moveFocus('plot-length');
     }
     if (action === 'add-layer' && button.dataset.zoneId) {
       const next = addLayer(state, button.dataset.zoneId);
@@ -498,19 +508,21 @@ export function mountApp(root: HTMLElement): void {
       }
       openZoneId = button.dataset.zoneId;
       update(next, false);
+      if (newLayer) moveFocus(`source-${newLayer.id}`);
     }
     if (action === 'remove-layer' && button.dataset.zoneId && button.dataset.layerId) {
       openLayerIds.delete(button.dataset.layerId);
       update(removeLayer(state, button.dataset.zoneId, button.dataset.layerId), false);
+      moveFocus(`add-layer-${button.dataset.zoneId}`);
     }
     if (action === 'reset') {
       if (state.zones.length === 0 || window.confirm('Сбросить введённые размеры, зоны и материалы?')) {
         mobileSurface = 'zones';
         openZoneId = null;
         openLayerIds.clear();
-        update(createInitialState(), false);
-        // The render snapshots the old DOM before replacing it; clear after reset.
         openBomKeys.clear();
+        update(createInitialState(), false);
+        moveFocus('plot-length');
       }
     }
   });
