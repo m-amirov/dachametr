@@ -54,7 +54,7 @@ interface ViewState {
   openLayerIds: ReadonlySet<string>;
   openBomKeys?: ReadonlySet<string>;
   mobileSurface?: 'zones' | 'editor' | 'bom';
-  shareNotice?: string;
+  shareNotice?: string | undefined;
   shareProblem?: boolean;
 }
 
