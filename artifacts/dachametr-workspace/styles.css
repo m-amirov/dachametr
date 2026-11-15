@@ -307,6 +307,8 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--orange); 
   .figure-canvas, .section-stack { height: 112px; }
   .zone-figure figcaption, .section-caption { display: none; }
   .figure-toolbar { margin-bottom: 5px; }
+  .zone-figure .figure-toolbar { display: block; }
+  .zone-figure .figure-scale { display: block; margin-top: 2px; text-transform: none; letter-spacing: .02em; }
   .section-layer { min-width: 0; min-height: 0; padding: 0 7px; font-size: 10px; }
   .layer-table-header { grid-template-columns: 25px minmax(120px,1fr) 55px 22px; }
   .layer-table-header span:nth-child(4) { display: none; }
