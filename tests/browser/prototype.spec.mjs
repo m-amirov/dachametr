@@ -741,6 +741,7 @@ test('versioned fragment link restores complete zone/material calculation and av
     }
     await expect(imported.getByTestId('selected-zone-name')).toContainText('Северная грядка');
     await expect(imported.locator('[data-action="material-field"][data-field="label"]')).toHaveValue('Грунт для ёлки');
+    if (width <= 820) await imported.locator('[data-action="mobile-tab"][data-target="zones"]').click();
     await field(imported, 'plot-field', 'width').fill('31');
     await expect(imported).toHaveURL(/\/$/);
     await imported.reload();
@@ -757,11 +758,12 @@ test('invalid, unsupported and markup-bearing shared links cannot silently poiso
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await field(page, 'plot-field', 'length').fill('20');
-  await page.goto('/#dm=9.AAAA');
+  await page.evaluate(() => { window.location.hash = 'dm=9.AAAA'; });
   await expect(page.getByTestId('share-load-notice')).toContainText('Версия ссылки не поддерживается');
-  await expect(field(page, 'plot-field', 'length')).toHaveValue('');
-  await page.goto('/#dm=1.AAAA');
+  await expect(field(page, 'plot-field', 'length')).toHaveValue('20');
+  await page.evaluate(() => { window.location.hash = 'dm=1.AAAA'; });
   await expect(page.getByTestId('share-load-notice')).toContainText('Ссылка повреждена');
+  await expect(field(page, 'plot-field', 'length')).toHaveValue('20');
 
   const payload = {
     v: 1,
