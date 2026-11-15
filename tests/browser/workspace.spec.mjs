@@ -75,3 +75,20 @@ test('error state blocks the BOM instead of showing a partial total', async ({ p
   await expect(page.getByTestId('bom-total-volume')).toHaveText('—');
   expect(errors).toEqual([]);
 });
+
+test('design board and comparison page render their committed visual evidence', async ({ page }) => {
+  const errors = attachRuntimeErrors(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+
+  await page.goto('/artifacts/dachametr-workspace/design-board.html');
+  await expect(page.getByRole('heading', { name: 'Design system board' })).toBeVisible();
+  await expect(page.getByText('Active zone')).toBeVisible();
+  await expect(page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).resolves.toBe(false);
+
+  await page.goto('/artifacts/dachametr-workspace/side-by-side.html');
+  await expect(page.getByRole('heading', { name: /Почему это не PR #11 и не PR #12/ })).toBeVisible();
+  await expect(page.locator('img')).toHaveCount(3);
+  await expect(page.locator('img').nth(2)).toHaveJSProperty('naturalWidth', 1440);
+  await expect(page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).resolves.toBe(false);
+  expect(errors).toEqual([]);
+});
