@@ -19,6 +19,7 @@ import {
 } from './model.ts';
 import { formatRuNumber, formatUnit, sumWholePackages } from './format.ts';
 import { formatBomForClipboard } from './bom-export.ts';
+import { decodeSharedCalculation, encodeSharedCalculation, isSharedCalculationHash } from './share.ts';
 import { validateDraft, type DraftValidation } from './validation.ts';
 
 const MATERIAL_LABELS: Record<MaterialKind, string> = {
@@ -53,6 +54,8 @@ interface ViewState {
   openLayerIds: ReadonlySet<string>;
   openBomKeys?: ReadonlySet<string>;
   mobileSurface?: 'zones' | 'editor' | 'bom';
+  shareNotice?: string;
+  shareProblem?: boolean;
 }
 
 function draftError(validation: DraftValidation, path: string): string | undefined {
@@ -226,7 +229,9 @@ function renderResults(state: AppState, validation: DraftValidation, view: ViewS
   const totalPurchase = value.bom.reduce((sum, row) => sum.add(Exact.decimal(row.purchase_l)), new Exact(0n)).toString();
   const totalPackages = sumWholePackages(value.bom.map(row => row.packages));
   return `<aside class="results-column" id="result" tabindex="-1" aria-label="Ведомость закупки" data-testid="result-panel"><section class="panel result-panel bom-surface">
-    <div class="result-heading"><div><span class="eyebrow">ВАШ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><div class="result-heading-actions"><span class="live-dot">Обновляется</span>${value.bom.length ? '<button type="button" class="quiet-button copy-bom-button" data-action="copy-bom">Копировать ведомость</button>' : ''}</div></div>
+    <div class="result-heading"><div><span class="eyebrow">ВАШ РАСЧЁТ</span><h2>Ведомость закупки</h2></div><div class="result-heading-actions"><span class="live-dot">Обновляется</span><button type="button" class="quiet-button" data-action="share-calculation">Скопировать ссылку</button>${value.bom.length ? '<button type="button" class="quiet-button copy-bom-button" data-action="copy-bom">Копировать ведомость</button>' : ''}</div></div>
+    <p class="share-link-hint">Ссылка содержит введённые названия зон и материалов. Не указывайте личные данные.</p>
+    <p class="share-link-status" data-testid="share-link-status" role="status" aria-live="polite"></p>
     ${value.bom.length ? '<p class="copy-bom-status" data-testid="copy-bom-status" role="status" aria-live="polite"></p>' : ''}
     <div class="result-lead"><div><span>Всего нужно с запасом</span><strong>${formatUnit(totalPurchase, 'л')}</strong></div>${totalPackages !== null ? `<div class="total-packages"><span>Упаковок</span><strong>${formatRuNumber(totalPackages)} уп.</strong></div>` : '<div class="total-packages"><span>Упаковки</span><strong>По материалам</strong></div>'}</div>
     <div class="area-summary"><div><span>Участок</span><strong>${formatUnit(value.plot_area_m2, 'м²')}</strong></div><div><span>Сотки</span><strong>${formatUnit(sotki, 'сотки')}</strong></div><div><span>Зоны</span><strong>${state.zones.length}</strong></div></div>
@@ -329,6 +334,7 @@ export function renderAppHtml(state: AppState, validation: DraftValidation, view
     <header class="topbar"><div class="brand-lockup"><span class="brand-mark" aria-hidden="true">▱</span><h1 class="brand-name">Дачаметр</h1><span class="brand-product">WORKSPACE</span></div>
       <div class="topbar-context">Участок и материалы · точный расчёт</div>
       <div class="topbar-actions"><span class="local-status"><i></i>Локальный расчёт</span><a class="jump-result" href="#result" data-action="open-bom">К ведомости</a></div></header>
+    ${view.shareNotice ? `<p class="share-load-notice${view.shareProblem ? ' is-error' : ''}" data-testid="share-load-notice" role="${view.shareProblem ? 'alert' : 'status'}">${escapeHtml(view.shareNotice)}</p>` : ''}
     ${renderMobileTabs(active)}
     <main class="workspace-grid">
       ${renderProjectStructure(state,validation,view)}
