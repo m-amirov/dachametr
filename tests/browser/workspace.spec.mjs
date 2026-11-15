@@ -108,6 +108,54 @@ test('tablet zone navigation works at 768px and preserves the selected zone thro
   await assertMobileZoneNavigation(page, 768, 900);
 });
 
+test('zone rectangles fit their measurement canvas at every supported viewport', async ({ page }) => {
+  const expectedRatios = { bed: 4 / 2, path: 5 / 2 };
+  const widths = [320, 390, 768, 1024, 1440];
+
+  for (const width of widths) {
+    for (const zoneId of ['bed', 'path']) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/artifacts/dachametr-workspace/index.html');
+      if (width <= 820) await page.getByRole('tab', { name: 'Зоны' }).click();
+      await page.getByTestId(`zone-row-${zoneId}`).click();
+
+      const geometry = await page.getByTestId('zone-rectangle').evaluate(element => {
+        const rect = element.getBoundingClientRect();
+        const canvas = element.closest('.figure-canvas').getBoundingClientRect();
+        const visualGrid = element.closest('.zone-visual-grid').getBoundingClientRect();
+        const section = element.closest('.zone-visual-grid').querySelector('.section-figure').getBoundingClientRect();
+        const measureRects = [...element.closest('.figure-canvas').querySelectorAll('.measure-label')].map(label => {
+          const labelRect = label.getBoundingClientRect();
+          return { left: labelRect.left, right: labelRect.right, top: labelRect.top, bottom: labelRect.bottom };
+        });
+        return {
+          rectangle: { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height },
+          canvas: { left: canvas.left, right: canvas.right, top: canvas.top, bottom: canvas.bottom, width: canvas.width, height: canvas.height },
+          visualGrid: { top: visualGrid.top, bottom: visualGrid.bottom },
+          section: { top: section.top, bottom: section.bottom },
+          sectionOverlapsRectangle: rect.left < section.right && rect.right > section.left && rect.top < section.bottom && rect.bottom > section.top,
+          measureRects,
+        };
+      });
+
+      expect(geometry.rectangle.left, `${width}px ${zoneId}: rectangle left`).toBeGreaterThanOrEqual(geometry.canvas.left - 0.5);
+      expect(geometry.rectangle.right, `${width}px ${zoneId}: rectangle right`).toBeLessThanOrEqual(geometry.canvas.right + 0.5);
+      expect(geometry.rectangle.top, `${width}px ${zoneId}: rectangle top`).toBeGreaterThanOrEqual(geometry.canvas.top - 0.5);
+      expect(geometry.rectangle.bottom, `${width}px ${zoneId}: rectangle bottom`).toBeLessThanOrEqual(geometry.canvas.bottom + 0.5);
+      expect(geometry.rectangle.bottom, `${width}px ${zoneId}: rectangle stays in visual grid`).toBeLessThanOrEqual(geometry.visualGrid.bottom + 0.5);
+      expect(geometry.sectionOverlapsRectangle, `${width}px ${zoneId}: section overlaps zone rectangle`).toBe(false);
+      expect(geometry.section.bottom, `${width}px ${zoneId}: section stays in visual grid`).toBeLessThanOrEqual(geometry.visualGrid.bottom + 0.5);
+      expect(geometry.rectangle.width / geometry.rectangle.height, `${width}px ${zoneId}: aspect ratio`).toBeCloseTo(expectedRatios[zoneId], 2);
+      for (const [index, measure] of geometry.measureRects.entries()) {
+        expect(measure.left, `${width}px ${zoneId}: measure ${index} left`).toBeGreaterThanOrEqual(geometry.canvas.left - 0.5);
+        expect(measure.right, `${width}px ${zoneId}: measure ${index} right`).toBeLessThanOrEqual(geometry.canvas.right + 0.5);
+        expect(measure.top, `${width}px ${zoneId}: measure ${index} top`).toBeGreaterThanOrEqual(geometry.canvas.top - 0.5);
+        expect(measure.bottom, `${width}px ${zoneId}: measure ${index} bottom`).toBeLessThanOrEqual(geometry.canvas.bottom + 0.5);
+      }
+    }
+  }
+});
+
 test('error state blocks the BOM instead of showing a partial total', async ({ page }) => {
   const errors = attachRuntimeErrors(page);
   await page.goto('/artifacts/dachametr-workspace/index.html?state=error');

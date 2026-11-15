@@ -55,6 +55,19 @@ function zoneLayers(zone) {
   return zone.layers.map((layer, index) => ({ ...layer, index, ...MATERIALS[layer.material] }));
 }
 
+function fitZoneRectangles() {
+  root.querySelectorAll('.figure-canvas').forEach(canvas => {
+    const rectangle = canvas.querySelector('.zone-rectangle');
+    if (!rectangle) return;
+    const ratio = Number(rectangle.dataset.ratio);
+    const availableWidth = Math.max(0, canvas.clientWidth - 16);
+    const availableHeight = Math.max(0, canvas.clientHeight - 16);
+    const width = Math.min(availableWidth * .76, 360, availableHeight * ratio);
+    rectangle.style.width = `${width}px`;
+    rectangle.style.height = `${width / ratio}px`;
+  });
+}
+
 function renderTopbar(scenario) {
   return `<header class="topbar">
     <div class="brand-lockup"><span class="brand-mark">${icon('layers')}</span><span class="brand-name">Дачаметр</span><span class="brand-product">Workspace</span></div>
@@ -102,7 +115,7 @@ function renderZoneFigure(zone, scenario) {
   return `<div class="zone-visual-grid">
     <figure class="zone-figure" aria-labelledby="figure-title">
       <div class="figure-toolbar"><span class="figure-note">Схема размеров</span><span class="figure-scale">Условная схема размеров</span></div>
-      <div class="figure-canvas"><div class="measure-label measure-top"><span>${zone.width_m} м</span></div><div class="measure-label measure-side"><span>${zone.length_m} м</span></div><div class="zone-rectangle" data-testid="zone-rectangle" style="--zone-ratio:${width}/${length}"><span class="zone-rectangle-label">${escapeHtml(scenario.labels.zones[zone.id])}</span><span class="zone-rectangle-area">${formatUnit(zoneArea(zone, scenario), 'м²')}</span></div><span class="figure-origin">0,0</span></div>
+      <div class="figure-canvas"><div class="measure-label measure-top"><span>${zone.width_m} м</span></div><div class="measure-label measure-side"><span>${zone.length_m} м</span></div><div class="zone-rectangle" data-testid="zone-rectangle" data-ratio="${width / length}" style="--zone-ratio:${width}/${length}"><span class="zone-rectangle-label">${escapeHtml(scenario.labels.zones[zone.id])}</span><span class="zone-rectangle-area">${formatUnit(zoneArea(zone, scenario), 'м²')}</span></div><span class="figure-origin">0,0</span></div>
       <figcaption id="figure-title">Прямоугольник выбранной зоны. Не показывает её положение на участке.</figcaption>
     </figure>
     <div class="section-figure"><div class="figure-toolbar"><span class="figure-note">Разрез слоёв</span><span class="figure-scale">${totalThickness} см</span></div><div class="section-stack">${layers.length ? layers.map(layer => `<button class="section-layer layer-${layer.tone}" type="button" data-action="toggle-layer" data-layer-id="${layer.id}" aria-label="Настроить ${escapeHtml(layer.material_spec_label)}" style="--layer-size:${Number(layer.thickness_cm) / totalThickness}"><span>${escapeHtml(layer.material_spec_label)}</span><b>${layer.thickness_cm} см</b></button>`).join('') : '<div class="section-empty">Добавьте слой</div>'}</div><p class="section-caption">Высота полос пропорциональна введённой толщине, это не строительная норма.</p></div>
@@ -183,9 +196,12 @@ async function boot() {
       state.mobileSurface = button.dataset.target;
       render();
     }));
+    fitZoneRectangles();
   }
   render();
 }
+
+window.addEventListener('resize', fitZoneRectangles, { passive: true });
 
 boot().catch(error => {
   root.innerHTML = `<main class="load-error"><h1>Не удалось загрузить сценарий</h1><p>${escapeHtml(error.message)}</p></main>`;

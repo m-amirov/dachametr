@@ -30,6 +30,7 @@ await mkdir(evidenceDir, { recursive: true });
 const browser = await chromium.launch();
 const browserVersion = browser.version();
 const checks = [];
+const geometryChecks = [];
 
 async function capture({ name, url, viewport, state, prepare }) {
   const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
@@ -67,6 +68,46 @@ async function capture({ name, url, viewport, state, prepare }) {
   await page.close();
 }
 
+async function inspectZoneGeometry(width, zoneId) {
+  const page = await browser.newPage({ viewport: { width, height: 900 }, deviceScaleFactor: 1 });
+  await page.goto(`${baseURL}/artifacts/dachametr-workspace/index.html`, { waitUntil: 'networkidle' });
+  if (width <= 820) await page.getByRole('tab', { name: 'Зоны' }).click();
+  await page.getByTestId(`zone-row-${zoneId}`).click();
+  const geometry = await page.getByTestId('zone-rectangle').evaluate(element => {
+    const rect = element.getBoundingClientRect();
+    const canvas = element.closest('.figure-canvas').getBoundingClientRect();
+    const visualGrid = element.closest('.zone-visual-grid').getBoundingClientRect();
+    const section = element.closest('.zone-visual-grid').querySelector('.section-figure').getBoundingClientRect();
+    const measureRects = [...element.closest('.figure-canvas').querySelectorAll('.measure-label')].map(label => {
+      const labelRect = label.getBoundingClientRect();
+      return { left: labelRect.left, right: labelRect.right, top: labelRect.top, bottom: labelRect.bottom };
+    });
+    const inside = (inner, outer) => inner.left >= outer.left - 0.5 && inner.right <= outer.right + 0.5 && inner.top >= outer.top - 0.5 && inner.bottom <= outer.bottom + 0.5;
+    const sectionOverlapsRectangle = rect.left < section.right && rect.right > section.left && rect.top < section.bottom && rect.bottom > section.top;
+    return {
+      rectangle: { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height },
+      canvas: { left: canvas.left, right: canvas.right, top: canvas.top, bottom: canvas.bottom, width: canvas.width, height: canvas.height },
+      visualGrid: { top: visualGrid.top, bottom: visualGrid.bottom },
+      section: { left: section.left, right: section.right, top: section.top, bottom: section.bottom },
+      sectionOverlapsRectangle,
+      measureRects,
+      rectangleInsideCanvas: inside(rect, canvas),
+      rectangleInsideVisualGrid: rect.bottom <= visualGrid.bottom + 0.5,
+      sectionInsideVisualGrid: section.bottom <= visualGrid.bottom + 0.5,
+      measureLabelsInsideCanvas: measureRects.every(measure => inside(measure, canvas)),
+    };
+  });
+  geometryChecks.push({
+    viewport: `${width}x900`,
+    width,
+    zoneId,
+    ...geometry,
+    aspectRatio: geometry.rectangle.width / geometry.rectangle.height,
+    pass: geometry.rectangleInsideCanvas && geometry.rectangleInsideVisualGrid && geometry.sectionInsideVisualGrid && geometry.measureLabelsInsideCanvas && !geometry.sectionOverlapsRectangle,
+  });
+  await page.close();
+}
+
 await capture({ name: 'desktop-1440x900.png', url: '/artifacts/dachametr-workspace/index.html', viewport: { width: 1440, height: 900 }, state: 'desktop-editor' });
 await capture({ name: 'desktop-material-1440x900.png', url: '/artifacts/dachametr-workspace/index.html', viewport: { width: 1440, height: 900 }, state: 'desktop-selected-material', prepare: async page => {
   await page.locator('[data-action="select-zone"][data-zone-id="path"]').click();
@@ -89,6 +130,10 @@ await capture({ name: 'tablet-path-768x900.png', url: '/artifacts/dachametr-work
 } });
 await capture({ name: 'design-board-1440x900.png', url: '/artifacts/dachametr-workspace/design-board.html', viewport: { width: 1440, height: 900 }, state: 'design-board' });
 
+for (const width of [320, 390, 768, 1024, 1440]) {
+  for (const zoneId of ['bed', 'path']) await inspectZoneGeometry(width, zoneId);
+}
+
 await browser.close();
 const manifest = {
   captureTool: '@playwright/test 1.65.0',
@@ -100,6 +145,7 @@ const manifest = {
   sourceDigestSha256: sourceDigest.digest('hex'),
   sourceFiles: sourceChecksums,
   checks,
+  geometryChecks,
   gates: {
     physicalMobileDevice: 'BLOCKED',
     realSoftKeyboard: 'NOT RUN',
@@ -110,5 +156,5 @@ const manifest = {
   },
 };
 await writeFile(path.join(evidenceDir, 'viewport-checks.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
-if (checks.some(check => check.horizontalOverflow || check.consoleErrors.length || check.requestFailures.length)) process.exitCode = 1;
+if (checks.some(check => check.horizontalOverflow || check.consoleErrors.length || check.requestFailures.length) || geometryChecks.some(check => !check.pass)) process.exitCode = 1;
 console.log(JSON.stringify(manifest, null, 2));
