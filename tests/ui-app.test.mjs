@@ -223,3 +223,32 @@ test('clipboard formatter sanitizes control characters and retains distinct mate
   assert.match(text, /Грунт для грядки \(Грунт, spec-1\)/);
   assert.doesNotMatch(text, /Грунт\nдля/);
 });
+
+test('clipboard formatter keeps two same-named independent material variants separate', () => {
+  let state = completeState();
+  state = addZone(state);
+  const second = state.zones[1];
+  state = updateZoneField(state, second.id, 'name', 'Дорожка');
+  state = updateZoneField(state, second.id, 'length', '1');
+  state = updateZoneField(state, second.id, 'width', '2');
+  state = addLayer(state, second.id);
+  const specId = state.zones[1].layers[0].materialSpecId;
+  state = {
+    ...state,
+    materials: state.materials.map(item => item.id === specId ? { ...item, label: 'Грунт для грядок' } : item),
+    zones: state.zones.map(zone => zone.id === second.id ? {
+      ...zone,
+      layers: zone.layers.map(layer => ({ ...layer, thickness: '10', packageL: '50' })),
+    } : zone),
+  };
+  const validation = validateDraft(state);
+  assert.equal(validation.result?.ok, true, JSON.stringify(validation.errors));
+  if (!validation.result?.ok) return;
+  assert.equal(validation.result.value.bom.length, 2);
+  const text = formatBomForClipboard(state, validation.result.value);
+  assert.match(text, /1\. Грунт для грядок \(Грунт, spec-1\)/);
+  assert.match(text, /2\. Грунт для грядок \(Грунт, spec-2\)/);
+  assert.match(text, /Купить: 40 уп\. × 50 л/);
+  assert.match(text, /Купить: 4 уп\. × 50 л/);
+});
+
