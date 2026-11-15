@@ -3,9 +3,9 @@
   "browser": "Chromium",
   "browserVersion": "158.0.8127.18",
   "baseURL": "http://127.0.0.1:4173",
-  "sourceSha": "8f31f4403c97ee47a9b54c4aa931a21928163420",
+  "sourceSha": "18cf091108e088bd4a233c7fd6eb93a2f1e7b3a8",
   "dirtyBeforeCapture": false,
-  "sourceDigestSha256": "4419a0b55d87e44f9fde7f06f8d808b5504c701f8367ce3d052da6b0578de158",
+  "sourceDigestSha256": "6906e14fb552d035e2dfb29cb098e40bd1566fda38201bbd56913ce0cdbb1a54",
   "sourceFiles": [
     {
       "file": "src/domain/plot.ts",
@@ -21,11 +21,11 @@
     },
     {
       "file": "artifacts/dachametr-workspace/app.js",
-      "sha256": "bb5bfde486e3b82bcd5fd2558a36e5b06062716912a32fe4ba48be3ee61c739b"
+      "sha256": "19712824f30e4c343c270bffc42eef079274454d65ba7827b045a71f7a517eaf"
     },
     {
       "file": "artifacts/dachametr-workspace/styles.css",
-      "sha256": "ba5616d88c4469f4f710a44803e2e4709908ec28067a2333c872ea07d1243aa8"
+      "sha256": "c9d295f71061bc64dd13682224b0cf80cf96bf8160c2ee4c5f5e837092ebd79a"
     },
     {
       "file": "artifacts/dachametr-workspace/scenario.json",
@@ -40,13 +40,13 @@
       "dpr": 1,
       "file": "artifacts/dachametr-workspace/evidence/latest/desktop-1440x900.png",
       "pixels": "1440x900",
-      "bytes": 72268,
-      "pngSha256": "cd2a00867105893ceaa258154c05fe24ae3e4c9cf4190f6fb9c6a71fff72d657",
+      "bytes": 76440,
+      "pngSha256": "591bb45bf52175940d6e80a2e7d5087dcd83917b9698556a46652139a99df844",
       "horizontalOverflow": false,
       "geometry": {
         "scrollWidth": 1440,
         "clientWidth": 1440,
-        "scrollHeight": 999,
+        "scrollHeight": 1029,
         "clientHeight": 900
       },
       "consoleErrors": [],
@@ -59,13 +59,13 @@
       "dpr": 1,
       "file": "artifacts/dachametr-workspace/evidence/latest/desktop-material-1440x900.png",
       "pixels": "1440x900",
-      "bytes": 77637,
-      "pngSha256": "f1d451cb31fee02776f9944698847ac0ae45d776bba6247a36648a4761d8cb3c",
+      "bytes": 81985,
+      "pngSha256": "cd68e28f5794ece37859c988b92438cee843cf8e85d44dfa52d7d01116bb559e",
       "horizontalOverflow": false,
       "geometry": {
         "scrollWidth": 1440,
         "clientWidth": 1440,
-        "scrollHeight": 1081,
+        "scrollHeight": 1091,
         "clientHeight": 900
       },
       "consoleErrors": [],
@@ -78,13 +78,51 @@
       "dpr": 1,
       "file": "artifacts/dachametr-workspace/evidence/latest/mobile-390x844.png",
       "pixels": "390x844",
-      "bytes": 20539,
-      "pngSha256": "2b1f446823a871a5c6cf3c78599b87c7b92bb4b338410efe4139b949892edf49",
+      "bytes": 24323,
+      "pngSha256": "4450f29b5b024f0fe036fe89563d8ef36be5da80cf22f7db9b151eb74966bb72",
       "horizontalOverflow": false,
       "geometry": {
         "scrollWidth": 390,
         "clientWidth": 390,
-        "scrollHeight": 1068,
+        "scrollHeight": 937,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "requestFailures": []
+    },
+    {
+      "state": "mobile-zones",
+      "url": "/artifacts/dachametr-workspace/index.html",
+      "viewport": "390x844",
+      "dpr": 1,
+      "file": "artifacts/dachametr-workspace/evidence/latest/mobile-zones-390x844.png",
+      "pixels": "390x844",
+      "bytes": 19790,
+      "pngSha256": "a674dd806563d81bb2fb9cd51c0874948dcddaa37eb213fa6626f22de1140375",
+      "horizontalOverflow": false,
+      "geometry": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 938,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "requestFailures": []
+    },
+    {
+      "state": "mobile-selected-path",
+      "url": "/artifacts/dachametr-workspace/index.html",
+      "viewport": "390x844",
+      "dpr": 1,
+      "file": "artifacts/dachametr-workspace/evidence/latest/mobile-path-390x844.png",
+      "pixels": "390x844",
+      "bytes": 27924,
+      "pngSha256": "b49bf3c229c2788b6c7173f3258e8d44ebe2f8765672a0ceebf3675271803e02",
+      "horizontalOverflow": false,
+      "geometry": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 937,
         "clientHeight": 844
       },
       "consoleErrors": [],
@@ -97,14 +135,33 @@
       "dpr": 1,
       "file": "artifacts/dachametr-workspace/evidence/latest/mobile-bom-390x844.png",
       "pixels": "390x844",
-      "bytes": 23611,
-      "pngSha256": "614a1e83aade39596f67b8ee7817ac6dde6366872e19f3e57f5f23665c06e83d",
+      "bytes": 24784,
+      "pngSha256": "65f9944c9b9a1ca326fd99b4fa16a6f22c7b74ae5a857b06a58f0de3d3f47441",
       "horizontalOverflow": false,
       "geometry": {
         "scrollWidth": 390,
         "clientWidth": 390,
-        "scrollHeight": 1070,
+        "scrollHeight": 1111,
         "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "requestFailures": []
+    },
+    {
+      "state": "tablet-selected-path",
+      "url": "/artifacts/dachametr-workspace/index.html",
+      "viewport": "768x900",
+      "dpr": 1,
+      "file": "artifacts/dachametr-workspace/evidence/latest/tablet-path-768x900.png",
+      "pixels": "768x900",
+      "bytes": 34556,
+      "pngSha256": "85ab776d165917ceebf91768c38b6637a9fc3feb3ca28c60a8e5adcc08e83f50",
+      "horizontalOverflow": false,
+      "geometry": {
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "scrollHeight": 979,
+        "clientHeight": 900
       },
       "consoleErrors": [],
       "requestFailures": []
@@ -116,13 +173,13 @@
       "dpr": 1,
       "file": "artifacts/dachametr-workspace/evidence/latest/design-board-1440x900.png",
       "pixels": "1440x900",
-      "bytes": 43625,
-      "pngSha256": "90c03501f2dca4ab8ce6eebdd50ae19757d3c1932cd7699dadb0a64d81640c10",
+      "bytes": 44162,
+      "pngSha256": "6e830febff3ab126921040d64a896ee94caf81f8c6658b515e8df35191063259",
       "horizontalOverflow": false,
       "geometry": {
         "scrollWidth": 1440,
         "clientWidth": 1440,
-        "scrollHeight": 1505,
+        "scrollHeight": 1507,
         "clientHeight": 900
       },
       "consoleErrors": [],
