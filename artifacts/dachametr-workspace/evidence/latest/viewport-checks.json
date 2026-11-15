@@ -1,0 +1,140 @@
+{
+  "captureTool": "@playwright/test 1.65.0",
+  "browser": "Chromium",
+  "browserVersion": "158.0.8127.18",
+  "baseURL": "http://127.0.0.1:4173",
+  "sourceSha": "c9fb91ca6ab62d8d38836cd8f72d4b0c5152bb4c",
+  "dirtyBeforeCapture": false,
+  "sourceDigestSha256": "4419a0b55d87e44f9fde7f06f8d808b5504c701f8367ce3d052da6b0578de158",
+  "sourceFiles": [
+    {
+      "file": "src/domain/plot.ts",
+      "sha256": "96324966a273b1fe5823a83ff082bb705a4d5d1adbfdf41af23028afde69e7e0"
+    },
+    {
+      "file": "src/domain/exact.ts",
+      "sha256": "062128be76cfeba4f6e0aeac0cdc65b4a813d76d3c6873488528dfceaae34255"
+    },
+    {
+      "file": "artifacts/dachametr-workspace/index.html",
+      "sha256": "9ca0d58f543531db12098582972cd477c298cbc89640ce39dd22e790d89f60fc"
+    },
+    {
+      "file": "artifacts/dachametr-workspace/app.js",
+      "sha256": "bb5bfde486e3b82bcd5fd2558a36e5b06062716912a32fe4ba48be3ee61c739b"
+    },
+    {
+      "file": "artifacts/dachametr-workspace/styles.css",
+      "sha256": "ba5616d88c4469f4f710a44803e2e4709908ec28067a2333c872ea07d1243aa8"
+    },
+    {
+      "file": "artifacts/dachametr-workspace/scenario.json",
+      "sha256": "2018ac4be5dc394f690ab1cdb0593b9ae33c3c60d3b261d8e88d0a346cbaa48c"
+    }
+  ],
+  "checks": [
+    {
+      "state": "desktop-editor",
+      "url": "/artifacts/dachametr-workspace/index.html",
+      "viewport": "1440x900",
+      "dpr": 1,
+      "file": "artifacts/dachametr-workspace/evidence/latest/desktop-1440x900.png",
+      "pixels": "1440x900",
+      "bytes": 72268,
+      "pngSha256": "cd2a00867105893ceaa258154c05fe24ae3e4c9cf4190f6fb9c6a71fff72d657",
+      "horizontalOverflow": false,
+      "geometry": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 999,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "requestFailures": []
+    },
+    {
+      "state": "desktop-selected-material",
+      "url": "/artifacts/dachametr-workspace/index.html",
+      "viewport": "1440x900",
+      "dpr": 1,
+      "file": "artifacts/dachametr-workspace/evidence/latest/desktop-material-1440x900.png",
+      "pixels": "1440x900",
+      "bytes": 77637,
+      "pngSha256": "f1d451cb31fee02776f9944698847ac0ae45d776bba6247a36648a4761d8cb3c",
+      "horizontalOverflow": false,
+      "geometry": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1081,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "requestFailures": []
+    },
+    {
+      "state": "mobile-editor",
+      "url": "/artifacts/dachametr-workspace/index.html",
+      "viewport": "390x844",
+      "dpr": 1,
+      "file": "artifacts/dachametr-workspace/evidence/latest/mobile-390x844.png",
+      "pixels": "390x844",
+      "bytes": 20539,
+      "pngSha256": "2b1f446823a871a5c6cf3c78599b87c7b92bb4b338410efe4139b949892edf49",
+      "horizontalOverflow": false,
+      "geometry": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1068,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "requestFailures": []
+    },
+    {
+      "state": "mobile-bom",
+      "url": "/artifacts/dachametr-workspace/index.html",
+      "viewport": "390x844",
+      "dpr": 1,
+      "file": "artifacts/dachametr-workspace/evidence/latest/mobile-bom-390x844.png",
+      "pixels": "390x844",
+      "bytes": 23611,
+      "pngSha256": "614a1e83aade39596f67b8ee7817ac6dde6366872e19f3e57f5f23665c06e83d",
+      "horizontalOverflow": false,
+      "geometry": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1070,
+        "clientHeight": 844
+      },
+      "consoleErrors": [],
+      "requestFailures": []
+    },
+    {
+      "state": "design-board",
+      "url": "/artifacts/dachametr-workspace/design-board.html",
+      "viewport": "1440x900",
+      "dpr": 1,
+      "file": "artifacts/dachametr-workspace/evidence/latest/design-board-1440x900.png",
+      "pixels": "1440x900",
+      "bytes": 43625,
+      "pngSha256": "90c03501f2dca4ab8ce6eebdd50ae19757d3c1932cd7699dadb0a64d81640c10",
+      "horizontalOverflow": false,
+      "geometry": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 1505,
+        "clientHeight": 900
+      },
+      "consoleErrors": [],
+      "requestFailures": []
+    }
+  ],
+  "gates": {
+    "physicalMobileDevice": "BLOCKED",
+    "realSoftKeyboard": "NOT RUN",
+    "assistiveTechnology": "NOT RUN",
+    "productionFontRendering": "NOT RUN",
+    "workingAppIntegration": "NOT RUN by scope",
+    "openDesignCloud": "NOT RUN"
+  }
+}
