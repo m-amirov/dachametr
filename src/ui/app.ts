@@ -399,10 +399,20 @@ export function mountApp(root: HTMLElement): void {
     const target = event.target;
     if (!(target instanceof HTMLSelectElement)) return;
     const action = target.dataset.action;
-    if (action === 'material-field' && target.dataset.materialId && target.dataset.field === 'material') update(updateMaterialSpec(state, target.dataset.materialId, 'material', target.value));
+    // The changed SELECT is the reliable focus target. Playwright and some
+    // browsers fire change without leaving document.activeElement on SELECT.
+    const restoreChangedSelect = () => {
+      const key = target.dataset.focusKey;
+      if (key) restoreFocus(root, { key, start: null, end: null });
+    };
+    if (action === 'material-field' && target.dataset.materialId && target.dataset.field === 'material') {
+      update(updateMaterialSpec(state, target.dataset.materialId, 'material', target.value), false);
+      restoreChangedSelect();
+    }
     if (action === 'link-material' && target.dataset.zoneId && target.dataset.layerId) {
       const next = target.value === '__new__' ? linkLayerToNewMaterial(state, target.dataset.zoneId, target.dataset.layerId) : updateLayerField(state, target.dataset.zoneId, target.dataset.layerId, 'materialSpecId', target.value);
-      update(next);
+      update(next, false);
+      restoreChangedSelect();
     }
   });
 
