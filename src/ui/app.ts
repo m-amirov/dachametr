@@ -281,34 +281,132 @@ function renderMobileTabs(active: 'zones' | 'editor' | 'bom'): string {
   </nav>`;
 }
 
+type TerrainLayer = { id: string; name: string; kind: MaterialKind; visual: number; thickness: string };
+
+function renderMaterialCutaway(zone: ZoneDraft, layers: ReadonlyArray<TerrainLayer>): string {
+  const prefix = 'section-' + zone.id.replace(/[^a-zA-Z0-9_-]/g, '-');
+  const palette: Record<MaterialKind, { face: string; side: string; top: string; edge: string }> = {
+    soil: { face: '#987052', side: '#714933', top: '#c6a181', edge: '#684832' },
+    sand: { face: '#e1bd76', side: '#b58f4e', top: '#f0dbad', edge: '#947138' },
+    gravel: { face: '#9caaa8', side: '#778a88', top: '#c5d0ce', edge: '#536963' },
+  };
+  if (layers.length === 0) {
+    return `<div class="cutaway-art cutaway-art-empty" data-testid="material-cutaway">
+      <svg viewBox="0 0 380 260" role="img" aria-label="Добавьте материал, чтобы увидеть разрез" preserveAspectRatio="xMidYMid meet">
+        <rect width="380" height="260" fill="#eef2ec"/>
+        <path d="M53 101 242 101 310 59 121 59Z" fill="#f5f8f2" stroke="#91aa9d" stroke-width="1.5" stroke-dasharray="6 5"/>
+        <path d="M53 101V168H242V101M242 168L310 126V59" fill="none" stroke="#91aa9d" stroke-width="1.5" stroke-dasharray="6 5"/>
+        <path d="M53 168 121 126 310 126" fill="none" stroke="#bfcec5" stroke-dasharray="5 5"/>
+        <circle cx="180" cy="121" r="22" fill="#f6f9f3" stroke="#bfd0c2"/><path d="M180 109V133M168 121H192" stroke="#4f7d67" stroke-width="2" stroke-linecap="round"/>
+        <text x="190" y="215" text-anchor="middle" font-size="12" fill="#577567">Здесь появится разрез ваших материалов</text>
+      </svg></div>`;
+  }
+
+  const max = Math.max(...layers.map(layer => layer.visual));
+  const weights = layers.map(layer => layer.visual / max);
+  const weightTotal = weights.reduce((sum, n) => sum + n, 0);
+  if (!Number.isFinite(max) || max <= 0 || !Number.isFinite(weightTotal) || weightTotal <= 0) return '';
+  const scale = 126 / weightTotal;
+  let y = 88;
+  const strata = [...layers].reverse().map((layer, index) => {
+    const from = y;
+    y += (layer.visual / max) * scale;
+    const to = y;
+    const paletteEntry = palette[layer.kind];
+    const front = `M53 ${from}H242V${to}H53Z`;
+    const side = `M242 ${from}L310 ${from - 43}V${to - 43}L242 ${to}Z`;
+    return `<g data-material-kind="${layer.kind}" data-stratum="${index}">
+      <path d="${side}" fill="${paletteEntry.side}" stroke="${paletteEntry.edge}" stroke-width=".75"/>
+      <path d="${front}" fill="${paletteEntry.face}" stroke="${paletteEntry.edge}" stroke-width=".75"/>
+      <path d="${front}" fill="url(#${prefix}-${layer.kind})" opacity=".75"/>
+      <path d="${side}" fill="url(#${prefix}-${layer.kind})" opacity=".44"/>
+      <path d="M53 ${to}H242" stroke="${paletteEntry.edge}" stroke-opacity=".6" stroke-width="1"/>
+    </g>`;
+  }).join('');
+  const topLayer = layers[layers.length - 1]!;
+  const top = palette[topLayer.kind];
+  return `<div class="cutaway-art" data-testid="material-cutaway">
+    <svg viewBox="0 0 380 270" class="cutaway-svg" preserveAspectRatio="xMidYMid meet"
+      role="img" aria-labelledby="${prefix}-title ${prefix}-desc">
+      <title id="${prefix}-title">Объёмный разрез материалов зоны ${escapeHtml(zone.name)}</title>
+      <desc id="${prefix}-desc">Условная аксонометрия. Высоты слоёв пропорциональны введённым толщинам, глубина рисунка не в масштабе. Настройка слоёв расположена под рисунком.</desc>
+      <defs>
+        <pattern id="${prefix}-soil" width="21" height="19" patternUnits="userSpaceOnUse">
+          <path d="m1 5 6 2m8 4 5-3M4 16l4-2" fill="none" stroke="#f4d6b5" stroke-width=".9" stroke-opacity=".7"/>
+          <circle cx="13" cy="4" r="1.5" fill="#38291f" opacity=".55"/><circle cx="18" cy="16" r="1" fill="#ffe7c8" opacity=".85"/>
+        </pattern>
+        <pattern id="${prefix}-sand" width="16" height="16" patternUnits="userSpaceOnUse">
+          <circle cx="2" cy="3" r="1.2" fill="#fff7dc"/><circle cx="11" cy="10" r="1.2" fill="#8c6331" opacity=".6"/>
+          <circle cx="5" cy="14" r=".6" fill="#fef4d4"/><circle cx="14" cy="2" r=".7" fill="#9f7a42"/>
+        </pattern>
+        <pattern id="${prefix}-gravel" width="25" height="25" patternUnits="userSpaceOnUse">
+          <path d="m2 4 5-3 4 5-4 5-6-2Zm12 10 6-3 4 6-4 5-6-2Z" fill="#e9f0ec" stroke="#536c67" stroke-width=".9" opacity=".8"/>
+          <path d="m6 20 3-3 4 5-3 2Z" fill="#647f7c" opacity=".8"/>
+        </pattern>
+        <pattern id="${prefix}-graph" width="23" height="23" patternUnits="userSpaceOnUse">
+          <path d="M23 0H0V23" fill="none" stroke="#bfd0c1" stroke-width=".8" opacity=".52"/>
+        </pattern>
+        <filter id="${prefix}-shadow" x="-30%" y="-40%" width="160%" height="190%"><feGaussianBlur stdDeviation="8"/></filter>
+      </defs>
+      <rect width="380" height="270" fill="#eef3ec"/>
+      <rect width="380" height="270" fill="url(#${prefix}-graph)"/>
+      <text x="20" y="25" class="cutaway-sheet-number">РАЗРЕЗ / ${String(layers.length).padStart(2, '0')}</text>
+      <text x="360" y="25" text-anchor="end" class="cutaway-sheet-number">УСЛОВНО</text>
+      <ellipse cx="185" cy="238" rx="137" ry="15" fill="#244d36" opacity=".16" filter="url(#${prefix}-shadow)"/>
+      ${strata}
+      <path d="M53 88 242 88 310 45 121 45Z" fill="${top.top}" stroke="${top.edge}" stroke-width="1.6"/>
+      <path d="M53 88 242 88 310 45 121 45Z" fill="url(#${prefix}-${topLayer.kind})" opacity=".6"/>
+      <path d="M66 84 238 84 296 49" fill="none" stroke="#fff8ea" stroke-opacity=".7"/>
+      <path d="M53 88V${y}H242L310 ${y - 43}V45" fill="none" stroke="#345647" stroke-width="1.7"/>
+      <path d="M53 ${y} 121 ${y - 43} 310 ${y - 43}" fill="none" stroke="#557365" opacity=".6"/>
+      <path d="M33 88H47M33 ${y}H47M39 88V${y}" fill="none" stroke="#627a6b" stroke-width="1.1"/>
+      <path d="m36 96 3-8 3 8m-6 ${y - 8} 3 8 3-8" fill="none" stroke="#627a6b"/>
+      <text x="188" y="258" text-anchor="middle" class="cutaway-footnote">Толщины заданы вами</text>
+    </svg>
+  </div>`;
+}
+
 function renderZoneFigure(state: AppState, zone: ZoneDraft, validation: DraftValidation): string {
-  const detail=zoneDetail(validation,zone.id);
+  const detail = zoneDetail(validation, zone.id);
   if (!detail) return '<p class="figure-placeholder">Схема размеров появится после корректного заполнения полей. Недостоверные размеры не отображаются.</p>';
-  const length=Number(zone.length.replace(',','.')), width=Number(zone.width.replace(',','.'));
-  if (!Number.isFinite(length) || !Number.isFinite(width) || length<=0 || width<=0) return '';
-  const ratio=width/length;
-  const layers=zone.layers.map(layer=>{
-    const spec=state.materials.find(item=>item.id===layer.materialSpecId);
-    const visual=Number(layer.thickness.replace(',','.'));
-    if(!spec || !Number.isFinite(visual) || visual<=0) return null;
-    return {id:layer.id,name:spec.label||MATERIAL_LABELS[spec.material],kind:spec.material,visual,thickness:layer.thickness};
+  const length = Number(zone.length.replace(',', '.'));
+  const width = Number(zone.width.replace(',', '.'));
+  if (!Number.isFinite(length) || !Number.isFinite(width) || length <= 0 || width <= 0) return '';
+  const ratio = width / length;
+  const layers = zone.layers.map(layer => {
+    const spec = state.materials.find(item => item.id === layer.materialSpecId);
+    const visual = Number(layer.thickness.replace(',', '.'));
+    if (!spec || !Number.isFinite(visual) || visual <= 0) return null;
+    return { id: layer.id, name: spec.label || MATERIAL_LABELS[spec.material], kind: spec.material, visual, thickness: layer.thickness };
   });
-  if(layers.some(layer=>!layer)) return '';
+  if (layers.some(layer => !layer)) return '';
+  const visibleLayers = layers.filter((layer): layer is TerrainLayer => layer !== null);
   return `<div class="zone-visual-grid" data-testid="zone-visual-grid">
     <figure class="zone-figure">
-      <div class="figure-toolbar"><span class="figure-note">СХЕМА РАЗМЕРОВ</span><span class="figure-scale">Условная схема</span></div>
-      <div class="figure-canvas"><span class="measure-label measure-top">${formatUnit(zone.width,'м')}</span><span class="measure-label measure-side">${formatUnit(zone.length,'м')}</span>
-        <div class="zone-rectangle" data-testid="zone-rectangle" data-ratio="${ratio}" style="aspect-ratio:${width}/${length}"><strong>${escapeHtml(zone.name)}</strong><span>${formatUnit(detail.area_m2,'м²')}</span></div></div>
-      <figcaption>Схема выбранной зоны без координат на участке.</figcaption>
-    </figure>
-    <div class="section-figure"><div class="figure-toolbar"><span class="figure-note">РАЗРЕЗ СЛОЁВ</span><span class="figure-scale">${zone.layers.length} сл.</span></div>
-      <div class="section-stack">
-        ${layers.length?layers.map(layer=>layer===null?'':`<button type="button" class="section-layer layer-${escapeHtml(layer.kind)}" data-action="toggle-layer" data-layer-id="${escapeHtml(layer.id)}" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="section-layer-${escapeHtml(layer.id)}" style="flex-grow:${layer.visual}" aria-label="Настроить ${escapeHtml(layer.name)}"><span>${escapeHtml(layer.name)}</span><strong>${escapeHtml(layer.thickness)} см</strong></button>`).join(''):'<p>Добавьте слой</p>'}
+      <div class="figure-toolbar"><span class="figure-note">План зоны</span><span class="figure-scale">Пропорции по размерам</span></div>
+      <div class="figure-canvas">
+        <span class="plan-figure-badge" aria-hidden="true">01 / ПЛАН</span>
+        <span class="measure-label measure-top">${formatUnit(zone.width,'м')}</span>
+        <span class="measure-label measure-side">${formatUnit(zone.length,'м')}</span>
+        <div class="zone-rectangle" data-testid="zone-rectangle" data-ratio="${ratio}" style="aspect-ratio:${width}/${length}">
+          <strong>${escapeHtml(zone.name)}</strong><span>${formatUnit(detail.area_m2,'м²')}</span>
+        </div>
       </div>
-      <p class="section-caption">Пропорции по введённым толщинам, не строительная норма.</p>
+      <figcaption>Пропорции выбранной зоны. Без размещения на карте участка.</figcaption>
+    </figure>
+    <div class="section-figure">
+      <div class="figure-toolbar"><span class="figure-note">Объёмный разрез</span><span class="figure-scale">${visibleLayers.length} сл.</span></div>
+      ${renderMaterialCutaway(zone, visibleLayers)}
+      <div class="section-stack" aria-label="Настройка слоёв по порядку снизу вверх">
+        ${visibleLayers.length ? visibleLayers.map((layer, index) => `<button type="button" class="section-layer layer-${escapeHtml(layer.kind)}" data-action="toggle-layer"
+          data-layer-id="${escapeHtml(layer.id)}" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="section-layer-${escapeHtml(layer.id)}"
+          aria-label="Настроить ${escapeHtml(layer.name)}"><span class="section-layer-index">${String(index + 1).padStart(2, '0')}</span><span class="section-layer-name">${escapeHtml(layer.name)}</span><strong>${escapeHtml(layer.thickness)} см</strong></button>`).join('') : '<p class="section-layers-empty">Добавьте слой для визуализации материалов</p>'}
+      </div>
+      <p class="section-caption">Пропорции высот основаны на введённых толщинах. Аксонометрия условная, не строительная норма.</p>
     </div>
   </div>`;
 }
+
 
 function renderWorkspaceEditor(state: AppState, validation: DraftValidation, view: ViewState): string {
   const selectedId=view.openZoneId ?? state.zones[0]?.id;
