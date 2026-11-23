@@ -416,7 +416,7 @@ function renderWorkspaceEditor(state: AppState, validation: DraftValidation, vie
       <div class="editor-actions">${selected ? `<button type="button" class="quiet-button workspace-remove-zone" data-action="remove-zone" data-zone-id="${escapeHtml(selected.id)}">Удалить зону</button>` : ''}<button type="button" class="quiet-button" data-action="reset">Сбросить расчёт</button></div></div>
     ${selected?`<div class="editor-heading"><div><span class="step-label">Выбранная зона</span><h2 tabindex="-1" data-testid="selected-zone-name">${escapeHtml(selected.name||'Без названия')}</h2><p>Задайте размеры и слои. Ведомость пересчитается сразу после изменений.</p></div>
       </div>`:
-      '<div class="workspace-empty"><div class="workspace-empty-copy"><span class="step-label">Редактор зоны</span><h2>Начните с зоны</h2><p>Укажите размеры участка и добавьте первую зону. Здесь появятся её параметры, разрез слоёв и точный расчёт.</p><button type="button" class="button button-primary" data-action="add-zone">Добавить зону</button></div><div class="workspace-empty-art" data-testid="empty-zone-sketch" aria-hidden="true">
+      `<div class="workspace-empty"><div class="workspace-empty-copy"><span class="step-label">Редактор зоны</span><h2>Начните с зоны</h2><p>Укажите размеры участка и добавьте первую зону. Здесь появятся её параметры, разрез слоёв и точный расчёт.</p><button type="button" class="button button-primary" data-action="add-zone">Добавить зону</button></div><div class="workspace-empty-art" data-testid="empty-zone-sketch" aria-hidden="true">
   <svg viewBox="0 0 430 300" preserveAspectRatio="xMidYMid meet" focusable="false">
     <defs>
       <pattern id="empty-survey-grid" width="21" height="21" patternUnits="userSpaceOnUse">
@@ -447,7 +447,7 @@ function renderWorkspaceEditor(state: AppState, validation: DraftValidation, vie
     <path d="m34 159 5-7 5 7m-10 52 5 7 5-7M161 74l-7 5 7 5m194-10 7 5-7 5" fill="none" stroke="#729b79" stroke-width="1"/>
     <text x="215" y="274" text-anchor="middle" fill="#4a7659" font-size="10" font-weight="650" letter-spacing="1">ГОТОВО ДЛЯ ПЕРВЫХ РАЗМЕРОВ</text>
   </svg>
-</div></div>'}
+</div></div>`}
     <form class="calculator-form" novalidate>
       ${state.zones.map((zone,index)=>`<div class="workspace-zone-wrap"${zone.id===selectedId?'':' hidden'}>${renderZone(state,zone,index,validation,view)}</div>`).join('')}
     </form>
