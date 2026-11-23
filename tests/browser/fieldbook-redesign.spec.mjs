@@ -5,6 +5,8 @@ test('plot-first fieldbook presents a dedicated input band before the workspace'
   await page.goto('/');
   await expect(page.locator('.site-overview [data-action="plot-field"][data-field="length"]')).toBeVisible();
   await expect(page.locator('.site-overview [data-action="plot-field"][data-field="width"]')).toBeVisible();
+  await expect(page.getByTestId('empty-zone-sketch')).toBeVisible();
+  await expect(page.getByTestId('empty-zone-sketch')).toHaveAttribute('aria-hidden', 'true');
   await expect(page.getByTestId('structure-panel')).toBeVisible();
   await expect(page.getByTestId('zone-editor')).toBeVisible();
   const ordering = await page.evaluate(() => {

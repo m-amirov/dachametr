@@ -37,3 +37,7 @@ Following owner feedback that the graphics still looked generic, the plan now us
 Inspiration in architectural section conventions, not copying: [Klopfer Martin section](https://www.klopfermartin.com/news/steel-yard-featured-in-asla-climate-exhibition-z583z), [STIMSON exploded layers](https://www.stimsonstudio.com/mit-hayden-library). External visual materials were not imported.
 
 QA: the separate `tests/browser/material-graphics.spec.mjs` verifies no invented material, real label interaction, layer-height updates, invalid fail-closed behavior and responsiveness. CI and exact-HEAD captures required before claiming PASS. No change to `src/domain/**`.
+
+### Empty-state graphics
+
+The initial workspace now displays an original vector **blank measurement template** beside the explicit “Добавить зону” action. Dashed axes and the plus affordance communicate how a zone sketch is created without suggesting actual coordinates, dimensions or material quantities. The entire decorative SVG is `aria-hidden`, not an interactive fake map; the primary button remains keyboard accessible. Screenshot and mobile CSS verification required at final HEAD.
