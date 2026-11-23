@@ -661,3 +661,127 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--orange); 
     z-index: 0;
   }
 }
+
+/* WFA design-variant-selector: opt-in DEV preview only. No selectors change
+   the approved Rayon baseline when dm-variant is absent. */
+.dm-design-preview-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--line-strong);
+  background: #202f30;
+  color: #fff;
+  font: 12px/1.35 "Segoe UI", Arial, sans-serif;
+}
+.dm-design-preview-bar[hidden] { display: none !important; }
+.dm-design-preview-options { display: flex; flex: 1; flex-wrap: wrap; gap: 6px; }
+.dm-design-preview-bar button {
+  min-height: 40px;
+  padding: 7px 11px;
+  border: 1px solid #92a2a1;
+  border-radius: 4px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+}
+.dm-design-preview-bar button[aria-pressed="true"] {
+  background: #f4f8f6;
+  border-color: #f4f8f6;
+  color: #152f32;
+}
+.dm-design-preview-bar button:focus-visible { outline: 3px solid #ffd18c; outline-offset: 2px; }
+.dm-design-preview-close { margin-left: auto; }
+
+/* Alternative A: measured field atlas. Editorial typography is limited to
+   headings; numbers and inputs retain the approved Cyrillic-safe system font. */
+:root[data-dm-preview="atlas"] {
+  --canvas: #e8e4d8;
+  --panel: #fffdf7;
+  --panel-soft: #f4f0e4;
+  --line: #d8d2c3;
+  --line-strong: #bdb6a5;
+  --ink: #302f29;
+  --muted: #686b60;
+  --quiet: #797b70;
+  --teal: #366047;
+  --teal-soft: #e4ece0;
+  --orange: #9b512f;
+  --orange-soft: #f1e4d9;
+  --radius: 2px;
+  --shadow: none;
+}
+:root[data-dm-preview="atlas"] .editor-heading h1,
+:root[data-dm-preview="atlas"] .bom-heading h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: -.025em;
+  line-height: 1.12;
+}
+:root[data-dm-preview="atlas"] .figure-canvas {
+  background-size: 16px 16px;
+}
+:root[data-dm-preview="atlas"] .panel {
+  box-shadow: none;
+}
+:root[data-dm-preview="atlas"] .zone-row.is-selected {
+  border-left-width: 4px;
+}
+@media (min-width: 1101px) {
+  :root[data-dm-preview="atlas"] .workspace-grid {
+    grid-template-columns: 224px minmax(0, 1fr) 314px;
+  }
+}
+
+/* Alternative B: material ledger. Emphasis on legibility and the computed
+   BOM, never on invented pricing, recommendations or new formulas. */
+:root[data-dm-preview="ledger"] {
+  --canvas: #e2e9e9;
+  --panel: #f7fbfa;
+  --panel-soft: #edf4f3;
+  --line: #cfd9d8;
+  --line-strong: #b8c8c7;
+  --ink: #203239;
+  --muted: #596e72;
+  --quiet: #687a7c;
+  --teal: #1a5364;
+  --teal-soft: #dfecf0;
+  --orange: #af5931;
+  --orange-soft: #f5e3d8;
+  --shadow: none;
+}
+:root[data-dm-preview="ledger"] .bom-surface {
+  background: #edf4f3;
+  border-left: 2px solid var(--teal);
+}
+:root[data-dm-preview="ledger"] .bom-total {
+  padding-block: 20px;
+}
+:root[data-dm-preview="ledger"] .bom-total > strong {
+  font-size: clamp(31px, 3.2vw, 40px);
+  letter-spacing: -.035em;
+}
+:root[data-dm-preview="ledger"] .bom-row {
+  border-top-color: var(--line-strong);
+}
+:root[data-dm-preview="ledger"] .editor-heading h1 {
+  letter-spacing: -.018em;
+}
+@media (min-width: 1200px) {
+  :root[data-dm-preview="ledger"] .workspace-grid {
+    grid-template-columns: 230px minmax(0, 1fr) 380px;
+  }
+}
+@media (max-width: 820px) {
+  :root[data-dm-preview="ledger"] .bom-surface { border-left: 0; border-top: 2px solid var(--teal); }
+  .dm-design-preview-bar { padding: 10px 12px; }
+  .dm-design-preview-options { flex-basis: 100%; }
+  .dm-design-preview-close { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dm-design-preview-bar *, .dm-design-preview-bar *::before, .dm-design-preview-bar *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

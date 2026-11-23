@@ -47,3 +47,11 @@ Rayon Workspace — утверждённая архитектура, PR #14 — 
 Новый `src/styles.css` содержит токены workspace из локального прототипа и слой стилей реальных форм. Основные значения: `--canvas:#e9e8e3`, `--panel:#f8f8f5`, `--teal:#205b57`, `--orange:#ca6238`, `--danger:#b84739`, все значения следует сверять с текущим CSS.
 Семантические области: структура участка и выбор зоны (слева), редактор выделенной зоны и графика размеров (центр), общая ведомость из точного доменного движка (справа). На ширине ≤820px навигация «Зоны / Редактор / Ведомость». Координаты взаимного расположения зон не моделируются.
 Источник input state: существующий `src/ui/model.ts`; engine не изменён. Не объявлять production-ready до screenshot review + full browser tests на exact HEAD. Публикация и merge без разрешения запрещены.
+
+## WFA design workflow — opt-in сравнение (2026-11-23)
+
+Основание: WFA commit [ebfd0880cedb0f1ebd68ab9821d19fbc64f681fb](https://github.com/m-amirov/workflow-for-agents/commit/ebfd0880cedb0f1ebd68ab9821d19fbc64f681fb), `rules/design.md` и пять task-specific Skills. Это **методологическая адаптация** к действующим локальным `visual-craft`, `calculator-ux`, `visual-qa`, `technical-seo`, `interaction-reliability` и `change-review`; project-local ownership не заменяется. Реальная глобальная активация Codex не подтверждена.
+
+Единственный источник утверждённых цветовых ролей, типографики и layout остаётся этот `DESIGN.md`; фактические токены — `src/styles.css`. Нынешняя утверждённая основа **Rayon Workspace** не изменяется без запроса. Дополнительные направления `atlas` и `ledger` — лишь **PROPOSED**, не новый production baseline. Разбор, референсы и gate-матрица: [отчёт интеграции](docs/design/wfa-design-integration-2026-11-23.md).
+
+Режим визуального выбора работает только на локальном Vite dev server (`localhost` или `127.0.0.1`), без установки UI-библиотек, изображений, анимации и изменения доменного ядра: `/?select`; альтернативы кодируются как `?dm-variant=atlas` и `?dm-variant=ledger`. Production bundle не импортирует селектор. Никаких отдельных индексируемых URL не создаётся.
