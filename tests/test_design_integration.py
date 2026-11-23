@@ -22,7 +22,7 @@ class OpenDesignProjectTests(unittest.TestCase):
         }
         for name, value in expected.items():
             with self.subTest(token=name):
-                self.assertRegex(css, r"--" + name + r"\\s*:\\s*" + value + r"\\b")
+                self.assertRegex(css, r"--" + name + r"\s*:\s*" + value + r"\b")
                 self.assertIn("--" + name + ": " + value, design)
 
     def test_integration_is_documented_and_routed(self):
