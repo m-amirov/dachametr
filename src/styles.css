@@ -92,10 +92,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
 .editor-heading h2 {font:500 clamp(30px,3vw,42px)/1.12 Georgia,"Times New Roman",serif;
   letter-spacing:-.045em;overflow-wrap:anywhere;margin:0 0 8px}
 .editor-heading p {font-size:13px;line-height:1.5;color:var(--muted);max-width:380px;margin:0}
-.editor-stat {border-left:1px solid var(--line);padding-left:15px;min-width:115px;flex:0 0 auto}
-.editor-stat span {display:block;font-size:11px;color:var(--muted)}
-.editor-stat strong {display:block;margin-top:6px;color:var(--teal);font-size:21px;
-  letter-spacing:-.04em;font-variant-numeric:tabular-nums}
 .workspace-empty {padding:60px 4px 65px}
 .workspace-empty h2 {font:500 36px/1.14 Georgia,"Times New Roman",serif;margin:0 0 12px}
 .workspace-empty p {max-width:395px;font-size:14px;line-height:1.65;color:var(--muted);margin-bottom:23px}
@@ -303,9 +299,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
   .editor-actions .quiet-button {min-height:40px;flex:1;padding-inline:8px}
   .editor-heading {display:block}
   .editor-heading h2 {font-size:32px}
-  .editor-stat {display:flex;justify-content:space-between;align-items:baseline;
-    margin-top:16px;padding:11px 0 0;border:0;border-top:1px solid var(--line)}
-  .editor-stat strong {margin:0;font-size:20px}
   .field-grid.two-columns {grid-template-columns:1fr}
   .field-grid.three-columns {grid-template-columns:repeat(2,minmax(0,1fr))}
   .layers-heading {display:block}

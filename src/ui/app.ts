@@ -211,7 +211,7 @@ function renderBomRow(row: BomRow, openBomKeys?: ReadonlySet<string>): string {
 }
 
 function renderZoneBreakdown(state: AppState, value: DetailedCalculated): string {
-  return `<section class="breakdown" aria-labelledby="breakdown-title"><div class="section-title"><span class="eyebrow">ПРОВЕРКА РАСЧЁТА</span><h2 id="breakdown-title">Расшифровка по зонам</h2></div>
+  return `<section class="breakdown" aria-labelledby="breakdown-title"><div class="section-title"><span class="step-label">Проверка количества</span><h2 id="breakdown-title">Расшифровка по зонам</h2></div>
     ${value.zones.map(zone => {
       const draft = state.zones.find(item => item.id === zone.id);
       return `<div class="breakdown-zone"><div class="breakdown-zone-title"><strong>${escapeHtml(draft?.name || 'Без названия')}</strong><span>${formatUnit(zone.area_m2, 'м²')}</span></div>${zone.layers.length === 0 ? '<p class="muted">Слоёв пока нет.</p>' : `<ul>${zone.layers.map(layer => `<li><span>${escapeHtml(layer.material_spec_label)}</span><span>${formatUnit(layer.net_l, 'л')} чистого · ${formatUnit(layer.purchase_l, 'л')} с запасом</span></li>`).join('')}</ul>`}</div>`;
@@ -231,7 +231,7 @@ function renderResults(state: AppState, validation: DraftValidation, view: ViewS
   const totalPurchase = value.bom.reduce((sum, row) => sum.add(Exact.decimal(row.purchase_l)), new Exact(0n)).toString();
   const totalPackages = sumWholePackages(value.bom.map(row => row.packages));
   return `<aside class="results-column" id="result" tabindex="-1" aria-label="Ведомость закупки" data-testid="result-panel"><section class="panel result-panel bom-surface">
-    <div class="result-heading"><div><span class="step-label">Результат</span><h2>Ведомость закупки</h2></div><div class="result-heading-actions"><span class="live-dot">Обновляется</span><button type="button" class="quiet-button" data-action="share-calculation">Скопировать ссылку</button>${value.bom.length ? '<button type="button" class="quiet-button copy-bom-button" data-action="copy-bom">Копировать ведомость</button><button type="button" class="quiet-button copy-bom-button" data-action="download-bom-csv">Скачать CSV</button>' : ''}</div></div>
+    <div class="result-heading"><div><span class="step-label">Результат</span><h2>Ведомость закупки</h2></div><div class="result-heading-actions"><span class="live-dot">Пересчитывается при изменениях</span><button type="button" class="quiet-button" data-action="share-calculation">Скопировать ссылку</button>${value.bom.length ? '<button type="button" class="quiet-button copy-bom-button" data-action="copy-bom">Копировать ведомость</button><button type="button" class="quiet-button copy-bom-button" data-action="download-bom-csv">Скачать CSV</button>' : ''}</div></div>
     <p class="share-link-hint">Ссылка содержит введённые названия зон и материалов. Не указывайте личные данные.</p>
     <p class="share-link-status" data-testid="share-link-status" role="status" aria-live="polite"></p>
     ${value.bom.length ? '<p class="copy-bom-status" data-testid="copy-bom-status" role="status" aria-live="polite"></p><p class="csv-bom-status" data-testid="csv-bom-status" role="status" aria-live="polite"></p>' : ''}
@@ -259,7 +259,7 @@ function renderSiteOverview(state: AppState, validation: DraftValidation): strin
 function renderProjectStructure(state: AppState, validation: DraftValidation, view: ViewState): string {
   const activeId = view.openZoneId ?? state.zones[0]?.id;
   return `<aside class="structure-panel" data-testid="structure-panel" aria-label="Зоны участка">
-    <div class="structure-heading"><span class="step-label">Зоны участка</span><h2>Зоны участка <span class="list-count">${state.zones.length}</span></h2><p>Разделите участок на грядки, дорожки и другие зоны с собственными слоями.</p></div>
+    <div class="structure-heading"><span class="step-label">Структура</span><h2>Зоны участка <span class="list-count">${state.zones.length}</span></h2><p>Разделите участок на грядки, дорожки и другие зоны с собственными слоями.</p></div>
     <nav class="zone-list" aria-label="Зоны участка">
       ${state.zones.length === 0 ? '<p class="zone-list-empty">Пока нет зон. Добавьте первую, чтобы начать расчёт.</p>' : ''}
       ${state.zones.map((zone,index)=>{
@@ -313,12 +313,11 @@ function renderZoneFigure(state: AppState, zone: ZoneDraft, validation: DraftVal
 function renderWorkspaceEditor(state: AppState, validation: DraftValidation, view: ViewState): string {
   const selectedId=view.openZoneId ?? state.zones[0]?.id;
   const selected=state.zones.find(zone=>zone.id===selectedId);
-  const detail=selected?zoneDetail(validation,selected.id):undefined;
   return `<section class="editor-surface" data-testid="zone-editor" aria-label="Редактор выбранной зоны">
     <div class="editor-toolbar"><div class="breadcrumb"><span>Участок</span><span aria-hidden="true">/</span><strong>${selected?escapeHtml(selected.name):'Новая зона'}</strong></div>
       <div class="editor-actions">${selected ? `<button type="button" class="quiet-button workspace-remove-zone" data-action="remove-zone" data-zone-id="${escapeHtml(selected.id)}">Удалить зону</button>` : ''}<button type="button" class="quiet-button" data-action="reset">Сбросить расчёт</button></div></div>
     ${selected?`<div class="editor-heading"><div><span class="step-label">Выбранная зона</span><h2 tabindex="-1" data-testid="selected-zone-name">${escapeHtml(selected.name||'Без названия')}</h2><p>Задайте размеры и слои. Ведомость пересчитается сразу после изменений.</p></div>
-      <div class="editor-stat"><span>Площадь зоны</span><strong>${detail?formatUnit(detail.area_m2,'м²'):'—'}</strong></div></div>`:
+      </div>`:
       '<div class="workspace-empty"><span class="step-label">Редактор зоны</span><h2>Начните с зоны</h2><p>Укажите размеры участка и добавьте первую зону. Здесь появятся её параметры, разрез слоёв и точный расчёт.</p><button type="button" class="button button-primary" data-action="add-zone">Добавить зону</button></div>'}
     <form class="calculator-form" novalidate>
       ${state.zones.map((zone,index)=>`<div class="workspace-zone-wrap"${zone.id===selectedId?'':' hidden'}>${renderZone(state,zone,index,validation,view)}</div>`).join('')}
