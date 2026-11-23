@@ -337,6 +337,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
   .page-intro,.site-overview,.mobile-tabs {margin-inline:0;padding-inline:8px}
   .workspace-grid {padding-inline:8px}
   .site-overview-fields {grid-template-columns:1fr}
+  /* Three equal navigation tracks may be narrower than an indivisible label.
+     Permit wrapping instead of causing document-wide scroll at 200% zoom. */
+  .mobile-tab {font-size:10px;letter-spacing:-.025em;padding-inline:1px;overflow-wrap:anywhere;word-break:normal}
+  .brand-name {font-size:19px}
+  .page-intro h2 {font-size:26px}
   .editor-surface {padding:12px 8px}
   .field-grid.three-columns {grid-template-columns:1fr}
   .result-heading-actions,.bom-values {grid-template-columns:1fr}
