@@ -20,7 +20,7 @@ Values below must match the initial `:root` declarations in `src/styles.css`. Te
 - `--danger: #a53b31`
 
 - **Type:** Cyrillic-safe system UI for labels, input and tabular numerals; Georgia only for structural headings. No fetched external fonts.
-- **Signature:** real proportional *selected-zone* diagram and layer cross-section, not a fake geospatial placement or an invented agronomic rate. Geometry comes from existing input validation. Static, zero decorative animation.
+- **Signature:** two original data-bound illustrations: a proportional top-view selected-zone plate and a textured axonometric cutaway showing only actual material types and their relative entered thicknesses. Individual layers remain accessible as real buttons. Axonometric depth is deliberately illustrative, not a physical depth, map placement, construction standard or price estimate. Source-only SVG patterns: no downloaded assets, photos, libraries or decorative animation. Invalid dimensions/layers fail closed and suppress the visualization.
 - **Interaction:** existing `src/ui/app.ts` events, focus, ru-RU `1,`, invalid/error/recovery, accessible labels/units, zone selection, BOM fail-closed, share fragment and CSV remain unchanged. No domain calculation changes.
 - **UI controls:** source-owned buttons, HTML fields, inline geometry. No React Bits, SaaS patterns, external component/script downloads or new runtime dependency.
 - **Preview:** reject the previous palette-only `?select` variants; this PR carries one coherent redesigned page. No preview URL is indexable or deployed.

@@ -29,3 +29,11 @@ The owner rejected the previous Rayon Workspace / atlas / ledger palette preview
 Check current PR HEAD and commit-bound CI output. Run `npm test`, `npm run build`, `npm run test:browser`, `python scripts/validate_skills.py`, `python scripts/validate_research.py`, `python -m unittest discover -s tests -v`. Compare baseline PR #17 and redesigned PR #18 real browser captures for empty, editing, invalid, BOM. Check 195/320/390/768/821/900/1024/1100/1440px, overflow and keyboard focus. Structural checks do not prove visual polish.
 
 **Before screenshot inspection:** visual acceptance NOT RUN. Device/a11y/true zoom NOT RUN. Market feasibility BLOCKED. PR stays Draft, no merge/main or public deployment.
+
+## Graphics iteration — measured illustrations, not decoration
+
+Following owner feedback that the graphics still looked generic, the plan now uses a survey-plate treatment (strong dimension marks, corner registration and high-contrast area) and the layers use **original dynamic SVG axonometric material faces** with explicit soil/sand/gravel textures, material legends and an empty state. Unlike the old flat strips, the visual corresponds to the selected zone and validated layers. The SVG surface is semantic and browser-rendered; its isometric depth is NOT a construction measurement. The proportion of layer heights follows the entered thickness values. Missing or invalid dimensions/specifications suppress unsupported graphics.
+
+Inspiration in architectural section conventions, not copying: [Klopfer Martin section](https://www.klopfermartin.com/news/steel-yard-featured-in-asla-climate-exhibition-z583z), [STIMSON exploded layers](https://www.stimsonstudio.com/mit-hayden-library). External visual materials were not imported.
+
+QA: the separate `tests/browser/material-graphics.spec.mjs` verifies no invented material, real label interaction, layer-height updates, invalid fail-closed behavior and responsiveness. CI and exact-HEAD captures required before claiming PASS. No change to `src/domain/**`.
