@@ -416,7 +416,38 @@ function renderWorkspaceEditor(state: AppState, validation: DraftValidation, vie
       <div class="editor-actions">${selected ? `<button type="button" class="quiet-button workspace-remove-zone" data-action="remove-zone" data-zone-id="${escapeHtml(selected.id)}">Удалить зону</button>` : ''}<button type="button" class="quiet-button" data-action="reset">Сбросить расчёт</button></div></div>
     ${selected?`<div class="editor-heading"><div><span class="step-label">Выбранная зона</span><h2 tabindex="-1" data-testid="selected-zone-name">${escapeHtml(selected.name||'Без названия')}</h2><p>Задайте размеры и слои. Ведомость пересчитается сразу после изменений.</p></div>
       </div>`:
-      '<div class="workspace-empty"><span class="step-label">Редактор зоны</span><h2>Начните с зоны</h2><p>Укажите размеры участка и добавьте первую зону. Здесь появятся её параметры, разрез слоёв и точный расчёт.</p><button type="button" class="button button-primary" data-action="add-zone">Добавить зону</button></div>'}
+      '<div class="workspace-empty"><div class="workspace-empty-copy"><span class="step-label">Редактор зоны</span><h2>Начните с зоны</h2><p>Укажите размеры участка и добавьте первую зону. Здесь появятся её параметры, разрез слоёв и точный расчёт.</p><button type="button" class="button button-primary" data-action="add-zone">Добавить зону</button></div><div class="workspace-empty-art" data-testid="empty-zone-sketch" aria-hidden="true">
+  <svg viewBox="0 0 430 300" preserveAspectRatio="xMidYMid meet" focusable="false">
+    <defs>
+      <pattern id="empty-survey-grid" width="21" height="21" patternUnits="userSpaceOnUse">
+        <path d="M21 0H0V21" fill="none" stroke="#a2bda9" stroke-width=".65" opacity=".6"/>
+      </pattern>
+      <pattern id="empty-survey-dots" width="13" height="13" patternUnits="userSpaceOnUse">
+        <circle cx="3" cy="4" r="1.1" fill="#94b6a3" opacity=".7"/>
+      </pattern>
+    </defs>
+    <rect x="1" y="1" width="428" height="298" fill="#eef4ed" stroke="#c2d5c5"/>
+    <rect x="1" y="1" width="428" height="298" fill="url(#empty-survey-grid)"/>
+    <path d="M21 28V15H34M396 15h13v13M409 271v13h-13M34 284H21v-13" fill="none" stroke="#5b8069" stroke-width="1.5"/>
+    <text x="27" y="38" fill="#426a55" font-size="11" font-weight="750" letter-spacing="1.5">ЧЕРТЁЖ / ЗОНА</text>
+    <text x="402" y="38" text-anchor="end" fill="#6c9076" font-size="10" font-weight="650">НЕ ЗАДАНА</text>
+    <ellipse cx="225" cy="254" rx="135" ry="14" fill="#567260" opacity=".13"/>
+    <path d="M64 155 258 155 355 99 161 99Z" fill="#dcecdf" stroke="#43815b" stroke-width="1.8"/>
+    <path d="M64 155 258 155 355 99 161 99Z" fill="url(#empty-survey-dots)"/>
+    <path d="M64 155V211L258 211V155M258 211L355 155V99" fill="#d9e8dc" stroke="#43815b" stroke-width="1.6"/>
+    <path d="M64 155V211H258V155" fill="#aacbb2" stroke="#43815b" stroke-width="1.6"/>
+    <path d="M258 155 355 99V155L258 211Z" fill="#8fb89c" stroke="#43815b" stroke-width="1.6"/>
+    <path d="M64 211 161 155 355 155" fill="none" stroke="#367d54" stroke-opacity=".45" stroke-width="1.5"/>
+    <path d="M78 162H249M78 171H249M78 180H249M78 189H249M78 198H249" stroke="#f2fff3" stroke-opacity=".35"/>
+    <path d="M64 155 258 155 355 99 161 99Z" fill="none" stroke="#43815b" stroke-width="1.8"/>
+    <path d="M84 151 167 105 329 105" fill="none" stroke="#fffef7" stroke-dasharray="5 6"/>
+    <circle cx="210" cy="128" r="27" fill="#f9fdf7" stroke="#35784f" stroke-width="1.7"/>
+    <path d="M210 115V141M197 128H223" stroke="#35784f" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M52 159H39V211H52M161 90V79H355V90" fill="none" stroke="#729b79" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <path d="m34 159 5-7 5 7m-10 52 5 7 5-7M161 74l-7 5 7 5m194-10 7 5-7 5" fill="none" stroke="#729b79" stroke-width="1"/>
+    <text x="215" y="274" text-anchor="middle" fill="#4a7659" font-size="10" font-weight="650" letter-spacing="1">ГОТОВО ДЛЯ ПЕРВЫХ РАЗМЕРОВ</text>
+  </svg>
+</div></div>'}
     <form class="calculator-form" novalidate>
       ${state.zones.map((zone,index)=>`<div class="workspace-zone-wrap"${zone.id===selectedId?'':' hidden'}>${renderZone(state,zone,index,validation,view)}</div>`).join('')}
     </form>
