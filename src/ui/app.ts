@@ -180,7 +180,7 @@ function renderZone(state: AppState, zone: ZoneDraft, zoneIndex: number, validat
       ${inputField({ id: `zone-width-${zone.id}`, label: 'Ширина', value: zone.width, action: 'zone-field', field: 'width', focusKey: `zone-width-${zone.id}`, path: `${prefix}.width_m`, validation, unit: 'м', zoneId: zone.id })}
     </div>
     <div class="zone-area"><span>Площадь зоны</span><strong>${detail ? formatUnit(detail.area_m2, 'м²') : '—'}</strong></div>
-    <div class="zone-diagrams">${renderZoneFigure(state, zone, validation)}</div>
+    <div class="zone-diagrams">${expanded ? renderZoneFigure(state, zone, validation) : ''}</div>
     <div class="layers-heading"><div><span class="step-label">04 / Материалы</span><h3>Слои и материалы</h3><p>Разные варианты считаются отдельно, даже если названы одинаково.</p></div><button type="button" class="button button-secondary" data-action="add-layer" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="add-layer-${escapeHtml(zone.id)}">Добавить слой</button></div>
     ${zone.layers.length === 0 ? '<div class="empty-inline">В этой зоне пока нет слоёв. Добавьте грунт, песок или щебень.</div>' : zone.layers.map((layer, layerIndex) => renderLayer(state, zone, layer, layerIndex, zoneIndex, validation, view)).join('')}
     </div>
@@ -672,7 +672,7 @@ export function mountApp(root: HTMLElement): void {
       if (isMobile) {
         if (active?.closest('.editor-surface')) mobileSurface = 'editor';
         else if (active?.closest('.results-column') || active?.matches('.jump-result')) mobileSurface = 'bom';
-        else if (active?.closest('.structure-panel')) mobileSurface = 'zones';
+        else if (active?.closest('.structure-panel') || active?.closest('.site-overview')) mobileSurface = 'zones';
       }
       const layout = root.querySelector<HTMLElement>('.workspace-app');
       if (layout) layout.dataset.mobileSurface = mobileSurface;

@@ -9,6 +9,16 @@ A clear practical notebook for actual measurements and material takeoffs. Not a 
 - **Sequence:** plot inputs + measured area → zone navigation → editing one selected zone → proportional rectangle / layer profile → independently computed BOM and calculations. No double sets of editable parameters.
 - **Layout:** small product masthead, visible plot input band, quiet zone rail, focused working sheet, distinctly weighted procurement results. At 821–1100px the BOM flows beneath the editor rather than squeezing into a third pane; at ≤820px existing tabs "Зоны / Редактор / Ведомость" stay operative.
 - **Tokens:** paper `#f8f7f2`, panel `#fffefa`, ink `#24332b`, computed values and primary action green `#285747`, restrained rust accent `#a45c37`; soil/sand/gravel have separate semantic swatches. Exact implementation: `src/styles.css`.
+### Canonical CSS tokens
+Values below must match the initial `:root` declarations in `src/styles.css`. Tests enforce both directions.
+- `--paper: #f8f7f2`
+- `--canvas: #f2f0e9`
+- `--panel: #fffefa`
+- `--ink: #24332b`
+- `--teal: #285747`
+- `--orange: #a45c37`
+- `--danger: #a53b31`
+
 - **Type:** Cyrillic-safe system UI for labels, input and tabular numerals; Georgia only for structural headings. No fetched external fonts.
 - **Signature:** real proportional *selected-zone* diagram and layer cross-section, not a fake geospatial placement or an invented agronomic rate. Geometry comes from existing input validation. Static, zero decorative animation.
 - **Interaction:** existing `src/ui/app.ts` events, focus, ru-RU `1,`, invalid/error/recovery, accessible labels/units, zone selection, BOM fail-closed, share fragment and CSV remain unchanged. No domain calculation changes.

@@ -7,18 +7,22 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class OpenDesignProjectTests(unittest.TestCase):
     def test_design_contract_reflects_existing_tokens(self):
+        # These values are the new owner-requested design proposal; the test
+        # catches drift between DESIGN.md and actual semantic CSS tokens.
         css = (ROOT / "src/styles.css").read_text(encoding="utf-8")
         design = (ROOT / "DESIGN.md").read_text(encoding="utf-8")
-        for name, value in (
-            ("canvas", "#e9e8e3"),
-            ("panel", "#f8f8f5"),
-            ("ink", "#242b2d"),
-            ("teal", "#205b57"),
-            ("orange", "#ca6238"),
-            ("danger", "#b84739"),
-        ):
+        expected = {
+            "paper": "#f8f7f2",
+            "canvas": "#f2f0e9",
+            "panel": "#fffefa",
+            "ink": "#24332b",
+            "teal": "#285747",
+            "orange": "#a45c37",
+            "danger": "#a53b31",
+        }
+        for name, value in expected.items():
             with self.subTest(token=name):
-                self.assertIn("--" + name + ": " + value, css)
+                self.assertRegex(css, r"--" + name + r"\\s*:\\s*" + value + r"\\b")
                 self.assertIn("--" + name + ": " + value, design)
 
     def test_integration_is_documented_and_routed(self):
