@@ -181,7 +181,7 @@ function renderZone(state: AppState, zone: ZoneDraft, zoneIndex: number, validat
     </div>
     <div class="zone-area"><span>Площадь зоны</span><strong>${detail ? formatUnit(detail.area_m2, 'м²') : '—'}</strong></div>
     <div class="zone-diagrams">${expanded ? renderZoneFigure(state, zone, validation) : ''}</div>
-    <div class="layers-heading"><div><span class="step-label">04 / Материалы</span><h3>Слои и материалы</h3><p>Разные варианты считаются отдельно, даже если названы одинаково.</p></div><button type="button" class="button button-secondary" data-action="add-layer" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="add-layer-${escapeHtml(zone.id)}">Добавить слой</button></div>
+    <div class="layers-heading"><div><span class="step-label">Материалы</span><h3>Слои и материалы</h3><p>Разные варианты считаются отдельно, даже если названы одинаково.</p></div><button type="button" class="button button-secondary" data-action="add-layer" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="add-layer-${escapeHtml(zone.id)}">Добавить слой</button></div>
     ${zone.layers.length === 0 ? '<div class="empty-inline">В этой зоне пока нет слоёв. Добавьте грунт, песок или щебень.</div>' : zone.layers.map((layer, layerIndex) => renderLayer(state, zone, layer, layerIndex, zoneIndex, validation, view)).join('')}
     </div>
   </article>`;
@@ -231,7 +231,7 @@ function renderResults(state: AppState, validation: DraftValidation, view: ViewS
   const totalPurchase = value.bom.reduce((sum, row) => sum.add(Exact.decimal(row.purchase_l)), new Exact(0n)).toString();
   const totalPackages = sumWholePackages(value.bom.map(row => row.packages));
   return `<aside class="results-column" id="result" tabindex="-1" aria-label="Ведомость закупки" data-testid="result-panel"><section class="panel result-panel bom-surface">
-    <div class="result-heading"><div><span class="step-label">05 / Результат</span><h2>Ведомость закупки</h2></div><div class="result-heading-actions"><span class="live-dot">Обновляется</span><button type="button" class="quiet-button" data-action="share-calculation">Скопировать ссылку</button>${value.bom.length ? '<button type="button" class="quiet-button copy-bom-button" data-action="copy-bom">Копировать ведомость</button><button type="button" class="quiet-button copy-bom-button" data-action="download-bom-csv">Скачать CSV</button>' : ''}</div></div>
+    <div class="result-heading"><div><span class="step-label">Результат</span><h2>Ведомость закупки</h2></div><div class="result-heading-actions"><span class="live-dot">Обновляется</span><button type="button" class="quiet-button" data-action="share-calculation">Скопировать ссылку</button>${value.bom.length ? '<button type="button" class="quiet-button copy-bom-button" data-action="copy-bom">Копировать ведомость</button><button type="button" class="quiet-button copy-bom-button" data-action="download-bom-csv">Скачать CSV</button>' : ''}</div></div>
     <p class="share-link-hint">Ссылка содержит введённые названия зон и материалов. Не указывайте личные данные.</p>
     <p class="share-link-status" data-testid="share-link-status" role="status" aria-live="polite"></p>
     ${value.bom.length ? '<p class="copy-bom-status" data-testid="copy-bom-status" role="status" aria-live="polite"></p><p class="csv-bom-status" data-testid="csv-bom-status" role="status" aria-live="polite"></p>' : ''}
@@ -247,7 +247,7 @@ function renderResults(state: AppState, validation: DraftValidation, view: ViewS
 function renderSiteOverview(state: AppState, validation: DraftValidation): string {
   const area = validation.result?.ok ? validation.result.value.plot_area_m2 : null;
   return `<section class="site-overview" aria-labelledby="site-heading">
-    <div class="site-overview-heading"><span class="step-label">01 / Исходные данные</span><h2 id="site-heading">Ваш участок</h2><p>Задайте размеры участка. Затем добавьте зоны, слои и материалы — итоговая ведомость появится автоматически.</p></div>
+    <div class="site-overview-heading"><span class="step-label">Исходные данные</span><h2 id="site-heading">Ваш участок</h2><p>Задайте размеры участка. Затем добавьте зоны, слои и материалы — итоговая ведомость появится автоматически.</p></div>
     <div class="site-overview-fields" aria-label="Размеры участка">
       ${inputField({id:'plot-length',label:'Длина',value:state.plot.length,action:'plot-field',field:'length',focusKey:'plot-length',path:'plot.length_m',validation,unit:'м'})}
       ${inputField({id:'plot-width',label:'Ширина',value:state.plot.width,action:'plot-field',field:'width',focusKey:'plot-width',path:'plot.width_m',validation,unit:'м'})}
@@ -259,7 +259,7 @@ function renderSiteOverview(state: AppState, validation: DraftValidation): strin
 function renderProjectStructure(state: AppState, validation: DraftValidation, view: ViewState): string {
   const activeId = view.openZoneId ?? state.zones[0]?.id;
   return `<aside class="structure-panel" data-testid="structure-panel" aria-label="Зоны участка">
-    <div class="structure-heading"><span class="step-label">02 / План работ</span><h2>Зоны участка <span class="list-count">${state.zones.length}</span></h2><p>Разделите участок на грядки, дорожки и другие зоны с собственными слоями.</p></div>
+    <div class="structure-heading"><span class="step-label">Зоны участка</span><h2>Зоны участка <span class="list-count">${state.zones.length}</span></h2><p>Разделите участок на грядки, дорожки и другие зоны с собственными слоями.</p></div>
     <nav class="zone-list" aria-label="Зоны участка">
       ${state.zones.length === 0 ? '<p class="zone-list-empty">Пока нет зон. Добавьте первую, чтобы начать расчёт.</p>' : ''}
       ${state.zones.map((zone,index)=>{
@@ -317,9 +317,9 @@ function renderWorkspaceEditor(state: AppState, validation: DraftValidation, vie
   return `<section class="editor-surface" data-testid="zone-editor" aria-label="Редактор выбранной зоны">
     <div class="editor-toolbar"><div class="breadcrumb"><span>Участок</span><span aria-hidden="true">/</span><strong>${selected?escapeHtml(selected.name):'Новая зона'}</strong></div>
       <div class="editor-actions">${selected ? `<button type="button" class="quiet-button workspace-remove-zone" data-action="remove-zone" data-zone-id="${escapeHtml(selected.id)}">Удалить зону</button>` : ''}<button type="button" class="quiet-button" data-action="reset">Сбросить расчёт</button></div></div>
-    ${selected?`<div class="editor-heading"><div><span class="step-label">03 / Выбранная зона</span><h2 tabindex="-1" data-testid="selected-zone-name">${escapeHtml(selected.name||'Без названия')}</h2><p>Задайте размеры и слои. Ведомость пересчитается сразу после изменений.</p></div>
+    ${selected?`<div class="editor-heading"><div><span class="step-label">Выбранная зона</span><h2 tabindex="-1" data-testid="selected-zone-name">${escapeHtml(selected.name||'Без названия')}</h2><p>Задайте размеры и слои. Ведомость пересчитается сразу после изменений.</p></div>
       <div class="editor-stat"><span>Площадь зоны</span><strong>${detail?formatUnit(detail.area_m2,'м²'):'—'}</strong></div></div>`:
-      '<div class="workspace-empty"><span class="step-label">03 / Редактор зоны</span><h2>Начните с зоны</h2><p>Укажите размеры участка и добавьте первую зону. Здесь появятся её параметры, разрез слоёв и точный расчёт.</p><button type="button" class="button button-primary" data-action="add-zone">Добавить зону</button></div>'}
+      '<div class="workspace-empty"><span class="step-label">Редактор зоны</span><h2>Начните с зоны</h2><p>Укажите размеры участка и добавьте первую зону. Здесь появятся её параметры, разрез слоёв и точный расчёт.</p><button type="button" class="button button-primary" data-action="add-zone">Добавить зону</button></div>'}
     <form class="calculator-form" novalidate>
       ${state.zones.map((zone,index)=>`<div class="workspace-zone-wrap"${zone.id===selectedId?'':' hidden'}>${renderZone(state,zone,index,validation,view)}</div>`).join('')}
     </form>
@@ -336,8 +336,6 @@ export function renderAppHtml(state: AppState, validation: DraftValidation, view
     <header class="topbar"><div class="brand-lockup"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M5 11V5H11M29 5h6v6M35 29v6h-6M11 35H5v-6" stroke="currentColor" stroke-width="2"/><rect x="11" y="13" width="18" height="14" stroke="currentColor" stroke-width="1.6"/><path d="M12 32h16M8 14v12" stroke="currentColor" stroke-width="1" stroke-dasharray="2 3"/></svg></span><h1 class="brand-name">Дачаметр</h1><span class="brand-product">Расчёт участка</span></div>
       <div class="topbar-context">Удобный расчёт без лишних допущений</div>
       <div class="topbar-actions"><span class="local-status">Без автосохранения</span><a class="jump-result" href="#result" data-action="open-bom">Открыть ведомость <span aria-hidden="true">↗</span></a></div></header>
-    <div class="page-intro"><span class="page-index">Практический инструмент · Участок и материалы</span><h2>От размеров участка —<br>к точной ведомости.</h2>
-      <p>Грядки, дорожки, слои грунта и щебня. Вы вводите исходные данные, а Дачаметр считает объёмы и упаковки.</p></div>
     ${view.shareNotice ? `<p class="share-load-notice${view.shareProblem ? ' is-error' : ''}" data-testid="share-load-notice" role="${view.shareProblem ? 'alert' : 'status'}">${escapeHtml(view.shareNotice)}</p>` : ''}
     ${renderSiteOverview(state,validation)}
     ${renderMobileTabs(active)}

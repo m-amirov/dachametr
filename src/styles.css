@@ -32,14 +32,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
 .jump-result {min-height:44px;display:inline-flex;align-items:center;gap:7px;border-bottom:1px solid currentColor;
   font-size:13px;font-weight:650;text-decoration:none;white-space:nowrap}
 .jump-result:hover {color:var(--orange)}
-.page-intro {max-width:var(--content);padding:34px clamp(18px,3vw,38px) 25px;display:grid;
-  grid-template-columns:minmax(0,1.7fr) minmax(220px,.8fr);gap:0 44px;align-items:end;margin:0 auto}
-.page-index {grid-column:1/-1;margin-bottom:10px;color:var(--orange);font-size:12px;font-weight:700}
-.page-intro h2 {font:500 clamp(32px,3.6vw,52px)/1.05 Georgia,"Times New Roman",serif;
-  letter-spacing:-.045em;margin:0}
-.page-intro p {margin:0 0 3px;max-width:380px;font-size:14px;line-height:1.6;color:var(--muted)}
 .step-label {display:block;margin-bottom:8px;color:var(--orange);font-size:12px;font-weight:700}
-.site-overview {max-width:calc(var(--content) - 36px);margin:0 auto 20px;
+.site-overview {max-width:calc(var(--content) - 36px);margin:20px auto;
   display:grid;grid-template-columns:minmax(210px,1fr) minmax(275px,1.15fr) minmax(170px,.65fr);
   gap:24px;align-items:center;padding:25px clamp(18px,2.5vw,32px);border:1px solid var(--line);background:var(--panel)}
 .site-overview-heading h2 {font:500 26px/1.2 Georgia,"Times New Roman",serif;letter-spacing:-.03em;margin:0 0 9px}
@@ -259,9 +253,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
   .topbar {min-height:62px;padding:12px 18px}
   .topbar-context,.local-status {display:none}
   .brand-name {font-size:24px}
-  .page-intro {display:block;padding:23px 18px 16px}
-  .page-intro h2 {font-size:clamp(29px,5.6vw,39px)}
-  .page-intro p {margin-top:12px;max-width:530px}
   .site-overview {grid-template-columns:1fr auto;margin:0 18px 16px;padding:20px;gap:14px}
   .site-overview-heading {grid-column:1/-1}
   .site-overview-fields {min-width:0}
@@ -302,10 +293,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
   .brand-name {font-size:22px}
   .brand-mark {width:32px;height:32px;flex-basis:32px}
   .topbar-actions .jump-result {display:none}
-  .page-intro {padding-inline:14px}
-  .page-intro h2 {font-size:30px}
-  .page-intro h2 br {display:none}
-  .page-intro p {font-size:13px}
   .site-overview {margin:0 14px 15px;padding:18px 14px}
   .site-overview-fields {gap:10px}
   .mobile-tabs {margin-inline:14px}
@@ -334,14 +321,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
 }
 @media(max-width:250px) {
   .topbar {padding:10px}
-  .page-intro,.site-overview,.mobile-tabs {margin-inline:0;padding-inline:8px}
+  .site-overview,.mobile-tabs {margin-inline:0;padding-inline:8px}
   .workspace-grid {padding-inline:8px}
   .site-overview-fields {grid-template-columns:1fr}
   /* Three equal navigation tracks may be narrower than an indivisible label.
      Permit wrapping instead of causing document-wide scroll at 200% zoom. */
   .mobile-tab {font-size:10px;letter-spacing:-.025em;padding-inline:1px;overflow-wrap:anywhere;word-break:normal}
   .brand-name {font-size:19px}
-  .page-intro h2 {font-size:26px}
   .editor-surface {padding:12px 8px}
   .field-grid.three-columns {grid-template-columns:1fr}
   .result-heading-actions,.bom-values {grid-template-columns:1fr}

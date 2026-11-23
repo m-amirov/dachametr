@@ -8,7 +8,7 @@ The owner rejected the previous Rayon Workspace / atlas / ledger palette preview
 
 | Former problem | Implemented correction |
 |---|---|
-| Same visual weight for three dashboard columns | Plot dimensions first; zone navigator quiet; main editor larger; separately weighted materials BOM |
+| Same visual weight for three dashboard columns | **Plot dimensions immediately after the header, without a decorative hero**; zone navigator quiet; main editor larger; separately weighted materials BOM |
 | Tiny technical labels and duplicated dimensions | Editorial hierarchy, real step/order labels, form inputs above diagram, fewer repeated stats |
 | Meaningless `?select` recolors | Retired preview module and its tests; one substantial direction on review branch |
 | Accumulated overriding CSS obscured design ownership | Replaced 46 KB cascade with one coherent semantic-token stylesheet |
