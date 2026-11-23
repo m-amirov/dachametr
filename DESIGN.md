@@ -1,57 +1,29 @@
 # Dachametr — DESIGN.md
 
-**Проектный контракт для OpenDesign и Codex**, версия 0.3 (прототип PR #14). Визуальная база PR #13, расчётный движок PR #11. До реальной приёмки не объявлять production-ready.
+**Status: PROPOSED / pending owner visual acceptance.** A full design revision to replace the rejected generic workstation aesthetic. The calculator remains a private local prototype in Draft PR #18.
 
-## Продукт
-Дачаметр — русскоязычный калькулятор участка, зон, грунта, песка и щебня. Главный сценарий: размеры участка → зоны → слои материалов → объёмы и ведомость закупки. Это не SaaS-лендинг; рабочие поля и расчётные результаты важнее рекламы, промоблоков и декоративных иллюстраций.
+## Direction: «Полевой лист»
 
-## Текущий baseline: Rayon Workspace, интеграция PR #14
+A clear practical notebook for actual measurements and material takeoffs. Not a SaaS dashboard, sales funnel or pretend CAD editor.
 
-Визуальный эталон: PR #13, работающий Vite UI: PR #14 поверх PR #11. Работа без публичного развёртывания.
+- **Sequence:** plot inputs + measured area → zone navigation → editing one selected zone → proportional rectangle / layer profile → independently computed BOM and calculations. No double sets of editable parameters.
+- **Layout:** small product masthead, visible plot input band, quiet zone rail, focused working sheet, distinctly weighted procurement results. At 821–1100px the BOM flows beneath the editor rather than squeezing into a third pane; at ≤820px existing tabs "Зоны / Редактор / Ведомость" stay operative.
+- **Tokens:** paper `#f8f7f2`, panel `#fffefa`, ink `#24332b`, computed values and primary action green `#285747`, restrained rust accent `#a45c37`; soil/sand/gravel have separate semantic swatches. Exact implementation: `src/styles.css`.
+- **Type:** Cyrillic-safe system UI for labels, input and tabular numerals; Georgia only for structural headings. No fetched external fonts.
+- **Signature:** real proportional *selected-zone* diagram and layer cross-section, not a fake geospatial placement or an invented agronomic rate. Geometry comes from existing input validation. Static, zero decorative animation.
+- **Interaction:** existing `src/ui/app.ts` events, focus, ru-RU `1,`, invalid/error/recovery, accessible labels/units, zone selection, BOM fail-closed, share fragment and CSV remain unchanged. No domain calculation changes.
+- **UI controls:** source-owned buttons, HTML fields, inline geometry. No React Bits, SaaS patterns, external component/script downloads or new runtime dependency.
+- **Preview:** reject the previous palette-only `?select` variants; this PR carries one coherent redesigned page. No preview URL is indexable or deployed.
 
-Актуальные цвета из `src/styles.css`:
+## Evidence and authority
 
-- --canvas: #e9e8e3 — фоновая поверхность.
-- --panel: #f8f8f5 — рабочие панели.
-- --ink: #242b2d — основной текст.
-- --teal: #205b57 — выбранная зона, цифры, действия.
-- --orange: #ca6238 — выделение/активное редактирование.
-- --danger: #b84739 — ошибки.
+This is the project's single design authority. Local `visual-craft`, `calculator-ux`, `visual-qa`, `interaction-reliability`, `technical-seo`, `change-review` and project `AGENTS.md` retain priority over generic WFA Skills.
 
-Рабочая организация: левая структура участка, выбранная зона в центральном редакторе, BOM в правой панели; на mobile «Зоны / Редактор / Ведомость». Числовые значения — только из существующего domain engine; геометрия выбранной зоны не означает её расположение на участке. Физический tablet/soft keyboard/assistive tech не протестированы.
+Functional design sources: [Rayon measurement tools](https://docs.rayon.design/documentation/design/measurement-distance-and-area) for precision and takeoff hierarchy; [GARDENA myGarden](https://www.gardena.com/uk/c/discover/mygarden-planning-tools/garden-planner) for garden user tasks; [internal research](docs/design/reference-library.md). No copied visual assets, branding or external measured grids.
 
-## Информационная архитектура
-1. Чёткая цель расчёта и ввод площади участка на первом экране.
-2. Зоны и слои с ясными связанными полями и устойчивыми ID; нельзя смешивать разные material_spec_id только по названию.
-3. Видимые м, м², сотки, см, м³, л, кг, упаковки. Отдельно обозначать необходимый объём с запасом и фактически закупаемый объём.
-4. Прозрачная ведомость (BOM) с группировкой сопоставимых материалов и объяснением округления.
-5. Ясные пустое, редактируемое, ошибочное и успешное состояния. Ошибка в активной зоне блокирует итоговую закупку целиком.
-6. Основные CTA: добавить зону/слой, выбрать материал, изменить параметры; не «Купить сейчас» и не «Подписаться».
+Working parent: PR #17 `5fe7d3181a73f9a191b4f3b3ecac2da200231301`.
+WFA design methodology: [`ebfd088`](https://github.com/m-amirov/workflow-for-agents/commit/ebfd0880cedb0f1ebd68ab9821d19fbc64f681fb).
 
-## Характер
-Современный инструмент расчёта и закупки с ясной числовой иерархией. Уместны функциональные шкалы, понятные прямоугольные формы и диаграммы слоёв, но никакой фальшивой карты расположения зон, псевдонорм или случайных листьев/3D-камней. Свободное пространство должно помогать восприятию, а не имитировать премиальную SaaS-страницу.
+## Gates
 
-## Критерии качества
-320/390/768/1024/1440 CSS px, 200% zoom, tablet landscape; русский длинный текст, editing с 1,, focus/caret, keyboard, error и BOM. Для изменения UI обязательны актуальные before/after в реальном браузере, с SHA, viewport, browser и состоянием; старые PNG из artifacts/ui-evidence/f6d4244 относятся к другому SHA и не являются доказательством текущего рендера.
-
-## Референсы
-Подробности в docs/design/reference-library.md. Принимаем принципы типографики/композиции, сравнения чисел и ясных действий, но не копируем чужие скриншоты, логотипы, продукты, pricing tiers и готовые UI. Нельзя автоматически менять палитру по внешнему шаблону.
-
-## Статус
-Rayon Workspace — утверждённая архитектура, PR #14 — рабочая интеграция до browser/visual/mobile приёмки. Market Gate 1 = BLOCKED; публичный запуск не разрешён. Market Gate 1 = BLOCKED; публичный запуск не разрешён.
-
-
-## Rayon Workspace: local functional integration PR #14
-
-Ветка `feat/rayon-workspace-runtime` поверх PR #11; визуальный прототип PR #13 утверждён как направление, не является рабочей реализацией.
-Новый `src/styles.css` содержит токены workspace из локального прототипа и слой стилей реальных форм. Основные значения: `--canvas:#e9e8e3`, `--panel:#f8f8f5`, `--teal:#205b57`, `--orange:#ca6238`, `--danger:#b84739`, все значения следует сверять с текущим CSS.
-Семантические области: структура участка и выбор зоны (слева), редактор выделенной зоны и графика размеров (центр), общая ведомость из точного доменного движка (справа). На ширине ≤820px навигация «Зоны / Редактор / Ведомость». Координаты взаимного расположения зон не моделируются.
-Источник input state: существующий `src/ui/model.ts`; engine не изменён. Не объявлять production-ready до screenshot review + full browser tests на exact HEAD. Публикация и merge без разрешения запрещены.
-
-## WFA design workflow — opt-in сравнение (2026-11-23)
-
-Основание: WFA commit [ebfd0880cedb0f1ebd68ab9821d19fbc64f681fb](https://github.com/m-amirov/workflow-for-agents/commit/ebfd0880cedb0f1ebd68ab9821d19fbc64f681fb), `rules/design.md` и пять task-specific Skills. Это **методологическая адаптация** к действующим локальным `visual-craft`, `calculator-ux`, `visual-qa`, `technical-seo`, `interaction-reliability` и `change-review`; project-local ownership не заменяется. Реальная глобальная активация Codex не подтверждена.
-
-Единственный источник утверждённых цветовых ролей, типографики и layout остаётся этот `DESIGN.md`; фактические токены — `src/styles.css`. Нынешняя утверждённая основа **Rayon Workspace** не изменяется без запроса. Дополнительные направления `atlas` и `ledger` — лишь **PROPOSED**, не новый production baseline. Разбор, референсы и gate-матрица: [отчёт интеграции](docs/design/wfa-design-integration-2026-11-23.md).
-
-Режим визуального выбора работает только на локальном Vite dev server (`localhost` или `127.0.0.1`), без установки UI-библиотек, изображений, анимации и изменения доменного ядра: `/?select`; альтернативы кодируются как `?dm-variant=atlas` и `?dm-variant=ledger`. Production bundle не импортирует селектор. Никаких отдельных индексируемых URL не создаётся.
+For each candidate: exact HEAD `npm test`, `npm run build`, `npm run test:browser`, screenshot evidence on 320/390/768/1024/1440 (empty, error, editing, result), check geometry/overflow/focus, no `src/domain/**` diff. No claims of visual PASS without independent pixel inspection. Physical mobile/tablet, native keyboard, AT and true 200% zoom are separate `BLOCKED_DEVICE` until demonstrated. **Market Gate 1 remains BLOCKED**. No `main` merge, DNS/deployment/SEO/analytics/ads without separate authorization.
