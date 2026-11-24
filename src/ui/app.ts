@@ -171,7 +171,9 @@ function renderZone(state: AppState, zone: ZoneDraft, zoneIndex: number, validat
       <button type="button" class="button button-text danger" data-action="remove-zone" data-zone-id="${escapeHtml(zone.id)}">Удалить</button>
     </header>
     <div class="zone-edit" id="zone-editor-${escapeHtml(zone.id)}"${expanded ? '' : ' hidden'}>
-    <div class="zone-dimensions-label eyebrow">РАЗМЕРЫ ЗОНЫ</div><div class="field-grid three-columns">
+    <div class="zone-diagrams">${expanded ? renderZoneFigure(state, zone, validation) : ''}</div>
+    <section class="atlas-inspector" aria-label="Параметры и конструкция зоны">
+    <div class="zone-dimensions-label eyebrow">Параметры зоны</div><div class="field-grid three-columns">
       <div class="field field-wide">
         <label for="zone-name-${escapeHtml(zone.id)}">Название зоны</label>
         <input id="zone-name-${escapeHtml(zone.id)}" data-action="zone-field" data-zone-id="${escapeHtml(zone.id)}" data-field="name" data-focus-key="zone-name-${escapeHtml(zone.id)}" value="${escapeHtml(zone.name)}" type="text" maxlength="80" autocomplete="off" />
@@ -180,9 +182,10 @@ function renderZone(state: AppState, zone: ZoneDraft, zoneIndex: number, validat
       ${inputField({ id: `zone-width-${zone.id}`, label: 'Ширина', value: zone.width, action: 'zone-field', field: 'width', focusKey: `zone-width-${zone.id}`, path: `${prefix}.width_m`, validation, unit: 'м', zoneId: zone.id })}
     </div>
     <div class="zone-area"><span>Площадь зоны</span><strong>${detail ? formatUnit(detail.area_m2, 'м²') : '—'}</strong></div>
-    <div class="zone-diagrams">${expanded ? renderZoneFigure(state, zone, validation) : ''}</div>
-    <div class="layers-heading"><div><span class="step-label">Материалы</span><h3>Слои и материалы</h3><p>Разные варианты считаются отдельно, даже если названы одинаково.</p></div><button type="button" class="button button-secondary" data-action="add-layer" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="add-layer-${escapeHtml(zone.id)}">Добавить слой</button></div>
+
+    <div class="layers-heading"><div><h3>Конструкция</h3></div><button type="button" class="button button-secondary" data-action="add-layer" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="add-layer-${escapeHtml(zone.id)}">Добавить слой</button></div>
     ${zone.layers.length === 0 ? '<div class="empty-inline">В этой зоне пока нет слоёв. Добавьте грунт, песок или щебень.</div>' : zone.layers.map((layer, layerIndex) => renderLayer(state, zone, layer, layerIndex, zoneIndex, validation, view)).join('')}
+    </section>
     </div>
   </article>`;
 }
@@ -247,19 +250,19 @@ function renderResults(state: AppState, validation: DraftValidation, view: ViewS
 function renderSiteOverview(state: AppState, validation: DraftValidation): string {
   const area = validation.result?.ok ? validation.result.value.plot_area_m2 : null;
   return `<section class="site-overview" aria-labelledby="site-heading">
-    <div class="site-overview-heading"><span class="step-label">Исходные данные</span><h2 id="site-heading">Ваш участок</h2><p>Задайте размеры участка. Затем добавьте зоны, слои и материалы — итоговая ведомость появится автоматически.</p></div>
+    <div class="site-overview-heading"><h2 id="site-heading">Мой участок</h2><p>Размеры всего участка</p></div>
     <div class="site-overview-fields" aria-label="Размеры участка">
       ${inputField({id:'plot-length',label:'Длина',value:state.plot.length,action:'plot-field',field:'length',focusKey:'plot-length',path:'plot.length_m',validation,unit:'м'})}
       ${inputField({id:'plot-width',label:'Ширина',value:state.plot.width,action:'plot-field',field:'width',focusKey:'plot-width',path:'plot.width_m',validation,unit:'м'})}
     </div>
-    <div class="site-overview-area" aria-live="polite"><span>Площадь участка</span><strong>${area === null ? '—' : formatUnit(area,'м²')}</strong><small>Условная прямоугольная форма</small></div>
+    <div class="site-overview-area" aria-live="polite"><span>Площадь участка</span><strong>${area === null ? '—' : formatUnit(area,'м²')}</strong><small>Прямоугольник</small></div>
   </section>`;
 }
 
 function renderProjectStructure(state: AppState, validation: DraftValidation, view: ViewState): string {
   const activeId = view.openZoneId ?? state.zones[0]?.id;
   return `<aside class="structure-panel" data-testid="structure-panel" aria-label="Зоны участка">
-    <div class="structure-heading"><span class="step-label">Структура</span><h2>Зоны участка <span class="list-count">${state.zones.length}</span></h2><p>Разделите участок на грядки, дорожки и другие зоны с собственными слоями.</p></div>
+    <div class="structure-heading"><h2>Зоны <span class="list-count">${state.zones.length}</span></h2></div>
     <nav class="zone-list" aria-label="Зоны участка">
       ${state.zones.length === 0 ? '<p class="zone-list-empty">Пока нет зон. Добавьте первую, чтобы начать расчёт.</p>' : ''}
       ${state.zones.map((zone,index)=>{
@@ -269,7 +272,7 @@ function renderProjectStructure(state: AppState, validation: DraftValidation, vi
       }).join('')}
     </nav>
     <button type="button" class="add-zone-button" data-action="add-zone" data-testid="add-zone"><span aria-hidden="true">＋</span> Добавить зону</button>
-    <p class="structure-footer">Зоны рассчитываются отдельно. Это не карта их расположения.</p>
+    <p class="structure-footer">Независимые расчётные зоны</p>
   </aside>`;
 }
 
@@ -318,8 +321,8 @@ function renderMaterialCutaway(zone: ZoneDraft, layers: ReadonlyArray<TerrainLay
     return `<g data-material-kind="${layer.kind}" data-stratum="${index}">
       <path d="${side}" fill="${paletteEntry.side}" stroke="${paletteEntry.edge}" stroke-width=".75"/>
       <path d="${front}" fill="${paletteEntry.face}" stroke="${paletteEntry.edge}" stroke-width=".75"/>
-      <path d="${front}" fill="url(#${prefix}-${layer.kind})" opacity=".75"/>
-      <path d="${side}" fill="url(#${prefix}-${layer.kind})" opacity=".44"/>
+      <path d="${front}" fill="url(#${prefix}-${layer.kind})" opacity="1"/>
+      <path d="${side}" fill="url(#${prefix}-${layer.kind})" opacity=".8"/>
       <path d="M53 ${to}H242" stroke="${paletteEntry.edge}" stroke-opacity=".6" stroke-width="1"/>
     </g>`;
   }).join('');
@@ -331,31 +334,18 @@ function renderMaterialCutaway(zone: ZoneDraft, layers: ReadonlyArray<TerrainLay
       <title id="${prefix}-title">Объёмный разрез материалов зоны ${escapeHtml(zone.name)}</title>
       <desc id="${prefix}-desc">Условная аксонометрия. Высоты слоёв пропорциональны введённым толщинам, глубина рисунка не в масштабе. Настройка слоёв расположена под рисунком.</desc>
       <defs>
-        <pattern id="${prefix}-soil" width="21" height="19" patternUnits="userSpaceOnUse">
-          <path d="m1 5 6 2m8 4 5-3M4 16l4-2" fill="none" stroke="#f4d6b5" stroke-width=".9" stroke-opacity=".7"/>
-          <circle cx="13" cy="4" r="1.5" fill="#38291f" opacity=".55"/><circle cx="18" cy="16" r="1" fill="#ffe7c8" opacity=".85"/>
-        </pattern>
-        <pattern id="${prefix}-sand" width="16" height="16" patternUnits="userSpaceOnUse">
-          <circle cx="2" cy="3" r="1.2" fill="#fff7dc"/><circle cx="11" cy="10" r="1.2" fill="#8c6331" opacity=".6"/>
-          <circle cx="5" cy="14" r=".6" fill="#fef4d4"/><circle cx="14" cy="2" r=".7" fill="#9f7a42"/>
-        </pattern>
-        <pattern id="${prefix}-gravel" width="25" height="25" patternUnits="userSpaceOnUse">
-          <path d="m2 4 5-3 4 5-4 5-6-2Zm12 10 6-3 4 6-4 5-6-2Z" fill="#e9f0ec" stroke="#536c67" stroke-width=".9" opacity=".8"/>
-          <path d="m6 20 3-3 4 5-3 2Z" fill="#647f7c" opacity=".8"/>
-        </pattern>
-        <pattern id="${prefix}-graph" width="23" height="23" patternUnits="userSpaceOnUse">
-          <path d="M23 0H0V23" fill="none" stroke="#bfd0c1" stroke-width=".8" opacity=".52"/>
-        </pattern>
+        <pattern id="${prefix}-soil" width="40" height="40" patternUnits="userSpaceOnUse"><image href="/atlas/soil.webp" width="40" height="40" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-sand" width="40" height="40" patternUnits="userSpaceOnUse"><image href="/atlas/sand.webp" width="40" height="40" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-gravel" width="40" height="40" patternUnits="userSpaceOnUse"><image href="/atlas/gravel.webp" width="40" height="40" preserveAspectRatio="none"/></pattern>
         <filter id="${prefix}-shadow" x="-30%" y="-40%" width="160%" height="190%"><feGaussianBlur stdDeviation="8"/></filter>
       </defs>
-      <rect width="380" height="270" fill="#eef3ec"/>
-      <rect width="380" height="270" fill="url(#${prefix}-graph)"/>
+      <rect width="380" height="270" fill="#f0ede3"/>
       <text x="20" y="25" class="cutaway-sheet-number">РАЗРЕЗ / ${String(layers.length).padStart(2, '0')}</text>
       <text x="360" y="25" text-anchor="end" class="cutaway-sheet-number">УСЛОВНО</text>
       <ellipse cx="185" cy="238" rx="137" ry="15" fill="#244d36" opacity=".16" filter="url(#${prefix}-shadow)"/>
       ${strata}
       <path d="M53 88 242 88 310 45 121 45Z" fill="${top.top}" stroke="${top.edge}" stroke-width="1.6"/>
-      <path d="M53 88 242 88 310 45 121 45Z" fill="url(#${prefix}-${topLayer.kind})" opacity=".6"/>
+      <path d="M53 88 242 88 310 45 121 45Z" fill="url(#${prefix}-${topLayer.kind})" opacity=".95"/>
       <path d="M66 84 238 84 296 49" fill="none" stroke="#fff8ea" stroke-opacity=".7"/>
       <path d="M53 88V${y}H242L310 ${y - 43}V45" fill="none" stroke="#345647" stroke-width="1.7"/>
       <path d="M53 ${y} 121 ${y - 43} 310 ${y - 43}" fill="none" stroke="#557365" opacity=".6"/>
@@ -383,16 +373,16 @@ function renderZoneFigure(state: AppState, zone: ZoneDraft, validation: DraftVal
   const visibleLayers = layers.filter((layer): layer is TerrainLayer => layer !== null);
   return `<div class="zone-visual-grid" data-testid="zone-visual-grid">
     <figure class="zone-figure">
-      <div class="figure-toolbar"><span class="figure-note">План зоны</span><span class="figure-scale">Пропорции по размерам</span></div>
-      <div class="figure-canvas">
-        <span class="plan-figure-badge" aria-hidden="true">01 / ПЛАН</span>
+      <div class="figure-toolbar"><span class="figure-note">План зоны</span><span class="figure-scale">Размеры из расчёта</span></div>
+      <div class="figure-canvas atlas-plan" data-surface-material="${visibleLayers[visibleLayers.length - 1]?.kind ?? 'none'}">
+        <span class="plan-figure-badge" aria-hidden="true">ВИД СВЕРХУ</span>
         <span class="measure-label measure-top">${formatUnit(zone.width,'м')}</span>
         <span class="measure-label measure-side">${formatUnit(zone.length,'м')}</span>
         <div class="zone-rectangle" data-testid="zone-rectangle" data-ratio="${ratio}" style="aspect-ratio:${width}/${length}">
           <strong>${escapeHtml(zone.name)}</strong><span>${formatUnit(detail.area_m2,'м²')}</span>
         </div>
       </div>
-      <figcaption>Пропорции выбранной зоны. Без размещения на карте участка.</figcaption>
+      <figcaption>Условное окружение. Размеры относятся только к выделенной зоне.</figcaption>
     </figure>
     <div class="section-figure">
       <div class="figure-toolbar"><span class="figure-note">Объёмный разрез</span><span class="figure-scale">${visibleLayers.length} сл.</span></div>
@@ -402,7 +392,7 @@ function renderZoneFigure(state: AppState, zone: ZoneDraft, validation: DraftVal
           data-layer-id="${escapeHtml(layer.id)}" data-zone-id="${escapeHtml(zone.id)}" data-focus-key="section-layer-${escapeHtml(layer.id)}"
           aria-label="Настроить ${escapeHtml(layer.name)}"><span class="section-layer-index">${String(index + 1).padStart(2, '0')}</span><span class="section-layer-name">${escapeHtml(layer.name)}</span><strong>${escapeHtml(layer.thickness)} см</strong></button>`).join('') : '<p class="section-layers-empty">Добавьте слой для визуализации материалов</p>'}
       </div>
-      <p class="section-caption">Пропорции высот основаны на введённых толщинах. Аксонометрия условная, не строительная норма.</p>
+      <p class="section-caption">Условный разрез: высоты пропорциональны введённым толщинам.</p>
     </div>
   </div>`;
 }
@@ -414,7 +404,7 @@ function renderWorkspaceEditor(state: AppState, validation: DraftValidation, vie
   return `<section class="editor-surface" data-testid="zone-editor" aria-label="Редактор выбранной зоны">
     <div class="editor-toolbar"><div class="breadcrumb"><span>Участок</span><span aria-hidden="true">/</span><strong>${selected?escapeHtml(selected.name):'Новая зона'}</strong></div>
       <div class="editor-actions">${selected ? `<button type="button" class="quiet-button workspace-remove-zone" data-action="remove-zone" data-zone-id="${escapeHtml(selected.id)}">Удалить зону</button>` : ''}<button type="button" class="quiet-button" data-action="reset">Сбросить расчёт</button></div></div>
-    ${selected?`<div class="editor-heading"><div><span class="step-label">Выбранная зона</span><h2 tabindex="-1" data-testid="selected-zone-name">${escapeHtml(selected.name||'Без названия')}</h2><p>Задайте размеры и слои. Ведомость пересчитается сразу после изменений.</p></div>
+    ${selected?`<div class="editor-heading"><div><h2 tabindex="-1" data-testid="selected-zone-name">${escapeHtml(selected.name||'Без названия')}</h2></div>
       </div>`:
       `<div class="workspace-empty"><div class="workspace-empty-copy"><span class="step-label">Редактор зоны</span><h2>Начните с зоны</h2><p>Укажите размеры участка и добавьте первую зону. Здесь появятся её параметры, разрез слоёв и точный расчёт.</p><button type="button" class="button button-primary" data-action="add-zone">Добавить зону</button></div><div class="workspace-empty-art" data-testid="empty-zone-sketch" aria-hidden="true">
   <svg viewBox="0 0 430 300" preserveAspectRatio="xMidYMid meet" focusable="false">
@@ -462,7 +452,7 @@ export function renderAppHtml(state: AppState, validation: DraftValidation, view
   const active=view.mobileSurface??'zones';
   return `<div class="workspace-app" data-testid="workspace-layout" data-mobile-surface="${active}">
     <header class="topbar"><div class="brand-lockup"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M5 11V5H11M29 5h6v6M35 29v6h-6M11 35H5v-6" stroke="currentColor" stroke-width="2"/><rect x="11" y="13" width="18" height="14" stroke="currentColor" stroke-width="1.6"/><path d="M12 32h16M8 14v12" stroke="currentColor" stroke-width="1" stroke-dasharray="2 3"/></svg></span><h1 class="brand-name">Дачаметр</h1><span class="brand-product">Расчёт участка</span></div>
-      <div class="topbar-context">Удобный расчёт без лишних допущений</div>
+      <div class="topbar-context">Участок / Материалы</div>
       <div class="topbar-actions"><span class="local-status">Без автосохранения</span><a class="jump-result" href="#result" data-action="open-bom">Открыть ведомость <span aria-hidden="true">↗</span></a></div></header>
     ${view.shareNotice ? `<p class="share-load-notice${view.shareProblem ? ' is-error' : ''}" data-testid="share-load-notice" role="${view.shareProblem ? 'alert' : 'status'}">${escapeHtml(view.shareNotice)}</p>` : ''}
     ${renderSiteOverview(state,validation)}
@@ -479,11 +469,13 @@ function fitZoneRectangles(root: HTMLElement): void {
     if (!rectangle) continue;
     const ratio = Number(rectangle.dataset.ratio);
     if (!Number.isFinite(ratio) || ratio <= 0) continue;
-    const availableWidth = Math.max(0, canvas.clientWidth - 16);
-    const availableHeight = Math.max(0, canvas.clientHeight - 16);
-    const width = Math.min(availableWidth * .76, 360, availableHeight * ratio);
+    const availableWidth = Math.max(0, canvas.clientWidth - 92);
+    const availableHeight = Math.max(0, canvas.clientHeight - 104);
+    const width = Math.min(availableWidth, availableHeight * ratio);
     rectangle.style.width = `${width}px`;
     rectangle.style.height = `${width / ratio}px`;
+    canvas.style.setProperty('--plan-width', `${width}px`);
+    canvas.style.setProperty('--plan-height', `${width / ratio}px`);
   }
 }
 

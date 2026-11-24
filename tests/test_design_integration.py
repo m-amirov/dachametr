@@ -12,12 +12,12 @@ class OpenDesignProjectTests(unittest.TestCase):
         css = (ROOT / "src/styles.css").read_text(encoding="utf-8")
         design = (ROOT / "DESIGN.md").read_text(encoding="utf-8")
         expected = {
-            "paper": "#f8f7f2",
-            "canvas": "#f2f0e9",
-            "panel": "#fffefa",
-            "ink": "#24332b",
-            "teal": "#285747",
-            "orange": "#a45c37",
+            "paper": "#f8f5ee",
+            "canvas": "#ede9df",
+            "panel": "#fffdf8",
+            "ink": "#172a1d",
+            "teal": "#234b2b",
+            "orange": "#a36c2e",
             "danger": "#a53b31",
         }
         for name, value in expected.items():

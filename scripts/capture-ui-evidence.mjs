@@ -8,7 +8,7 @@ const baseURL = process.env.EVIDENCE_BASE_URL ?? 'http://127.0.0.1:4173';
 const evidenceDir = path.resolve(process.env.EVIDENCE_DIR ?? 'artifacts/ui-evidence/local');
 const widths = [320, 390, 768, 1024, 1440];
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
-const sourceFiles = ['index.html', 'src/styles.css', 'src/ui/app.ts', 'src/ui/model.ts', 'src/ui/validation.ts', 'src/domain/plot.ts', 'src/domain/exact.ts'];
+const sourceFiles = ['index.html', 'src/styles.css', 'src/ui/app.ts', 'src/ui/model.ts', 'src/ui/validation.ts', 'src/domain/plot.ts', 'src/domain/exact.ts', 'public/atlas/grass.webp', 'public/atlas/soil.webp', 'public/atlas/sand.webp', 'public/atlas/gravel.webp'];
 const sourceSha = git('rev-parse', 'HEAD');
 const dirty = git('status', '--porcelain=v1', '--untracked-files=all');
 if (dirty) throw new Error('Capture requires a clean checkout: ' + dirty);

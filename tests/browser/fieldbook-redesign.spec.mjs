@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('plot-first fieldbook presents a dedicated input band before the workspace', async ({ page }) => {
+test('Garden Atlas presents plot settings, horizontal zone navigation and visual editor', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
   await expect(page.locator('.site-overview [data-action="plot-field"][data-field="length"]')).toBeVisible();
@@ -44,4 +44,41 @@ test('mobile zone editing remains accessible and invalid input blocks the BOM', 
   await page.getByTestId('add-zone').click();
   await expect(page.getByTestId('zone-editor')).toBeVisible();
   await expect(page.getByTestId('selected-zone-name')).toBeVisible();
+});
+
+test('Garden Atlas uses the visual-first workspace and full-width result, not three permanent panels', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page.locator('[data-action="plot-field"][data-field="length"]').fill('20');
+  await page.locator('[data-action="plot-field"][data-field="width"]').fill('30');
+  await page.getByTestId('add-zone').click();
+  const zone = page.getByTestId('zone-card').first();
+  await zone.locator('[data-action="zone-field"][data-field="length"]').fill('4');
+  await zone.locator('[data-action="zone-field"][data-field="width"]').fill('4');
+  await zone.getByRole('button', { name: 'Добавить слой' }).click();
+  const layer = zone.getByTestId('layer-card').first();
+  await layer.locator('[data-action="material-field"][data-field="material"]').selectOption('gravel');
+  await layer.locator('[data-action="material-field"][data-field="label"]').fill('Щебень');
+  await layer.locator('[data-action="layer-field"][data-field="thickness"]').fill('10');
+  await layer.locator('[data-action="layer-field"][data-field="reserve"]').fill('0');
+  await expect(page.locator('.atlas-plan')).toHaveAttribute('data-surface-material','gravel');
+  await expect(page.getByTestId('material-cutaway').locator('g[data-material-kind="gravel"]')).toHaveCount(1);
+  const plan = await page.locator('.atlas-plan').boundingBox();
+  const inspector = await page.locator('.atlas-inspector').boundingBox();
+  const editor = await page.getByTestId('zone-editor').boundingBox();
+  const bom = await page.getByTestId('result-panel').boundingBox();
+  expect(plan.width).toBeGreaterThan(inspector.width);
+  expect(plan.x + plan.width).toBeLessThan(inspector.x + 1);
+  expect(bom.y).toBeGreaterThanOrEqual(editor.y + editor.height);
+  expect(Math.abs(bom.width - editor.width)).toBeLessThan(2);
+  for (const name of ['grass','soil','sand','gravel']) {
+    const decoded = await page.evaluate(async (name) => {
+      const image = new Image(); image.src = '/atlas/' + name + '.webp';
+      await image.decode();
+      return image.naturalWidth > 0 && image.naturalHeight > 0;
+    }, name);
+    expect(decoded).toBe(true);
+  }
+  await layer.locator('[data-action="material-field"][data-field="material"]').selectOption('soil');
+  await expect(page.locator('.atlas-plan')).toHaveAttribute('data-surface-material','soil');
 });
