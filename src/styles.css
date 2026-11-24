@@ -616,3 +616,36 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
  .atlas-plan .zone-rectangle span{padding:3px;font-size:12px}
  .atlas-plan.figure-canvas{height:200px}
 }
+
+/* Garden Atlas 0.2: independent dimension-driven scene and exact plan.
+   No static rendering of the user's measurements. */
+.atlas-view-toolbar{flex-wrap:wrap;gap:10px}
+.atlas-view-switch{display:flex;align-items:center;gap:3px;padding:3px;border:1px solid #dddcd1;border-radius:11px;background:#eeefe5;max-width:100%}
+.atlas-view-switch button{min-width:0;min-height:40px;border:0;background:transparent;padding:8px 15px;border-radius:8px;font-size:13px;font-weight:700;color:var(--muted)}
+.atlas-view-switch button[aria-pressed=true]{color:#fff;background:var(--teal);box-shadow:0 2px 5px #21392426}
+.atlas-scene-canvas.figure-canvas{display:block;height:auto;min-height:0;aspect-ratio:680/420;background:#47652c;box-shadow:none}
+.atlas-scene-canvas.figure-canvas::before,.atlas-scene-canvas.figure-canvas::after{content:none}
+.atlas-scene{position:relative;width:100%;height:100%;min-width:0}
+.atlas-scene svg{display:block;width:100%;height:100%}
+.atlas-scene-area{font:800 27px/1 "Segoe UI",Arial,sans-serif;fill:#192c1f;paint-order:stroke fill;stroke:#fffaf0;stroke-width:8px;stroke-linejoin:round}
+.atlas-dimension-text{font:750 17px/1 "Segoe UI",Arial,sans-serif;fill:#fffdf5;paint-order:stroke fill;stroke:#192e1d;stroke-width:5px;stroke-linejoin:round}
+.atlas-scene-label{position:absolute;left:14px;bottom:13px;display:flex;align-items:center;gap:10px;max-width:calc(100% - 28px);border-radius:8px;padding:8px 11px;background:#17321fe8;color:white;font-size:11px;line-height:1.4}
+.atlas-scene-label strong{color:#f2e7bb;font-weight:750;overflow-wrap:anywhere}
+.atlas-view-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:14px 16px 0;gap:12px;font-size:12px;color:var(--muted)}
+.atlas-view-metrics span{min-width:0;overflow-wrap:anywhere}
+.atlas-view-metrics strong{display:block;font-size:clamp(16px,1.7vw,23px);font-weight:750;letter-spacing:-.035em;color:var(--ink);font-variant-numeric:tabular-nums;margin-top:3px}
+.atlas-view-metrics span+span{border-left:1px solid var(--line);padding-left:12px}
+.atlas-view-metrics span:last-child strong{color:var(--teal)}
+@media(max-width:620px){
+ .atlas-view-switch button{min-height:44px;padding-inline:12px}
+ .atlas-scene-label{left:8px;bottom:7px;padding:5px 8px;font-size:10px;gap:6px}
+ .atlas-view-metrics{padding:10px 12px 0;gap:8px}
+ .atlas-view-metrics span+span{padding-left:8px}
+ .atlas-view-metrics strong{font-size:16px}
+}
+@media(max-width:250px){
+ .atlas-view-switch button{padding-inline:7px;font-size:12px}
+ .atlas-view-metrics{grid-template-columns:minmax(0,1fr);gap:4px}
+ .atlas-view-metrics span+span{border-left:0;padding-left:0}
+ .atlas-scene-label{position:static;border-radius:0}
+}

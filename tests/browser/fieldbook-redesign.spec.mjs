@@ -71,7 +71,7 @@ test('Garden Atlas uses the visual-first workspace and full-width result, not th
   expect(plan.x + plan.width).toBeLessThan(inspector.x + 1);
   expect(bom.y).toBeGreaterThanOrEqual(editor.y + editor.height);
   expect(Math.abs(bom.width - editor.width)).toBeLessThan(2);
-  for (const name of ['grass','soil','sand','gravel']) {
+  for (const name of ['grass','soil','sand','gravel','context']) {
     const decoded = await page.evaluate(async (name) => {
       const image = new Image(); image.src = '/atlas/' + name + '.webp';
       await image.decode();
@@ -81,4 +81,46 @@ test('Garden Atlas uses the visual-first workspace and full-width result, not th
   }
   await layer.locator('[data-action="material-field"][data-field="material"]').selectOption('soil');
   await expect(page.locator('.atlas-plan')).toHaveAttribute('data-surface-material','soil');
+});
+
+test('Atlas scene uses actual orthogonal dimensions with a common projection scale and preserves the selected view', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page.locator('[data-action="plot-field"][data-field="length"]').fill('20');
+  await page.locator('[data-action="plot-field"][data-field="width"]').fill('30');
+  await page.getByTestId('add-zone').click();
+  const zone = page.getByTestId('zone-card').first();
+  const length = zone.locator('[data-action="zone-field"][data-field="length"]');
+  const width = zone.locator('[data-action="zone-field"][data-field="width"]');
+  await length.fill('2');
+  await width.fill('5');
+  const scene = page.getByTestId('atlas-scene');
+  const footprint = scene.getByTestId('atlas-scene-footprint');
+  await expect(scene).toBeVisible();
+  await expect(scene).toHaveAttribute('data-scene-material','none');
+  await expect(scene).toHaveAttribute('data-scene-ratio','2.5');
+  const edgeRatio = async () => await footprint.evaluate(el => {
+    const points = el.points;
+    const distance = (a,b) => Math.hypot(points[a].x-points[b].x,points[a].y-points[b].y);
+    return distance(0,1)/distance(1,2);
+  });
+  expect(await edgeRatio()).toBeCloseTo(2.5,3);
+  const original = await footprint.getAttribute('points');
+  await width.fill('3');
+  expect(await edgeRatio()).toBeCloseTo(1.5,3);
+  expect(await footprint.getAttribute('points')).not.toEqual(original);
+  const plan = page.locator('[data-action="scene-view"][data-target="plan"]');
+  await plan.click();
+  await expect(plan).toBeFocused();
+  await expect(plan).toHaveAttribute('aria-pressed','true');
+  await expect(page.getByTestId('zone-rectangle')).toBeVisible();
+  await width.fill('4');
+  await expect(plan).toHaveAttribute('aria-pressed','true');
+  await expect(page.getByTestId('zone-rectangle')).toHaveAttribute('data-ratio','2');
+  await page.locator('[data-action="scene-view"][data-target="scene"]').click();
+  await expect(scene).toBeVisible();
+  expect(await edgeRatio()).toBeCloseTo(2,3);
+  await width.fill('1,');
+  await expect(scene).toHaveCount(0);
+  await expect(page.getByTestId('blocked-results')).toBeVisible();
 });

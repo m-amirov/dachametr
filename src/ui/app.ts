@@ -51,6 +51,7 @@ function decimalDivide(value: string, divisor: string): string {
 }
 
 interface ViewState {
+  sceneView?: SceneView;
   openZoneId: string | null;
   openLayerIds: ReadonlySet<string>;
   openBomKeys?: ReadonlySet<string>;
@@ -171,7 +172,7 @@ function renderZone(state: AppState, zone: ZoneDraft, zoneIndex: number, validat
       <button type="button" class="button button-text danger" data-action="remove-zone" data-zone-id="${escapeHtml(zone.id)}">Удалить</button>
     </header>
     <div class="zone-edit" id="zone-editor-${escapeHtml(zone.id)}"${expanded ? '' : ' hidden'}>
-    <div class="zone-diagrams">${expanded ? renderZoneFigure(state, zone, validation) : ''}</div>
+    <div class="zone-diagrams">${expanded ? renderZoneFigure(state, zone, validation, view.sceneView ?? 'scene') : ''}</div>
     <section class="atlas-inspector" aria-label="Параметры и конструкция зоны">
     <div class="zone-dimensions-label eyebrow">Параметры зоны</div><div class="field-grid three-columns">
       <div class="field field-wide">
@@ -322,8 +323,10 @@ function renderMaterialCutaway(zone: ZoneDraft, layers: ReadonlyArray<TerrainLay
       <path d="${side}" fill="${paletteEntry.side}" stroke="${paletteEntry.edge}" stroke-width=".75"/>
       <path d="${front}" fill="${paletteEntry.face}" stroke="${paletteEntry.edge}" stroke-width=".75"/>
       <path d="${front}" fill="url(#${prefix}-${layer.kind})" opacity="1"/>
-      <path d="${side}" fill="url(#${prefix}-${layer.kind})" opacity=".8"/>
-      <path d="M53 ${to}H242" stroke="${paletteEntry.edge}" stroke-opacity=".6" stroke-width="1"/>
+      <path d="${side}" fill="url(#${prefix}-${layer.kind}-side)" opacity=".93"/>
+      <path d="${side}" fill="url(#${prefix}-side-light)"/>
+      <path d="${front}" fill="url(#${prefix}-front-light)"/>
+      <path d="M53 ${to}H242" stroke="${paletteEntry.edge}" stroke-opacity=".72" stroke-width="1"/>
     </g>`;
   }).join('');
   const topLayer = layers[layers.length - 1]!;
@@ -334,18 +337,28 @@ function renderMaterialCutaway(zone: ZoneDraft, layers: ReadonlyArray<TerrainLay
       <title id="${prefix}-title">Объёмный разрез материалов зоны ${escapeHtml(zone.name)}</title>
       <desc id="${prefix}-desc">Условная аксонометрия. Высоты слоёв пропорциональны введённым толщинам, глубина рисунка не в масштабе. Настройка слоёв расположена под рисунком.</desc>
       <defs>
-        <pattern id="${prefix}-soil" width="40" height="40" patternUnits="userSpaceOnUse"><image href="/atlas/soil.webp" width="40" height="40" preserveAspectRatio="none"/></pattern>
-        <pattern id="${prefix}-sand" width="40" height="40" patternUnits="userSpaceOnUse"><image href="/atlas/sand.webp" width="40" height="40" preserveAspectRatio="none"/></pattern>
-        <pattern id="${prefix}-gravel" width="40" height="40" patternUnits="userSpaceOnUse"><image href="/atlas/gravel.webp" width="40" height="40" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-soil" width="44" height="44" patternUnits="userSpaceOnUse"><image href="/atlas/soil.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-soil-side" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="matrix(.92 -.58 0 1 0 0)"><image href="/atlas/soil.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-soil-top" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="matrix(1 0 .72 -.52 0 0)"><image href="/atlas/soil.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-sand" width="44" height="44" patternUnits="userSpaceOnUse"><image href="/atlas/sand.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-sand-side" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="matrix(.92 -.58 0 1 0 0)"><image href="/atlas/sand.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-sand-top" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="matrix(1 0 .72 -.52 0 0)"><image href="/atlas/sand.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-gravel" width="44" height="44" patternUnits="userSpaceOnUse"><image href="/atlas/gravel.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-gravel-side" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="matrix(.92 -.58 0 1 0 0)"><image href="/atlas/gravel.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-gravel-top" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="matrix(1 0 .72 -.52 0 0)"><image href="/atlas/gravel.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
+        <linearGradient id="${prefix}-side-light" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#142816" stop-opacity=".12"/><stop offset="1" stop-color="#0b1c12" stop-opacity=".46"/></linearGradient>
+        <linearGradient id="${prefix}-front-light" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#ffefc7" stop-opacity=".2"/><stop offset=".22" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#251e12" stop-opacity=".18"/></linearGradient>
         <filter id="${prefix}-shadow" x="-30%" y="-40%" width="160%" height="190%"><feGaussianBlur stdDeviation="8"/></filter>
       </defs>
-      <rect width="380" height="270" fill="#f0ede3"/>
+      <rect width="380" height="270" fill="#e7eadc"/>
+      <image href="/atlas/context.webp" width="380" height="108" preserveAspectRatio="xMidYMid slice" opacity=".18"/>
       <text x="20" y="25" class="cutaway-sheet-number">РАЗРЕЗ / ${String(layers.length).padStart(2, '0')}</text>
       <text x="360" y="25" text-anchor="end" class="cutaway-sheet-number">УСЛОВНО</text>
       <ellipse cx="185" cy="238" rx="137" ry="15" fill="#244d36" opacity=".16" filter="url(#${prefix}-shadow)"/>
       ${strata}
       <path d="M53 88 242 88 310 45 121 45Z" fill="${top.top}" stroke="${top.edge}" stroke-width="1.6"/>
-      <path d="M53 88 242 88 310 45 121 45Z" fill="url(#${prefix}-${topLayer.kind})" opacity=".95"/>
+      <path d="M53 88 242 88 310 45 121 45Z" fill="url(#${prefix}-${topLayer.kind}-top)" opacity=".98"/>
+      <path d="M53 88 242 88 310 45 121 45Z" fill="#fff5db" opacity=".11"/>
       <path d="M66 84 238 84 296 49" fill="none" stroke="#fff8ea" stroke-opacity=".7"/>
       <path d="M53 88V${y}H242L310 ${y - 43}V45" fill="none" stroke="#345647" stroke-width="1.7"/>
       <path d="M53 ${y} 121 ${y - 43} 310 ${y - 43}" fill="none" stroke="#557365" opacity=".6"/>
@@ -356,7 +369,71 @@ function renderMaterialCutaway(zone: ZoneDraft, layers: ReadonlyArray<TerrainLay
   </div>`;
 }
 
-function renderZoneFigure(state: AppState, zone: ZoneDraft, validation: DraftValidation): string {
+type SceneView = 'scene' | 'plan';
+type ScenePoint = { x: number; y: number };
+
+function renderZoneScene(zone: ZoneDraft, detail: ZoneBreakdown, material: MaterialKind | 'none', width: number, length: number): string {
+  // Normalize before fitting so neither large nor very small valid dimensions
+  // can overflow the viewBox. Both axes use the same projected unit vector length.
+  const max = Math.max(width, length);
+  const w = width / max;
+  const l = length / max;
+  const unitX = .8660254038;
+  const unitY = .5;
+  const scale = Math.min(500 / ((w + l) * unitX), 235 / ((w + l) * unitY));
+  const u = { x: w * scale * unitX, y: w * scale * unitY };
+  const v = { x: -l * scale * unitX, y: l * scale * unitY };
+  const point = (a: number, b: number): ScenePoint => ({
+    x: 340 + (a - .5) * u.x + (b - .5) * v.x,
+    y: 239 + (a - .5) * u.y + (b - .5) * v.y,
+  });
+  const a = point(0,0), b = point(1,0), c = point(1,1), d = point(0,1);
+  const xy = (p: ScenePoint) => `${p.x.toFixed(3)},${p.y.toFixed(3)}`;
+  const outline = [a,b,c,d].map(xy).join(' ');
+  const shift = (p: ScenePoint, dx: number, dy: number): ScenePoint => ({x:p.x+dx,y:p.y+dy});
+  const prefix = 'atlas-scene-' + zone.id.replace(/[^a-zA-Z0-9_-]/g,'-');
+  const surface = material === 'none' ? '#a4be84' : `url(#${prefix}-surface)`;
+  const materialLabel = material === 'none' ? 'Материал не задан' : MATERIAL_LABELS[material];
+  const dimension = (p:ScenePoint, q:ScenePoint, dx:number, dy:number, label:string) => {
+    const p1=shift(p,dx,dy),q1=shift(q,dx,dy);
+    const mx=(p1.x+q1.x)/2,my=(p1.y+q1.y)/2;
+    return `<g class="atlas-dimension">
+      <path d="M${xy(p)}L${xy(p1)} M${xy(q)}L${xy(q1)} M${xy(p1)}L${xy(q1)}" fill="none" stroke="#fff8e9" stroke-width="1.8"/>
+      <circle cx="${p1.x}" cy="${p1.y}" r="3" fill="#fff8e9"/><circle cx="${q1.x}" cy="${q1.y}" r="3" fill="#fff8e9"/>
+      <text x="${mx}" y="${my-7}" text-anchor="middle" class="atlas-dimension-text">${escapeHtml(label)}</text>
+    </g>`;
+  };
+  return `<div class="atlas-scene" data-testid="atlas-scene" data-scene-material="${material}" data-scene-ratio="${width/length}">
+    <svg viewBox="0 0 680 420" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="${prefix}-title ${prefix}-description">
+      <title id="${prefix}-title">Объёмный вид зоны ${escapeHtml(zone.name)}</title>
+      <desc id="${prefix}-description">Условное окружение, не карта участка. Граница и размеры зоны построены из введённых длины и ширины. ${escapeHtml(materialLabel)}. Площадь ${escapeHtml(formatUnit(detail.area_m2,'м²'))}.</desc>
+      <defs>
+        <pattern id="${prefix}-ground" width="108" height="108" patternUnits="userSpaceOnUse"><image href="/atlas/grass.webp" width="108" height="108" preserveAspectRatio="none"/></pattern>
+        ${material==='none'?'':`<pattern id="${prefix}-surface" width="96" height="96" patternUnits="userSpaceOnUse" patternTransform="matrix(.866 .5 -.866 .5 0 0)"><image href="/atlas/${material}.webp" width="96" height="96" preserveAspectRatio="none"/></pattern>`}
+        <linearGradient id="${prefix}-ground-light" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#bdd58b" stop-opacity=".14"/><stop offset=".52" stop-color="#263d13" stop-opacity=".13"/><stop offset="1" stop-color="#142e15" stop-opacity=".45"/></linearGradient>
+        <linearGradient id="${prefix}-photo-fade" x1="0" y1="0" x2="0" y2="1"><stop offset=".30" stop-color="#fff"/><stop offset=".96" stop-color="#000"/></linearGradient>
+        <mask id="${prefix}-photo-mask"><rect width="680" height="195" fill="url(#${prefix}-photo-fade)"/></mask>
+        <linearGradient id="${prefix}-surface-light" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff3cf" stop-opacity=".27"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#182b16" stop-opacity=".24"/></linearGradient>
+        <filter id="${prefix}-shadow" x="-35%" y="-45%" width="170%" height="190%"><feGaussianBlur stdDeviation="10"/></filter>
+      </defs>
+      <rect width="680" height="420" fill="#47652c"/>
+      <rect width="680" height="420" fill="url(#${prefix}-ground)" opacity=".87"/>
+      <rect width="680" height="420" fill="url(#${prefix}-ground-light)"/>
+      <image href="/atlas/context.webp" width="680" height="195" preserveAspectRatio="xMidYMid slice" mask="url(#${prefix}-photo-mask)"/>
+      <polygon points="${[a,b,c,d].map(p=>xy(shift(p,0,12))).join(' ')}" fill="#0c230e" opacity=".65" filter="url(#${prefix}-shadow)"/>
+      <polygon points="${outline}" data-testid="atlas-scene-footprint" fill="${surface}" fill-opacity="${material==='none'?'.32':'1'}" stroke="#fff4d1" stroke-width="2.5" ${material==='none'?'stroke-dasharray="7 5"':''}/>
+      <polygon points="${outline}" fill="url(#${prefix}-surface-light)" pointer-events="none"/>
+      <polyline points="${[a,b,c,d,a].map(xy).join(' ')}" stroke="#fff8df" stroke-width="1.5" fill="none" opacity=".95"/>
+      ${[a,b,c,d].map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#fffdf5" stroke="#ecd9a7" stroke-width="1.5"/>`).join('')}
+      ${dimension(a,b,17,-28,formatUnit(zone.width,'м'))}
+      ${dimension(b,c,25,17,formatUnit(zone.length,'м'))}
+      <text x="340" y="244" text-anchor="middle" class="atlas-scene-area">${escapeHtml(formatUnit(detail.area_m2,'м²'))}</text>
+    </svg>
+    <div class="atlas-scene-label"><span>Условная визуализация</span><strong>${escapeHtml(materialLabel)}</strong></div>
+  </div>`;
+}
+
+function renderZoneFigure(state: AppState, zone: ZoneDraft, validation: DraftValidation, sceneView: SceneView): string {
   const detail = zoneDetail(validation, zone.id);
   if (!detail) return '<p class="figure-placeholder">Схема размеров появится после корректного заполнения полей. Недостоверные размеры не отображаются.</p>';
   const length = Number(zone.length.replace(',', '.'));
@@ -371,17 +448,23 @@ function renderZoneFigure(state: AppState, zone: ZoneDraft, validation: DraftVal
   });
   if (layers.some(layer => !layer)) return '';
   const visibleLayers = layers.filter((layer): layer is TerrainLayer => layer !== null);
+  const topMaterial = visibleLayers[visibleLayers.length - 1]?.kind ?? 'none';
   return `<div class="zone-visual-grid" data-testid="zone-visual-grid">
     <figure class="zone-figure">
-      <div class="figure-toolbar"><span class="figure-note">План зоны</span><span class="figure-scale">Размеры из расчёта</span></div>
-      <div class="figure-canvas atlas-plan" data-surface-material="${visibleLayers[visibleLayers.length - 1]?.kind ?? 'none'}">
+      <div class="figure-toolbar atlas-view-toolbar"><span class="figure-note">Визуализация зоны</span><div class="atlas-view-switch" role="group" aria-label="Вид зоны">
+        <button type="button" data-action="scene-view" data-target="scene" data-focus-key="scene-view-scene" aria-pressed="${sceneView==='scene'}">Объём</button>
+        <button type="button" data-action="scene-view" data-target="plan" data-focus-key="scene-view-plan" aria-pressed="${sceneView==='plan'}">План</button>
+      </div></div>
+      <div class="figure-canvas atlas-plan${sceneView==='scene'?' atlas-scene-canvas':''}" data-surface-material="${topMaterial}">
+      ${sceneView==='scene' ? renderZoneScene(zone, detail, topMaterial, width, length) : `
         <span class="plan-figure-badge" aria-hidden="true">ВИД СВЕРХУ</span>
         <span class="measure-label measure-top">${formatUnit(zone.width,'м')}</span>
         <span class="measure-label measure-side">${formatUnit(zone.length,'м')}</span>
         <div class="zone-rectangle" data-testid="zone-rectangle" data-ratio="${ratio}" style="aspect-ratio:${width}/${length}">
           <strong>${escapeHtml(zone.name)}</strong><span>${formatUnit(detail.area_m2,'м²')}</span>
-        </div>
+        </div>`}
       </div>
+      <div class="atlas-view-metrics" aria-label="Размеры выделенной зоны"><span>Длина <strong>${formatUnit(zone.length,'м')}</strong></span><span>Ширина <strong>${formatUnit(zone.width,'м')}</strong></span><span>Площадь <strong>${formatUnit(detail.area_m2,'м²')}</strong></span></div>
       <figcaption>Условное окружение. Размеры относятся только к выделенной зоне.</figcaption>
     </figure>
     <div class="section-figure">
@@ -507,6 +590,7 @@ export function mountApp(root: HTMLElement): void {
   const openLayerIds = new Set<string>();
   const openBomKeys = new Set<string>();
   let mobileSurface: 'zones' | 'editor' | 'bom' = 'zones';
+  let sceneView: SceneView = 'scene';
   let shareNotice: string | undefined;
   let shareProblem = false;
   let wasMobile = window.matchMedia('(max-width: 820px)').matches;
@@ -525,7 +609,7 @@ export function mountApp(root: HTMLElement): void {
       if (details.open) openBomKeys.add(key);
       else openBomKeys.delete(key);
     }
-    root.innerHTML = renderAppHtml(state, validateDraft(state), { openZoneId, openLayerIds, openBomKeys, mobileSurface, shareNotice, shareProblem });
+    root.innerHTML = renderAppHtml(state, validateDraft(state), { openZoneId, openLayerIds, openBomKeys, mobileSurface, shareNotice, shareProblem, sceneView });
     fitZoneRectangles(root);
     if (focus) restoreFocus(root, focus);
   };
@@ -605,6 +689,11 @@ export function mountApp(root: HTMLElement): void {
     const button = target.closest<HTMLElement>('[data-action]');
     if (!button) return;
     const action = button.dataset.action;
+    if (action === 'scene-view' && (button.dataset.target === 'scene' || button.dataset.target === 'plan')) {
+      sceneView = button.dataset.target;
+      render({ key: `scene-view-${sceneView}`, start: null, end: null });
+      return;
+    }
     if (action === 'mobile-tab' && (button.dataset.target === 'zones' || button.dataset.target === 'editor' || button.dataset.target === 'bom')) {
       mobileSurface = button.dataset.target;
       // The clicked tab is destroyed and recreated during render. Restoring
@@ -763,6 +852,7 @@ export function mountApp(root: HTMLElement): void {
       const hasEnteredData = state.plot.length.trim() !== '' || state.plot.width.trim() !== '' || state.zones.length > 0 || state.materials.length > 0;
       if (!hasEnteredData || window.confirm('Сбросить введённые размеры, зоны и материалы?')) {
         mobileSurface = 'zones';
+        sceneView = 'scene';
         openZoneId = null;
         openLayerIds.clear();
         update(createInitialState(), false);

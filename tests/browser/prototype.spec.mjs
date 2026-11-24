@@ -267,6 +267,7 @@ test('actual zone rectangles fit their own canvas and keep dimensions at all bre
     for (const [zoneIndex, ratio] of [[0, 2], [1, 2.5]]) {
       if (width <= 820) await page.locator('[data-action="mobile-tab"][data-target="zones"]').click();
       await page.locator('[data-action="select-zone"]').nth(zoneIndex).click();
+      await page.locator('[data-action="scene-view"][data-target="plan"]').click();
       const rect = page.getByTestId('zone-rectangle');
       await expect(rect).toBeVisible();
       const geo = await rect.evaluate(element => {

@@ -50,6 +50,8 @@ test('layer thickness change updates axonometric proportions, not geometry or BO
   await zone.getByTestId('layer-card').last().locator('[data-action="layer-field"][data-field="thickness"]').fill('20');
   const after = await page.getByTestId('material-cutaway').locator('g[data-material-kind="sand"] path').first().getAttribute('d');
   expect(after).not.toEqual(before);
+  await expect(page.getByTestId('atlas-scene')).toHaveAttribute('data-scene-ratio', '2.5');
+  await page.locator('[data-action="scene-view"][data-target="plan"]').click();
   await expect(page.getByTestId('zone-rectangle')).toHaveAttribute('data-ratio', '2.5');
   await expect(page.getByTestId('result-panel')).toBeVisible();
   await expect(page.locator('.section-layer').nth(1)).toContainText('20 см');
@@ -70,6 +72,8 @@ test('material visualization remains within viewport at mobile/tablet/desktop si
   for (const width of [320, 390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await populate(page);
+    await expect(page.getByTestId('atlas-scene')).toBeVisible();
+    await page.locator('[data-action="scene-view"][data-target="plan"]').click();
     const rect = page.getByTestId('zone-rectangle');
     await expect(rect).toBeVisible();
     await expect(page.getByTestId('material-cutaway')).toBeVisible();
