@@ -62,6 +62,7 @@ test('Garden Atlas uses the visual-first workspace and full-width result, not th
   await layer.locator('[data-action="layer-field"][data-field="thickness"]').fill('10');
   await layer.locator('[data-action="layer-field"][data-field="reserve"]').fill('0');
   await expect(page.locator('.atlas-plan')).toHaveAttribute('data-surface-material','gravel');
+  await expect(page.getByTestId('atlas-surface-edge')).toHaveCount(1);
   await expect(page.getByTestId('material-cutaway').locator('g[data-material-kind="gravel"]')).toHaveCount(1);
   const plan = await page.locator('.atlas-plan').boundingBox();
   const inspector = await page.locator('.atlas-inspector').boundingBox();
@@ -78,6 +79,15 @@ test('Garden Atlas uses the visual-first workspace and full-width result, not th
       return image.naturalWidth > 0 && image.naturalHeight > 0;
     }, name);
     expect(decoded).toBe(true);
+  }
+  for (const name of ['grass-detail','soil-detail','sand-detail','gravel-detail','garden-border']) {
+    const decoded = await page.evaluate(async (name) => {
+      const image = new Image();
+      image.src = '/atlas/' + name + '.svg';
+      await image.decode();
+      return image.naturalWidth > 0 && image.naturalHeight > 0;
+    }, name);
+    expect(decoded, name).toBe(true);
   }
   await layer.locator('[data-action="material-field"][data-field="material"]').selectOption('soil');
   await expect(page.locator('.atlas-plan')).toHaveAttribute('data-surface-material','soil');
@@ -109,6 +119,8 @@ test('Atlas scene uses actual orthogonal dimensions with a common projection sca
   await width.fill('3');
   expect(await edgeRatio()).toBeCloseTo(1.5,3);
   expect(await footprint.getAttribute('points')).not.toEqual(original);
+  await expect(scene.getByTestId('atlas-surface-edge')).toHaveCount(0);
+  await expect(scene.getByTestId('atlas-area-label')).toContainText('6 м²');
   const plan = page.locator('[data-action="scene-view"][data-target="plan"]');
   await plan.click();
   await expect(plan).toBeFocused();

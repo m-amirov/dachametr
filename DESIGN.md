@@ -22,3 +22,7 @@ Baseline: PR #18 `71d19d3d46133e78cf649a2c3137fc43a497fff1`. Local prototype onl
 
 ## Gates
 Exact HEAD: npm test, npm run build, npm run test:browser, capture-ui-evidence with source hash including all artwork. Mobile 320/390, tablet 768/1024, desktop 1440, invalid/valid/editor/BOM. Visual review is separate from automated PASS; physical devices, screen reader, true 200% zoom not presumed. Market Gate 1 remains BLOCKED.
+
+## Garden Atlas 0.3 — material and landscape artwork
+
+Original deterministic SVG specimens (256 px artboards), detailed gravel facets, granular soil/sand and individual grass blades; scene-edge botanical illustration using clustered leaves and flowers, no external assets. These are illustrative graphics, not actual photographs or calibrated representations of grain size. Source-owned artwork under public/atlas/*-detail.svg and garden-border.svg, rendered locally. Projection still uses equal-length unit axes; visible edge elevation is purely illustrative and absent when no material is selected. The cross-section enlarges the visible faces and retains real relative entered thicknesses. The approved concept is a quality target, not proof of achieved photorealism. Exact HEAD browser visual review and owner acceptance remain required.

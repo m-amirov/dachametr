@@ -33,6 +33,9 @@ test('dynamic material illustration matches entered layers without invented mate
   await expect(artwork.locator('g[data-material-kind="soil"]')).toHaveCount(1);
   await expect(artwork.locator('g[data-material-kind="sand"]')).toHaveCount(1);
   await expect(artwork.locator('g[data-material-kind="gravel"]')).toHaveCount(0);
+  const sandHeight = Number(await artwork.locator('g[data-material-kind="sand"]').getAttribute('data-visual-thickness'));
+  const soilHeight = Number(await artwork.locator('g[data-material-kind="soil"]').getAttribute('data-visual-thickness'));
+  expect(sandHeight / soilHeight).toBeCloseTo(10 / 6, 5);
   await expect(artwork.locator('svg[role="img"]')).toHaveAttribute('aria-labelledby', /section-/);
   await expect(page.locator('.section-layer')).toHaveCount(2);
   await expect(page.locator('.section-layer').first()).toContainText('6 см');

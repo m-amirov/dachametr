@@ -317,16 +317,17 @@ function renderMaterialCutaway(zone: ZoneDraft, layers: ReadonlyArray<TerrainLay
     y += (layer.visual / max) * scale;
     const to = y;
     const paletteEntry = palette[layer.kind];
-    const front = `M53 ${from}H242V${to}H53Z`;
-    const side = `M242 ${from}L310 ${from - 43}V${to - 43}L242 ${to}Z`;
-    return `<g data-material-kind="${layer.kind}" data-stratum="${index}">
+    const front = `M35 ${from}H250V${to}H35Z`;
+    const side = `M250 ${from}L339 ${from - 54}V${to - 54}L250 ${to}Z`;
+    return `<g data-material-kind="${layer.kind}" data-stratum="${index}" data-visual-thickness="${(layer.visual / max) * scale}">
       <path d="${side}" fill="${paletteEntry.side}" stroke="${paletteEntry.edge}" stroke-width=".75"/>
       <path d="${front}" fill="${paletteEntry.face}" stroke="${paletteEntry.edge}" stroke-width=".75"/>
       <path d="${front}" fill="url(#${prefix}-${layer.kind})" opacity="1"/>
       <path d="${side}" fill="url(#${prefix}-${layer.kind}-side)" opacity=".93"/>
       <path d="${side}" fill="url(#${prefix}-side-light)"/>
       <path d="${front}" fill="url(#${prefix}-front-light)"/>
-      <path d="M53 ${to}H242" stroke="${paletteEntry.edge}" stroke-opacity=".72" stroke-width="1"/>
+      <path d="M35 ${from}H250L339 ${from - 54}" stroke="#f8ead0" stroke-opacity=".32" stroke-width=".9" fill="none"/>
+      <path d="M35 ${to}H250L339 ${to - 54}" stroke="${paletteEntry.edge}" stroke-opacity=".75" stroke-width="1.15" fill="none"/>
     </g>`;
   }).join('');
   const topLayer = layers[layers.length - 1]!;
@@ -337,33 +338,34 @@ function renderMaterialCutaway(zone: ZoneDraft, layers: ReadonlyArray<TerrainLay
       <title id="${prefix}-title">Объёмный разрез материалов зоны ${escapeHtml(zone.name)}</title>
       <desc id="${prefix}-desc">Условная аксонометрия. Высоты слоёв пропорциональны введённым толщинам, глубина рисунка не в масштабе. Настройка слоёв расположена под рисунком.</desc>
       <defs>
-        <pattern id="${prefix}-soil" width="44" height="44" patternUnits="userSpaceOnUse"><image href="/atlas/soil.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
-        <pattern id="${prefix}-soil-side" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="matrix(.92 -.58 0 1 0 0)"><image href="/atlas/soil.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
-        <pattern id="${prefix}-soil-top" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="matrix(1 0 .72 -.52 0 0)"><image href="/atlas/soil.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
-        <pattern id="${prefix}-sand" width="44" height="44" patternUnits="userSpaceOnUse"><image href="/atlas/sand.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
-        <pattern id="${prefix}-sand-side" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="matrix(.92 -.58 0 1 0 0)"><image href="/atlas/sand.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
-        <pattern id="${prefix}-sand-top" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="matrix(1 0 .72 -.52 0 0)"><image href="/atlas/sand.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
-        <pattern id="${prefix}-gravel" width="44" height="44" patternUnits="userSpaceOnUse"><image href="/atlas/gravel.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
-        <pattern id="${prefix}-gravel-side" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="matrix(.92 -.58 0 1 0 0)"><image href="/atlas/gravel.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
-        <pattern id="${prefix}-gravel-top" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="matrix(1 0 .72 -.52 0 0)"><image href="/atlas/gravel.webp" width="44" height="44" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-soil" width="104" height="104" patternUnits="userSpaceOnUse"><image href="/atlas/soil-detail.svg" width="104" height="104" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-soil-side" width="104" height="104" patternUnits="userSpaceOnUse" patternTransform="matrix(.92 -.58 0 1 0 0)"><image href="/atlas/soil-detail.svg" width="104" height="104" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-soil-top" width="104" height="104" patternUnits="userSpaceOnUse" patternTransform="matrix(1 0 .72 -.52 0 0)"><image href="/atlas/soil-detail.svg" width="104" height="104" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-sand" width="104" height="104" patternUnits="userSpaceOnUse"><image href="/atlas/sand-detail.svg" width="104" height="104" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-sand-side" width="104" height="104" patternUnits="userSpaceOnUse" patternTransform="matrix(.92 -.58 0 1 0 0)"><image href="/atlas/sand-detail.svg" width="104" height="104" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-sand-top" width="104" height="104" patternUnits="userSpaceOnUse" patternTransform="matrix(1 0 .72 -.52 0 0)"><image href="/atlas/sand-detail.svg" width="104" height="104" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-gravel" width="104" height="104" patternUnits="userSpaceOnUse"><image href="/atlas/gravel-detail.svg" width="104" height="104" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-gravel-side" width="104" height="104" patternUnits="userSpaceOnUse" patternTransform="matrix(.92 -.58 0 1 0 0)"><image href="/atlas/gravel-detail.svg" width="104" height="104" preserveAspectRatio="none"/></pattern>
+        <pattern id="${prefix}-gravel-top" width="104" height="104" patternUnits="userSpaceOnUse" patternTransform="matrix(1 0 .72 -.52 0 0)"><image href="/atlas/gravel-detail.svg" width="104" height="104" preserveAspectRatio="none"/></pattern>
         <linearGradient id="${prefix}-side-light" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#142816" stop-opacity=".12"/><stop offset="1" stop-color="#0b1c12" stop-opacity=".46"/></linearGradient>
         <linearGradient id="${prefix}-front-light" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#ffefc7" stop-opacity=".2"/><stop offset=".22" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#251e12" stop-opacity=".18"/></linearGradient>
         <filter id="${prefix}-shadow" x="-30%" y="-40%" width="160%" height="190%"><feGaussianBlur stdDeviation="8"/></filter>
       </defs>
-      <rect width="380" height="270" fill="#e7eadc"/>
-      <image href="/atlas/context.webp" width="380" height="108" preserveAspectRatio="xMidYMid slice" opacity=".18"/>
+      <rect width="380" height="270" fill="#e9ece0"/>
+      <image href="/atlas/grass-detail.svg" x="0" y="161" width="380" height="109" preserveAspectRatio="xMidYMid slice" opacity=".40"/>
+      <image href="/atlas/context.webp" width="380" height="104" preserveAspectRatio="xMidYMid slice" opacity=".12"/>
       <text x="20" y="25" class="cutaway-sheet-number">РАЗРЕЗ / ${String(layers.length).padStart(2, '0')}</text>
       <text x="360" y="25" text-anchor="end" class="cutaway-sheet-number">УСЛОВНО</text>
-      <ellipse cx="185" cy="238" rx="137" ry="15" fill="#244d36" opacity=".16" filter="url(#${prefix}-shadow)"/>
+      <ellipse cx="188" cy="234" rx="161" ry="18" fill="#19351d" opacity=".40" filter="url(#${prefix}-shadow)"/>
       ${strata}
-      <path d="M53 88 242 88 310 45 121 45Z" fill="${top.top}" stroke="${top.edge}" stroke-width="1.6"/>
-      <path d="M53 88 242 88 310 45 121 45Z" fill="url(#${prefix}-${topLayer.kind}-top)" opacity=".98"/>
-      <path d="M53 88 242 88 310 45 121 45Z" fill="#fff5db" opacity=".11"/>
-      <path d="M66 84 238 84 296 49" fill="none" stroke="#fff8ea" stroke-opacity=".7"/>
-      <path d="M53 88V${y}H242L310 ${y - 43}V45" fill="none" stroke="#345647" stroke-width="1.7"/>
-      <path d="M53 ${y} 121 ${y - 43} 310 ${y - 43}" fill="none" stroke="#557365" opacity=".6"/>
-      <path d="M33 88H47M33 ${y}H47M39 88V${y}" fill="none" stroke="#627a6b" stroke-width="1.1"/>
-      <path d="m36 96 3-8 3 8m-6 ${y - 8} 3 8 3-8" fill="none" stroke="#627a6b"/>
+      <path d="M35 88 250 88 339 34 124 34Z" fill="${top.top}" stroke="${top.edge}" stroke-width="1.6"/>
+      <path d="M35 88 250 88 339 34 124 34Z" fill="url(#${prefix}-${topLayer.kind}-top)" opacity=".98"/>
+      <path d="M35 88 250 88 339 34 124 34Z" fill="#fff5db" opacity=".11"/>
+      <path d="M40 85 248 85 334 35" fill="none" stroke="#fff8ea" stroke-opacity=".65"/>
+      <path d="M35 88V${y}H250L339 ${y - 54}V34" fill="none" stroke="#364834" stroke-width="1.25"/>
+      <path d="M35 ${y}H250L339 ${y - 54}" fill="none" stroke="#243222" opacity=".75"/>
+      <path d="M14 88H29M14 ${y}H29M20 88V${y}" fill="none" stroke="#4a654d" stroke-width="1.2"/>
+      <path d="m17 96 3-8 3 8m-6 ${y - 8} 3 8 3-8" fill="none" stroke="#4a654d"/>
       <text x="188" y="258" text-anchor="middle" class="cutaway-footnote">Толщины заданы вами</text>
     </svg>
   </div>`;
@@ -378,14 +380,14 @@ function renderZoneScene(zone: ZoneDraft, detail: ZoneBreakdown, material: Mater
   const max = Math.max(width, length);
   const w = width / max;
   const l = length / max;
-  const unitX = .8660254038;
-  const unitY = .5;
-  const scale = Math.min(500 / ((w + l) * unitX), 235 / ((w + l) * unitY));
+  const unitX = Math.cos(Math.PI / 7);
+  const unitY = Math.sin(Math.PI / 7);
+  const scale = Math.min(510 / ((w + l) * unitX), 235 / ((w + l) * unitY));
   const u = { x: w * scale * unitX, y: w * scale * unitY };
   const v = { x: -l * scale * unitX, y: l * scale * unitY };
   const point = (a: number, b: number): ScenePoint => ({
     x: 340 + (a - .5) * u.x + (b - .5) * v.x,
-    y: 239 + (a - .5) * u.y + (b - .5) * v.y,
+    y: 232 + (a - .5) * u.y + (b - .5) * v.y,
   });
   const a = point(0,0), b = point(1,0), c = point(1,1), d = point(0,1);
   const xy = (p: ScenePoint) => `${p.x.toFixed(3)},${p.y.toFixed(3)}`;
@@ -393,6 +395,8 @@ function renderZoneScene(zone: ZoneDraft, detail: ZoneBreakdown, material: Mater
   const shift = (p: ScenePoint, dx: number, dy: number): ScenePoint => ({x:p.x+dx,y:p.y+dy});
   const prefix = 'atlas-scene-' + zone.id.replace(/[^a-zA-Z0-9_-]/g,'-');
   const surface = material === 'none' ? '#a4be84' : `url(#${prefix}-surface)`;
+  const elevation = material === 'none' ? 0 : 9; // purely illustrative edge, not a thickness measurement
+  const edgeFace = (p: ScenePoint, q: ScenePoint) => [p,q,shift(q,0,elevation),shift(p,0,elevation)].map(xy).join(' ');
   const materialLabel = material === 'none' ? 'Материал не задан' : MATERIAL_LABELS[material];
   const dimension = (p:ScenePoint, q:ScenePoint, dx:number, dy:number, label:string) => {
     const p1=shift(p,dx,dy),q1=shift(q,dx,dy);
@@ -406,28 +410,34 @@ function renderZoneScene(zone: ZoneDraft, detail: ZoneBreakdown, material: Mater
   return `<div class="atlas-scene" data-testid="atlas-scene" data-scene-material="${material}" data-scene-ratio="${width/length}">
     <svg viewBox="0 0 680 420" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="${prefix}-title ${prefix}-description">
       <title id="${prefix}-title">Объёмный вид зоны ${escapeHtml(zone.name)}</title>
-      <desc id="${prefix}-description">Условное окружение, не карта участка. Граница и размеры зоны построены из введённых длины и ширины. ${escapeHtml(materialLabel)}. Площадь ${escapeHtml(formatUnit(detail.area_m2,'м²'))}.</desc>
+      <desc id="${prefix}-description">Условное окружение и условная высота видимой кромки, не карта участка и не инженерный разрез. Граница и размеры зоны построены из введённых длины и ширины. ${escapeHtml(materialLabel)}. Площадь ${escapeHtml(formatUnit(detail.area_m2,'м²'))}.</desc>
       <defs>
-        <pattern id="${prefix}-ground" width="108" height="108" patternUnits="userSpaceOnUse"><image href="/atlas/grass.webp" width="108" height="108" preserveAspectRatio="none"/></pattern>
-        ${material==='none'?'':`<pattern id="${prefix}-surface" width="96" height="96" patternUnits="userSpaceOnUse" patternTransform="matrix(.866 .5 -.866 .5 0 0)"><image href="/atlas/${material}.webp" width="96" height="96" preserveAspectRatio="none"/></pattern>`}
+        <pattern id="${prefix}-ground" width="244" height="244" patternUnits="userSpaceOnUse" patternTransform="matrix(.901 .434 -.901 .434 0 0)"><image href="/atlas/grass-detail.svg" width="244" height="244" preserveAspectRatio="none"/></pattern>
+        ${material==='none'?'':`<pattern id="${prefix}-surface" width="206" height="206" patternUnits="userSpaceOnUse" patternTransform="matrix(.901 .434 -.901 .434 0 0)"><image href="/atlas/${material}-detail.svg" width="206" height="206" preserveAspectRatio="none"/></pattern>`}
         <linearGradient id="${prefix}-ground-light" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#bdd58b" stop-opacity=".14"/><stop offset=".52" stop-color="#263d13" stop-opacity=".13"/><stop offset="1" stop-color="#142e15" stop-opacity=".45"/></linearGradient>
         <linearGradient id="${prefix}-photo-fade" x1="0" y1="0" x2="0" y2="1"><stop offset=".30" stop-color="#fff"/><stop offset=".96" stop-color="#000"/></linearGradient>
         <mask id="${prefix}-photo-mask"><rect width="680" height="195" fill="url(#${prefix}-photo-fade)"/></mask>
         <linearGradient id="${prefix}-surface-light" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff3cf" stop-opacity=".27"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#182b16" stop-opacity=".24"/></linearGradient>
-        <filter id="${prefix}-shadow" x="-35%" y="-45%" width="170%" height="190%"><feGaussianBlur stdDeviation="10"/></filter>
+        <radialGradient id="${prefix}-sun" cx=".30" cy=".20" r=".85"><stop stop-color="#fff1a6" stop-opacity=".25"/><stop offset=".65" stop-color="#a8bc75" stop-opacity="0"/><stop offset="1" stop-color="#102d1c" stop-opacity=".30"/></radialGradient>
+        <linearGradient id="${prefix}-edge" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#493e2a" stop-opacity=".7"/><stop offset="1" stop-color="#141f12" stop-opacity=".95"/></linearGradient>
+        <filter id="${prefix}-shadow" x="-35%" y="-45%" width="170%" height="190%"><feGaussianBlur stdDeviation="8"/></filter>
       </defs>
       <rect width="680" height="420" fill="#47652c"/>
       <rect width="680" height="420" fill="url(#${prefix}-ground)" opacity=".87"/>
       <rect width="680" height="420" fill="url(#${prefix}-ground-light)"/>
-      <image href="/atlas/context.webp" width="680" height="195" preserveAspectRatio="xMidYMid slice" mask="url(#${prefix}-photo-mask)"/>
+      <image href="/atlas/context.webp" width="680" height="195" preserveAspectRatio="xMidYMid slice" mask="url(#${prefix}-photo-mask)" opacity=".62"/>
+      <rect width="680" height="420" fill="url(#${prefix}-sun)"/>
+      <image href="/atlas/garden-border.svg" width="680" height="420" preserveAspectRatio="none" aria-hidden="true"/>
       <polygon points="${[a,b,c,d].map(p=>xy(shift(p,0,12))).join(' ')}" fill="#0c230e" opacity=".65" filter="url(#${prefix}-shadow)"/>
+      ${material==='none'?'':`<g aria-hidden="true" data-testid="atlas-surface-edge"><polygon points="${edgeFace(b,c)}" fill="url(#${prefix}-edge)"/><polygon points="${edgeFace(c,d)}" fill="url(#${prefix}-edge)" opacity=".88"/></g>`}
       <polygon points="${outline}" data-testid="atlas-scene-footprint" fill="${surface}" fill-opacity="${material==='none'?'.32':'1'}" stroke="#fff4d1" stroke-width="2.5" ${material==='none'?'stroke-dasharray="7 5"':''}/>
       <polygon points="${outline}" fill="url(#${prefix}-surface-light)" pointer-events="none"/>
+      <polyline points="${[a,b,c,d,a].map(xy).join(' ')}" stroke="#fce2a8" stroke-width="6" fill="none" opacity=".28"/>
       <polyline points="${[a,b,c,d,a].map(xy).join(' ')}" stroke="#fff8df" stroke-width="1.5" fill="none" opacity=".95"/>
       ${[a,b,c,d].map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#fffdf5" stroke="#ecd9a7" stroke-width="1.5"/>`).join('')}
       ${dimension(a,b,17,-28,formatUnit(zone.width,'м'))}
       ${dimension(b,c,25,17,formatUnit(zone.length,'м'))}
-      <text x="340" y="244" text-anchor="middle" class="atlas-scene-area">${escapeHtml(formatUnit(detail.area_m2,'м²'))}</text>
+      <g data-testid="atlas-area-label"><rect x="260" y="208" width="160" height="45" rx="22" fill="#fffaf0" stroke="#ffffff" stroke-width="1"/><text x="340" y="237" text-anchor="middle" class="atlas-scene-area">${escapeHtml(formatUnit(detail.area_m2,'м²'))}</text></g>
     </svg>
     <div class="atlas-scene-label"><span>Условная визуализация</span><strong>${escapeHtml(materialLabel)}</strong></div>
   </div>`;
