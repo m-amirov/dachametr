@@ -44,7 +44,10 @@ test('zone and layer render exposes labelled editing controls', () => {
   let state = addZone(createInitialState());
   state = addLayer(state, state.zones[0].id);
   const html = renderAppHtml(state, validateDraft(state));
-  assert.match(html, /РАЗМЕРЫ ЗОНЫ/);
+  assert.match(html, /aria-label="Параметры и конструкция зоны"/);
+  assert.match(html, /Параметры зоны/);
+  assert.match(html, /data-action="zone-field"[^>]*data-field="length"/);
+  assert.match(html, /data-action="zone-field"[^>]*data-field="width"/);
   assert.match(html, /Толщина слоя/);
   assert.match(html, /Название варианта материала/);
   assert.match(html, /ранее созданный вариант/);
@@ -250,4 +253,24 @@ test('clipboard formatter keeps two same-named independent material variants sep
   assert.match(text, /2\. Грунт для грядок \(Грунт, spec-2\)/);
   assert.match(text, /Купить: 40 уп\. × 50 л/);
   assert.match(text, /Купить: 4 уп\. × 50 л/);
+});
+
+test('Garden Atlas renders validated scene dimensions and an exact plan without mutating draft or BOM', () => {
+  const state = completeState();
+  const validation = validateDraft(state);
+  const selected = state.zones[0].id;
+  const before = JSON.stringify(state);
+  const scene = renderAppHtml(state, validation, { openZoneId: selected, openLayerIds: new Set(), sceneView: 'scene' });
+  const plan = renderAppHtml(state, validation, { openZoneId: selected, openLayerIds: new Set(), sceneView: 'plan' });
+  assert.match(scene, /data-testid="atlas-scene" data-scene-material="soil" data-scene-ratio="2"/);
+  assert.match(scene, /data-testid="atlas-scene-footprint"/);
+  assert.match(scene, /data-target="scene"[^>]*aria-pressed="true"/);
+  assert.match(plan, /data-testid="zone-rectangle" data-ratio="2"/);
+  assert.match(plan, /data-target="plan"[^>]*aria-pressed="true"/);
+  assert.doesNotMatch(plan, /data-testid="atlas-scene-footprint"/);
+  assert.equal(JSON.stringify(state), before);
+  const broken = updateZoneField(state, selected, 'length', '1,');
+  const invalid = renderAppHtml(broken, validateDraft(broken), { openZoneId: selected, openLayerIds: new Set(), sceneView: 'scene' });
+  assert.doesNotMatch(invalid, /data-testid="atlas-scene-footprint"/);
+  assert.match(invalid, /data-testid="blocked-results"/);
 });
