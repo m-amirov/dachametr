@@ -1,49 +1,28 @@
-# Dachametr — DESIGN.md
+# Дачаметр — Garden Atlas
 
-**Проектный контракт для OpenDesign и Codex**, версия 0.3 (прототип PR #14). Визуальная база PR #13, расчётный движок PR #11. До реальной приёмки не объявлять production-ready.
+**Status: owner selected direction C (2026-11-24); implemented candidate, rendered acceptance pending.** Previous fieldbook visual direction is rejected. Reference: owner-selected generated Garden Atlas concept from 2026-11-24. Do not claim pixel fidelity or a real GIS/CAD/photoreal 3D renderer.
 
-## Продукт
-Дачаметр — русскоязычный калькулятор участка, зон, грунта, песка и щебня. Главный сценарий: размеры участка → зоны → слои материалов → объёмы и ведомость закупки. Это не SaaS-лендинг; рабочие поля и расчётные результаты важнее рекламы, промоблоков и декоративных иллюстраций.
+## Visual system
+- The selected zone is the dominant work surface. Two columns inside editor: large visual plan and material cutaway on left, one parameters/layers inspector on right. Zone navigation is a horizontal strip above. BOM occupies full-width area below. Small screens keep the three functional tabs and single-column editor.
+- Default volume view projects the actual rectangular zone with two equal-scale isometric axes; a functional Plan toggle exposes the exact top-down aspect ratio. The view selection survives input rerenders and is not shared calculation data. No zone placement or assumed paving. Texture outside the zone is illustrative context, not plot geometry. Material faces use locally stored WebP texture crops from generated concept artwork. The visible top material is taken from the last actual layer. Without layers the scene displays only a translucent dashed boundary. The context strip is a low-resolution crop of flowers/wood from the owner-selected concept, used as an intentionally soft illustrative background, not a site photo. Side and top textures of the cutaway are sheared to their corresponding faces, with face-specific shading. The same material artwork is reused for layer swatches and cutaway. No external requests or unsupported construction features.
+- UI uses one Cyrillic-safe system sans, warm cream and deep garden green; no decorative fake controls or hero.
+- The existing fail-closed calculator, focus restoration, comma input, exact calculations, share, CSV, result panels and state semantics remain unchanged.
 
-## Текущий baseline: Rayon Workspace, интеграция PR #14
+### Canonical CSS tokens
+- `--paper: #f8f5ee`
+- `--canvas: #ede9df`
+- `--panel: #fffdf8`
+- `--ink: #172a1d`
+- `--teal: #234b2b`
+- `--orange: #a36c2e`
+- `--danger: #a53b31`
 
-Визуальный эталон: PR #13, работающий Vite UI: PR #14 поверх PR #11. Работа без публичного развёртывания.
+## Scope & evidence
+Baseline: PR #18 `71d19d3d46133e78cf649a2c3137fc43a497fff1`. Local prototype only. No main merge, deployment, analytics, SEO publishing, new domain capabilities or external dependencies. Texture asset origins: ChatGPT generated concept C (2026-11-24) and landscape cutaway reference from the same conversation; material-only crops, resized to 64/80 px WebP. Not photographs of the actual user site, not density/engineering evidence.
 
-Актуальные цвета из `src/styles.css`:
+## Gates
+Exact HEAD: npm test, npm run build, npm run test:browser, capture-ui-evidence with source hash including all artwork. Mobile 320/390, tablet 768/1024, desktop 1440, invalid/valid/editor/BOM. Visual review is separate from automated PASS; physical devices, screen reader, true 200% zoom not presumed. Market Gate 1 remains BLOCKED.
 
-- --canvas: #e9e8e3 — фоновая поверхность.
-- --panel: #f8f8f5 — рабочие панели.
-- --ink: #242b2d — основной текст.
-- --teal: #205b57 — выбранная зона, цифры, действия.
-- --orange: #ca6238 — выделение/активное редактирование.
-- --danger: #b84739 — ошибки.
+## Garden Atlas 0.3 — material and landscape artwork
 
-Рабочая организация: левая структура участка, выбранная зона в центральном редакторе, BOM в правой панели; на mobile «Зоны / Редактор / Ведомость». Числовые значения — только из существующего domain engine; геометрия выбранной зоны не означает её расположение на участке. Физический tablet/soft keyboard/assistive tech не протестированы.
-
-## Информационная архитектура
-1. Чёткая цель расчёта и ввод площади участка на первом экране.
-2. Зоны и слои с ясными связанными полями и устойчивыми ID; нельзя смешивать разные material_spec_id только по названию.
-3. Видимые м, м², сотки, см, м³, л, кг, упаковки. Отдельно обозначать необходимый объём с запасом и фактически закупаемый объём.
-4. Прозрачная ведомость (BOM) с группировкой сопоставимых материалов и объяснением округления.
-5. Ясные пустое, редактируемое, ошибочное и успешное состояния. Ошибка в активной зоне блокирует итоговую закупку целиком.
-6. Основные CTA: добавить зону/слой, выбрать материал, изменить параметры; не «Купить сейчас» и не «Подписаться».
-
-## Характер
-Современный инструмент расчёта и закупки с ясной числовой иерархией. Уместны функциональные шкалы, понятные прямоугольные формы и диаграммы слоёв, но никакой фальшивой карты расположения зон, псевдонорм или случайных листьев/3D-камней. Свободное пространство должно помогать восприятию, а не имитировать премиальную SaaS-страницу.
-
-## Критерии качества
-320/390/768/1024/1440 CSS px, 200% zoom, tablet landscape; русский длинный текст, editing с 1,, focus/caret, keyboard, error и BOM. Для изменения UI обязательны актуальные before/after в реальном браузере, с SHA, viewport, browser и состоянием; старые PNG из artifacts/ui-evidence/f6d4244 относятся к другому SHA и не являются доказательством текущего рендера.
-
-## Референсы
-Подробности в docs/design/reference-library.md. Принимаем принципы типографики/композиции, сравнения чисел и ясных действий, но не копируем чужие скриншоты, логотипы, продукты, pricing tiers и готовые UI. Нельзя автоматически менять палитру по внешнему шаблону.
-
-## Статус
-Rayon Workspace — утверждённая архитектура, PR #14 — рабочая интеграция до browser/visual/mobile приёмки. Market Gate 1 = BLOCKED; публичный запуск не разрешён. Market Gate 1 = BLOCKED; публичный запуск не разрешён.
-
-
-## Rayon Workspace: local functional integration PR #14
-
-Ветка `feat/rayon-workspace-runtime` поверх PR #11; визуальный прототип PR #13 утверждён как направление, не является рабочей реализацией.
-Новый `src/styles.css` содержит токены workspace из локального прототипа и слой стилей реальных форм. Основные значения: `--canvas:#e9e8e3`, `--panel:#f8f8f5`, `--teal:#205b57`, `--orange:#ca6238`, `--danger:#b84739`, все значения следует сверять с текущим CSS.
-Семантические области: структура участка и выбор зоны (слева), редактор выделенной зоны и графика размеров (центр), общая ведомость из точного доменного движка (справа). На ширине ≤820px навигация «Зоны / Редактор / Ведомость». Координаты взаимного расположения зон не моделируются.
-Источник input state: существующий `src/ui/model.ts`; engine не изменён. Не объявлять production-ready до screenshot review + full browser tests на exact HEAD. Публикация и merge без разрешения запрещены.
+Original deterministic SVG specimens (256 px artboards), detailed gravel facets, granular soil/sand and individual grass blades; scene-edge botanical illustration using clustered leaves and flowers, no external assets. These are illustrative graphics, not actual photographs or calibrated representations of grain size. Source-owned artwork under public/atlas/*-detail.svg and garden-border.svg, rendered locally. Projection still uses equal-length unit axes; visible edge elevation is purely illustrative and absent when no material is selected. The cross-section enlarges the visible faces and retains real relative entered thicknesses. The approved concept is a quality target, not proof of achieved photorealism. Exact HEAD browser visual review and owner acceptance remain required.

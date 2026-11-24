@@ -8,7 +8,7 @@ const baseURL = process.env.EVIDENCE_BASE_URL ?? 'http://127.0.0.1:4173';
 const evidenceDir = path.resolve(process.env.EVIDENCE_DIR ?? 'artifacts/ui-evidence/local');
 const widths = [320, 390, 768, 1024, 1440];
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
-const sourceFiles = ['index.html', 'src/styles.css', 'src/ui/app.ts', 'src/ui/model.ts', 'src/ui/validation.ts', 'src/domain/plot.ts', 'src/domain/exact.ts'];
+const sourceFiles = ['index.html', 'src/styles.css', 'src/ui/app.ts', 'src/ui/model.ts', 'src/ui/validation.ts', 'src/domain/plot.ts', 'src/domain/exact.ts', 'public/atlas/grass.webp', 'public/atlas/soil.webp', 'public/atlas/sand.webp', 'public/atlas/gravel.webp', 'public/atlas/context.webp', 'public/atlas/grass-detail.svg', 'public/atlas/soil-detail.svg', 'public/atlas/sand-detail.svg', 'public/atlas/gravel-detail.svg', 'public/atlas/garden-border.svg'];
 const sourceSha = git('rev-parse', 'HEAD');
 const dirty = git('status', '--porcelain=v1', '--untracked-files=all');
 if (dirty) throw new Error('Capture requires a clean checkout: ' + dirty);
@@ -75,8 +75,9 @@ async function capture(browser, width, state) {
   page.on('requestfailed', request => errors.push(`request: ${request.url()} ${request.failure()?.errorText ?? ''}`));
   await page.goto(`${baseURL}/`);
   if (state === 'error') await field(page, 'plot-field', 'length').fill('bad');
-  if (state === 'result' || state === 'result-bom' || state === 'editing') await fillResultScenario(page);
-  if (state === 'result') {
+  if (state === 'result' || state === 'result-bom' || state === 'editing' || state === 'result-plan') await fillResultScenario(page);
+  if (state === 'result-plan') await page.locator('[data-action="scene-view"][data-target="plan"]').click();
+  if (state === 'result' || state === 'result-plan') {
     const openLayer = page.locator('.layer-toggle[aria-expanded="true"]:visible');
     if (await openLayer.count()) await openLayer.first().click();
   }
@@ -104,7 +105,10 @@ for (const width of widths) {
   checks.push(await capture(browser, width, 'initial'));
   checks.push(await capture(browser, width, 'error'));
   checks.push(await capture(browser, width, 'result'));
-  if (width === 390 || width === 1440) checks.push(await capture(browser, width, 'editing'));
+  if (width === 390 || width === 1440) {
+    checks.push(await capture(browser, width, 'editing'));
+    checks.push(await capture(browser, width, 'result-plan'));
+  }
   if (width <= 820) checks.push(await capture(browser, width, 'result-bom'));
 }
 
